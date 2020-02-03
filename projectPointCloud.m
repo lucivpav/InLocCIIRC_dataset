@@ -13,5 +13,5 @@ T = eye(4);
 T(1:3,1:3) = angle2dcm(angles(1),angles(2),angles(3));
 T(1:3,4) = position;
 
-[ image ] = points2Image(points, imageSize, f, T, 10, 1);
+[ image ] = points2Image(points, imageSize, f, T, 3, 1);
 imshow(image);
