@@ -1,11 +1,14 @@
-pc = pcread('matterpak_sehs6V3VnSW/cloud - rotated.ply');
+function projectedPointCloud = projectPointCloud(pc, f, r, t, outputSize)
+%PROJECTPOINTCLOUD generate a perspective image from a point cloud
+% as taken by a camera
+% pc: point cloud
+% f: focal length
+% r: 3D rotation as a 1x3 vector
+% t: 3D translation as a 3x1 vector
+% outputSize: size of the resulting 2D image as a 1x2 vector
+
 intensities = single(pc.Color(:,1:3))/255;
 points = [pc.Location(:,1:3), intensities];
-f = 500;
-rFix = [0.0, 0.0, 180.0];
-r = rFix + [0.17682930550100803, 3.651460591341834, -0.11934799025763472];
-r = [0.0, 3.651460591341834, 180.0+1.0]; % TODO: understand this hack!
-t = [0.0009786105947569013; 1.6932588815689087; 0.06866297125816345];
 imageSize = [1000,1000];
 
 angles = r*pi/180;
@@ -16,6 +19,4 @@ T(1:3,4) = position;
 
 [ image ] = points2Image(points, imageSize, f, T, 3, 1);
 
-image = imresize(image, [300 300]);
-imshow(image);
-imwrite(image, 'pointCloudPerspective.jpg');
+projectedPointCloud = imresize(image, outputSize);
