@@ -1,4 +1,4 @@
-function [xMid, panorama, bestIdx, diffs] = findRotation(projectedPointCloud, panoramaProjections)
+function [xMid, panorama, bestIdx, diffs] = findRotation(projectedPointCloud, panoramaProjections, panoImg)
 
 pointCloudPerspective = rgb2gray(projectedPointCloud);
 
@@ -23,4 +23,6 @@ end
 
 bestIdx = idx(1);
 panorama = panoramaProjections(bestIdx).img;
-xMid = 666; % TODO
+
+xMid = ((panoramaProjections(bestIdx).vx + pi) / (2*pi)) * size(panoImg, 2);
+xMid = round(xMid);

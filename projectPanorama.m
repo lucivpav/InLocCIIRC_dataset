@@ -36,4 +36,5 @@ y = [yh]; % viewing direction of perspective views
 
 for i = 1:nViews
     panoramaProjections(i).img = sepScene(i).img;
+    panoramaProjections(i).vx = sepScene(i).vx;
 end
