@@ -1,9 +1,10 @@
 localIds = [2 3 4 5 6 7 8 9 10 11 12 13 14 15, ...
             16 20 21 22 23 24 25 27 28 29 30 31, ...
             32 33 35 36 37];
-%localIds = [2 3 4];
+localIds = [2 3 4];
         
 load('sweepData.mat');
+pc = pcread('matterpak_sehs6V3VnSW/cloud - rotated.ply');
 
 for i=1:size(localIds,2)
 localId = localIds(i);
@@ -12,7 +13,6 @@ tf = arrayfun(fun, 1:numel(sweepData));
 sweepRecord = sweepData(find(tf));
 
 %% Project the point cloud
-pc = pcread('matterpak_sehs6V3VnSW/cloud - rotated.ply');
 f = 500;
 rFix = [0.0, 0.0, 180.0];
 r = rFix + sweepRecord.rotation;
