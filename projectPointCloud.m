@@ -12,11 +12,20 @@ points = [pc.Location(:,1:3), intensities];
 imageSize = [1000,1000];
 
 angles = r*pi/180;
-position = t;
 T = eye(4);
-T(1:3,1:3) = angle2dcm(angles(1),angles(2),angles(3));
-T(1:3,4) = position;
+T(1:3,4) = t;
 
-[ image ] = points2Image(points, imageSize, f, T, 3, 1);
+px = imageSize(1)/2;
+py = imageSize(2)/2;
+
+K = eye(3);
+K(1,1) = f;
+K(2,2) = f;
+K(1,3) = px;
+K(2,3) = py;
+R = angle2dcm(angles(1),angles(2),angles(3));
+cam = K * [R [0.0; 0.0; 0.0]];
+
+[ image ] = points2Image(points, imageSize, cam, T, 5, 1);
 
 projectedPointCloud = imresize(image, outputSize);
