@@ -13,6 +13,7 @@ for i=1:size(in,1)
     out(i).localId = localIds(i);
     out(i).position = [in(i).position.x; in(i).position.y; in(i).position.z];
     out(i).rotation = [in(i).rotation.x in(i).rotation.y in(i).rotation.z];
+    out(i).goodness = 1;
 end
 
 sweepData = out;
