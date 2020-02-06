@@ -1,7 +1,6 @@
-localIds = [5 6 7 8 9 10 11 12 13 15, ...
+localIds = [2 3 4 5 6 7 8 9 10 11 12 13 15, ...
             16 20 21 22 23 24 25 26 27 28 29 30 31, ...
             32 33 35 36 37];
-%localIds = [2 3 4];
         
 load('sweepData.mat');
 pc = pcread('matterpak_sehs6V3VnSW/cloud - rotated.ply');
@@ -14,19 +13,19 @@ sweepRecord = sweepData(find(tf));
 
 %% Project the point cloud
 f = 500;
+imageSize = [1000,1000];
 rFix = [0.0, 0.0, 180.0];
 r = rFix + sweepRecord.rotation;
 t = -sweepRecord.position;
 outputSize = [300 300];
-projectedPointCloud = projectPointCloud(pc, f, r, t, outputSize);
+projectedPointCloud = projectPointCloud(pc, f, r, t, imageSize, outputSize);
 %figure(1);
 %imshow(projectedPointCloud);
 
 %% Project the panorama
 panoImg = imread(sprintf('./panoramas/%d.jpg', localId));
 viewSize = outputSize(1);
-% TODO: find a direct conversion from focal length f
-fov = 1.58;
+fov = 2*atan((imageSize(1)/2)/f);
 nViews = 256;
 panoramaProjections = projectPanorama(panoImg, viewSize, fov, nViews);
 %save(sprintf('projectedPanoramas/%d.mat', panorama), 'panoramaProjections', '-v7.3');

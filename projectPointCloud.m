@@ -1,15 +1,15 @@
-function projectedPointCloud = projectPointCloud(pc, f, r, t, outputSize)
+function projectedPointCloud = projectPointCloud(pc, f, r, t, imageSize, outputSize)
 %PROJECTPOINTCLOUD generate a perspective image from a point cloud
 % as taken by a camera
 % pc: point cloud
 % f: focal length
 % r: 3D rotation as a 1x3 vector
 % t: 3D translation as a 3x1 vector
+% imageSize: size of the camera sensor as 1x2 vector
 % outputSize: size of the resulting 2D image as a 1x2 vector
 
 intensities = single(pc.Color(:,1:3))/255;
 points = [pc.Location(:,1:3), intensities];
-imageSize = [1000,1000];
 
 angles = r*pi/180;
 T = eye(4);
