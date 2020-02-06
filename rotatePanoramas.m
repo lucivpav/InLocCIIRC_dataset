@@ -14,19 +14,19 @@ sweepRecord = sweepData(find(tf));
 
 %% Project the point cloud
 f = 500;
-imageSize = [1000,1000];
+sensorSize = [1000,1000];
 rFix = [0.0, 0.0, 180.0];
 r = rFix + sweepRecord.rotation;
 t = -sweepRecord.position;
 outputSize = [300 300];
-projectedPointCloud = projectPointCloud(pc, f, r, t, imageSize, outputSize);
+projectedPointCloud = projectPointCloud(pc, f, r, t, sensorSize, outputSize);
 %figure(1);
 %imshow(projectedPointCloud);
 
 %% Project the panorama
 panoImg = imread(sprintf('./panoramas/%d.jpg', localId));
 viewSize = outputSize(1);
-fov = 2*atan((imageSize(1)/2)/f);
+fov = 2*atan((sensorSize(1)/2)/f);
 nViews = 256;
 panoramaProjections = projectPanorama(panoImg, viewSize, fov, nViews);
 %save(sprintf('projectedPanoramas/%d.mat', panorama), 'panoramaProjections', '-v7.3');
