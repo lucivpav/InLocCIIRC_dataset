@@ -1,7 +1,8 @@
 localIds = [2 3 4 5 6 7 8 9 10 11 12 13 15, ...
             16 20 21 22 23 24 25 26 27 28 29 30 31, ...
             32 33 35 36 37];
-        
+localIds = [11];
+
 load('sweepData.mat');
 pc = pcread('matterpak_sehs6V3VnSW/cloud - rotated.ply');
 
@@ -32,8 +33,9 @@ panoramaProjections = projectPanorama(panoImg, viewSize, fov, nViews);
 %plotMany(panoramaProjections);
 
 %% Find best rotation
-[xMid, panorama, bestIdx, diffs] = findRotation(projectedPointCloud, panoramaProjections, panoImg);
-sprintf('Best match: panorama #%d', bestIdx)
+goodness = sweepRecord.goodness;
+[xMid, panorama, panoIdx, diffs] = findRotation(projectedPointCloud, panoramaProjections, panoImg, goodness);
+sprintf('Found match: panorama #%d', panoIdx)
 figure(3);
 imshowpair(projectedPointCloud, panorama, 'montage');
 saveas(gcf, sprintf('panoramas2pointClouds/%d.jpg', localId), 'jpg');

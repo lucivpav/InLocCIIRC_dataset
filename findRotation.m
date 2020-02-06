@@ -1,4 +1,7 @@
-function [xMid, panorama, bestIdx, diffs] = findRotation(projectedPointCloud, panoramaProjections, panoImg)
+function [xMid, panorama, idx, diffs] = findRotation(projectedPointCloud, ...
+    panoramaProjections, panoImg, goodness)
+% goodness: which sorted loss to prefer. Default should be 1, which means
+% the panorama with lowest loss is chosen
 
 pointCloudPerspective = rgb2gray(projectedPointCloud);
 
@@ -19,10 +22,10 @@ for i=1:nCandidates
     losses(i,1) = sum(diffs(i).img(:)==255);
 end
 
-[sorted, idx] = sort(losses);
+[sorted, indices] = sort(losses);
 
-bestIdx = idx(1);
-panorama = panoramaProjections(bestIdx).img;
+idx = indices(goodness);
+panorama = panoramaProjections(idx).img;
 
-xMid = ((panoramaProjections(bestIdx).vx + pi) / (2*pi)) * size(panoImg, 2);
+xMid = ((panoramaProjections(idx).vx + pi) / (2*pi)) * size(panoImg, 2);
 xMid = round(xMid);
