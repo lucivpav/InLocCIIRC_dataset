@@ -4,10 +4,13 @@ import pyrender
 import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation as R
 import scipy.io as sio
+import open3d as o3d
 
 mesh_path = '/Volumes/Elements/CIIRC/matterpak_sehs6V3VnSW/mesh - rotated.ply'
 outputPath = '/Volumes/Elements/CIIRC/XYZcuts/bla.mat'
 f = 500
+
+# In OpenGL, camera points toward -z by default, hence we don't need rFix like in the MATLAB code
 camera_rotation = np.array([0.176829305501008, 3.651460591341834, -0.119347990257635])
 camera_position = np.array([9.786105947569013e-04, 1.693258881568909, 0.068662971258163])
 sensorWidth = 1000
@@ -37,24 +40,32 @@ depth = r.render(scene, pyrender.constants.RenderFlags.DEPTH_ONLY)
 # XYZ cut
 scaling = 1.0/f
 
-sensorCoordinateSystem = rotation_matrix * np.eye(3)
+cameraDirection = np.eye(3)
+cameraDirection[2,2] = -1 # make camera point toward -z by default, as in OpenGL
+
+sensorCoordinateSystem = np.matmul(rotation_matrix, cameraDirection)
 sensorXAxis = sensorCoordinateSystem[0,:]
 sensorYAxis = -sensorCoordinateSystem[1,:]
-cameraDirection = -sensorCoordinateSystem[2,:] # unit vector
+cameraDirection = sensorCoordinateSystem[2,:] # unit vector
 
 xyzCut = np.zeros((sensorHeight, sensorWidth, 3))
+pts = []
 
 for x in range(-int(sensorWidth/2), int(sensorWidth/2)):
     for y in range(-int(sensorHeight/2), int(sensorHeight/2)):
-        sensorPoint = camera_position + f * scaling * cameraDirection + \
+        sensorPoint = camera_position + cameraDirection + \
                         x * scaling * sensorXAxis + \
                         y * scaling * sensorYAxis
         imageX = x + int(sensorWidth/2)
         imageY = y + int(sensorHeight/2)
         d = depth[imageY, imageX]
         sensorPointDir = sensorPoint - camera_position
-        sensorPointDir = sensorPointDir / np.linalg.norm(sensorPointDir)
-        intersectedPoint = sensorPoint + sensorPointDir * d
+        intersectedPoint = camera_position + sensorPointDir * d
         xyzCut[imageY, imageX, :] = intersectedPoint
+        pts.append(intersectedPoint)
 
 sio.savemat(outputPath, {'XYZcut': xyzCut})
+pts = np.array(pts)
+pcd = o3d.geometry.PointCloud()
+pcd.points = o3d.utility.Vector3dVector(pts)
+o3d.visualization.draw_geometries([pcd])
