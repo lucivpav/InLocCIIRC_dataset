@@ -1,16 +1,16 @@
 % to be filled by user
 % it is the ID as displayed in the Capture iPadOS app
 % aka the number in a blue circle
-localIds = [2 3 4 5 6 7 8 9 10 11 12 13 15, ...
+panoIds = [2 3 4 5 6 7 8 9 10 11 12 13 15, ...
             16 20 21 22 23 24 25 26 27 28 29 30 31, ...
             32 33 35 36 37];
 
 %% Fill in the sweep data structure
 in = jsondecode(fileread('sweepData.json'));
-assert(size(localIds,2) == size(in,1));
+assert(size(panoIds,2) == size(in,1));
 for i=1:size(in,1)
     out(i).uuid = in(i).uuid;
-    out(i).localId = localIds(i);
+    out(i).panoId = panoIds(i);
     out(i).position = [in(i).position.x; in(i).position.y; in(i).position.z];
     out(i).rotation = [in(i).rotation.x in(i).rotation.y in(i).rotation.z];
     out(i).goodness = 1;
