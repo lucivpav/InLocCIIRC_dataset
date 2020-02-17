@@ -34,7 +34,7 @@ def buildXYZcut(mesh, f, camera_position, camera_rotation, sensorSize):
 
     r = pyrender.OffscreenRenderer(sensorWidth, sensorHeight)
     #depth = r.render(scene, pyrender.constants.RenderFlags.DEPTH_ONLY)
-    depth, actualDepth = r.render(scene)
+    meshProjection, depth = r.render(scene)
     #plt.figure()
     #plt.axis('off')
     #plt.imshow(depth, cmap=plt.cm.gray_r)
@@ -72,7 +72,7 @@ def buildXYZcut(mesh, f, camera_position, camera_rotation, sensorSize):
     #pcd.points = o3d.utility.Vector3dVector(pts)
     #o3d.visualization.draw_geometries([pcd])
 
-    return xyzCut, depth
+    return xyzCut, depth, meshProjection
 
 def getSweepRecord(sweepData, panoId):
     for i in range(len(sweepData)):
@@ -81,10 +81,13 @@ def getSweepRecord(sweepData, panoId):
             return sweepRecord
 
 if __name__ == '__main__':
-    cutoutsDir = '/Volumes/Elements/CIIRC/cutouts'
-    panoramasDir = '/Volumes/Elements/CIIRC/rotatedPanoramas'
-    meshPath = '/Volumes/Elements/CIIRC/matterpak_sehs6V3VnSW/mesh - rotated.ply'
-    sweepDataPath = '/Volumes/Elements/CIIRC/sweepData.mat'
+    datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
+    spaceName = 'B-670'
+    cutoutsDir = os.path.join(datasetDir, 'cutouts', spaceName)
+    panoramasDir = os.path.join(datasetDir, 'rotatedPanoramas', spaceName)
+    meshPath = os.path.join(datasetDir, 'models', spaceName, 'mesh - rotated.ply')
+    sweepDataPath = os.path.join(datasetDir, 'sweepData', '%s.mat' % spaceName)
+    debug = True
     panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, \
                 16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, \
                 32, 33, 35, 36, 37]
@@ -131,12 +134,17 @@ if __name__ == '__main__':
             cv2.imwrite(path, panoramaProjection) # this can freeze
             # set up the mat file
             cameraRotation = sweepRecord['rotation'] + np.array([pitch, yaw, 0.0])
-            XYZcut, depth = buildXYZcut(mesh, f, sweepRecord['position'], cameraRotation, sensorSize)
+            XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], cameraRotation, sensorSize)
             filename = filename + '.mat'
             path = os.path.join(thisPanoCutoutsDir, filename)
             sio.savemat(path, {'RGBcut': panoramaProjection, 'XYZcut': XYZcut, 'depth': depth})
-            filename = 'depth_%d_%d_%d.jpg' % (panoId, yaw, pitch)
-            path = os.path.join(thisPanoCutoutsDir, filename)
-            cv2.imwrite(path, depth)
-            #plt.imsave(path, depth, cmap=plt.cm.gray_r)
+
+            if debug:
+                filename = 'depth_%d_%d_%d.jpg' % (panoId, yaw, pitch)
+                path = os.path.join(thisPanoCutoutsDir, filename)
+                plt.imsave(path, depth, cmap=plt.cm.gray_r)
+
+                filename = 'mesh_%d_%d_%d.jpg' % (panoId, yaw, pitch)
+                path = os.path.join(thisPanoCutoutsDir, filename)
+                cv2.imwrite(path, meshProjection)
             exit(0)

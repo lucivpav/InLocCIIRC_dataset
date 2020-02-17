@@ -3,8 +3,13 @@ panoIds = [2 3 4 5 6 7 8 9 10 11 12 13 15, ...
             32 33 35 36 37];
 panoIds = [11];
 
-load('sweepData.mat');
-pc = pcread('matterpak_sehs6V3VnSW/cloud - rotated.ply');
+%% initialize 
+startup;
+[ params ] = setupParams;
+
+%%
+load(params.sweepData.mat.path);
+pc = pcread(params.pointCloud.path);
 
 for i=1:size(panoIds,2)
 panoId = panoIds(i);
@@ -24,12 +29,11 @@ projectedPointCloud = projectPointCloud(pc, f, r, t, sensorSize, outputSize);
 %imshow(projectedPointCloud);
 
 %% Project the panorama
-panoImg = imread(sprintf('./panoramas/%d.jpg', panoId));
+panoImg = imread(fullfile(params.panoramas.dir, strcat(int2str(panoId), '.jpg')));
 viewSize = outputSize(1);
 fov = 2*atan((sensorSize(1)/2)/f);
 nViews = 256;
 panoramaProjections = projectPanorama(panoImg, viewSize, fov, nViews);
-%save(sprintf('projectedPanoramas/%d.mat', panorama), 'panoramaProjections', '-v7.3');
 %plotMany(panoramaProjections);
 
 %% Find best rotation
@@ -38,7 +42,7 @@ goodness = sweepRecord.goodness;
 sprintf('Found match: panorama projection #%d', panoProjectionIdx)
 figure(3);
 imshowpair(projectedPointCloud, panoramaProjection, 'montage');
-saveas(gcf, sprintf('panoramas2pointClouds/%d.jpg', panoId), 'jpg');
+saveas(gcf, fullfile(params.panorama2pointClouds.dir, strcat(int2str(panoId), '.jpg')));
 
 %% Perform panorama rotation and save the result
 panoMid = round(size(panoImg, 2)/2);
@@ -46,7 +50,7 @@ rotatedPanorama = [panoImg(:,xMid:end,:) panoImg(:,1:xMid,:)];
 rotatedPanorama = [rotatedPanorama(:,panoMid:end,:) rotatedPanorama(:,1:panoMid,:)];
 %figure(4);
 %imshow(rotatedPanorama);
-imwrite(rotatedPanorama, sprintf('rotatedPanoramas/%d.jpg', panoId));
+imwrite(rotatedPanorama, fullfile(params.rotatedPanoramas.dir, strcat(int2str(panoId), '.jpg')));
 
 % verification
 %rotatedPanorama = im2double(rotatedPanorama);
