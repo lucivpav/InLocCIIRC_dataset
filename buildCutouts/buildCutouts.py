@@ -42,13 +42,13 @@ def buildXYZcut(mesh, f, camera_position, camera_rotation, sensorSize):
     # XYZ cut
     scaling = 1.0/f
 
-    cameraDirection = np.eye(3)
-    cameraDirection[2,2] = -1 # make camera point toward -z by default, as in OpenGL
+    spaceCoordinateSystem = np.eye(3)
 
-    sensorCoordinateSystem = np.matmul(rotation_matrix, cameraDirection)
-    sensorXAxis = sensorCoordinateSystem[0,:]
-    sensorYAxis = -sensorCoordinateSystem[1,:]
-    cameraDirection = sensorCoordinateSystem[2,:] # unit vector
+    sensorCoordinateSystem = np.matmul(rotation_matrix, spaceCoordinateSystem)
+    sensorXAxis = sensorCoordinateSystem[:,0]
+    sensorYAxis = -sensorCoordinateSystem[:,1]
+    # make camera point toward -z by default, as in OpenGL
+    cameraDirection = -sensorCoordinateSystem[:,2] # unit vector
 
     xyzCut = np.zeros((sensorHeight, sensorWidth, 3))
     #pts = []
@@ -135,7 +135,7 @@ if __name__ == '__main__':
             XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], cameraRotation, sensorSize)
             filename = filename + '.mat'
             path = os.path.join(thisPanoCutoutsDir, filename)
-            sio.savemat(path, {'RGBcut': panoramaProjection, 'XYZcut': XYZcut, 'depth': depth})
+            sio.savemat(path, {'RGBcut': panoramaProjection, 'XYZcut': XYZcut})
 
             if debug:
                 filename = 'depth_%d_%d_%d.jpg' % (panoId, yaw, pitch)
