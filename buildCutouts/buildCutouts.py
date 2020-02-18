@@ -90,7 +90,6 @@ if __name__ == '__main__':
     panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, \
                 16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, \
                 32, 33, 35, 36, 37]
-    panoIds = [2, 3]
     f = 600
     sensorSize = np.array([1600, 1200])
     sensorWidth = sensorSize[0]
@@ -123,10 +122,8 @@ if __name__ == '__main__':
         y = np.concatenate((yh0, yhTop, yhBottom))
 
         for i in range(len(x)):
-            #yaw = x[i]
-            #pitch = y[i]
-            yaw = 0
-            pitch = 0
+            yaw = x[i]
+            pitch = y[i]
             panoramaProjection = py360convert.e2p(panoramaImage, (fovHorizontal, fovVertical),
                                                     yaw, pitch, (sensorHeight, sensorWidth),
                                                     in_rot_deg=0, mode='bilinear')
@@ -134,7 +131,7 @@ if __name__ == '__main__':
             path = os.path.join(thisPanoCutoutsDir, filename)
             plt.imsave(path, panoramaProjection)
             # set up the mat file
-            cameraRotation = sweepRecord['rotation'] + np.array([pitch, yaw, 0.0])
+            cameraRotation = sweepRecord['rotation'] + np.array([pitch, -yaw, 0.0])
             XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], cameraRotation, sensorSize)
             filename = filename + '.mat'
             path = os.path.join(thisPanoCutoutsDir, filename)
@@ -148,4 +145,3 @@ if __name__ == '__main__':
                 filename = 'mesh_%d_%d_%d.jpg' % (panoId, yaw, pitch)
                 path = os.path.join(thisPanoCutoutsDir, filename)
                 plt.imsave(path, meshProjection)
-            exit(0)
