@@ -4,11 +4,10 @@ import pyrender
 import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation as R
 import scipy.io as sio
-import open3d as o3d
 import sys
 import os
-from Equirec2Perspec.Equirec2Perspec import Equirectangular
-import cv2
+import open3d as o3d
+import py360convert
 
 def buildXYZcut(mesh, f, camera_position, camera_rotation, sensorSize):
     # In OpenGL, camera points toward -z by default, hence we don't need rFix like in the MATLAB code
@@ -113,7 +112,7 @@ if __name__ == '__main__':
             os.mkdir(thisPanoCutoutsDir)
 
         panoramaPath = os.path.join(panoramasDir, str(panoId) + '.jpg')
-        equ = Equirectangular(panoramaPath)
+        panoramaImage = plt.imread(panoramaPath)
 
         xh = np.arange(-180, 180, 30)
         yh0 = np.zeros((len(xh)))
@@ -128,10 +127,12 @@ if __name__ == '__main__':
             #pitch = y[i]
             yaw = 0
             pitch = 0
-            panoramaProjection = equ.GetPerspective(fovHorizontal, yaw, pitch, sensorHeight, sensorWidth)
+            panoramaProjection = py360convert.e2p(panoramaImage, (fovHorizontal, fovVertical),
+                                                    yaw, pitch, (sensorHeight, sensorWidth),
+                                                    in_rot_deg=0, mode='bilinear')
             filename = 'cutout_%d_%d_%d.jpg' % (panoId, yaw, pitch)
             path = os.path.join(thisPanoCutoutsDir, filename)
-            cv2.imwrite(path, panoramaProjection) # this can freeze
+            plt.imsave(path, panoramaProjection)
             # set up the mat file
             cameraRotation = sweepRecord['rotation'] + np.array([pitch, yaw, 0.0])
             XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], cameraRotation, sensorSize)
@@ -146,5 +147,5 @@ if __name__ == '__main__':
 
                 filename = 'mesh_%d_%d_%d.jpg' % (panoId, yaw, pitch)
                 path = os.path.join(thisPanoCutoutsDir, filename)
-                cv2.imwrite(path, meshProjection)
+                plt.imsave(path, meshProjection)
             exit(0)
