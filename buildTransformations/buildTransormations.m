@@ -1,6 +1,6 @@
 params = struct();
 params.dataset.dir = '/Volumes/GoogleDrive/Mùj disk/ARTwin/InLocCIIRC_dataset';
-params.spaceName = 'B-670';
+params.spaceName = 'B-315';
 params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));
 params.alignments.dir = fullfile(params.dataset.dir, 'alignments', params.spaceName);
 params.all_transformations.path = fullfile(params.alignments.dir, 'all_transformations.txt');

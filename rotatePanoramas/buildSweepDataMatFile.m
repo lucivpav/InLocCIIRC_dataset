@@ -3,9 +3,7 @@
 % aka the number in a blue circle
 % NOTE: you are expected to adjust the goodness parameter accordingly
 % (in the resulting params.sweepData.mat.path file)
-panoIds = [2 3 4 5 6 7 8 9 10 11 12 13 15, ...
-            16 20 21 22 23 24 25 26 27 28 29 30 31, ...
-            32 33 35 36 37];
+panoIds = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27];
         
 %% initialize 
 startup;

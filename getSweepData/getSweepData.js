@@ -22,12 +22,18 @@ function loadedShowcaseHandler(mpSdk)
     mpSdk.Model.getData()
         .then(function (model) {
             console.log('Model sid:' + model.sid);
-            sweep = model.sweeps[0];
-            console.log('Sweep position:' + JSON.stringify(sweep.position));
-            console.log('Sweep rotation:' + JSON.stringify(sweep.rotation));
+            console.log(JSON.stringify(model.sweeps, null, 2));
+            //sweep = model.sweeps[0];
+            //console.log('Sweep position:' + JSON.stringify(sweep.position));
+            //console.log('Sweep rotation:' + JSON.stringify(sweep.rotation));
         })
         .catch(function (error) {
             console.log('Model cannot be retrieved');
             console.error(error);
         });
 };
+
+function handleError(error)
+{
+    console.error(error);
+}

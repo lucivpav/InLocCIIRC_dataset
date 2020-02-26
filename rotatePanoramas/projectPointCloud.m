@@ -26,6 +26,6 @@ K(2,3) = py;
 R = angle2dcm(angles(1),angles(2),angles(3));
 cam = K * [R [0.0; 0.0; 0.0]];
 
-[ image ] = points2Image(points, sensorSize, cam, T, 5, 1);
+[ image ] = points2Image(points, sensorSize, cam, T, 6, 1);
 
 projectedPointCloud = imresize(image, outputSize);

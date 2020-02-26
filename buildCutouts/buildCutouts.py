@@ -81,15 +81,14 @@ def getSweepRecord(sweepData, panoId):
 
 if __name__ == '__main__':
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-    spaceName = 'B-670'
+    spaceName = 'B-315'
     cutoutsDir = os.path.join(datasetDir, 'cutouts', spaceName)
     panoramasDir = os.path.join(datasetDir, 'rotatedPanoramas', spaceName)
     meshPath = os.path.join(datasetDir, 'models', spaceName, 'mesh - rotated.ply')
     sweepDataPath = os.path.join(datasetDir, 'sweepData', '%s.mat' % spaceName)
     debug = True
-    panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, \
-                16, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, \
-                32, 33, 35, 36, 37]
+    panoIds = [18, 19, \
+                20, 21, 22, 23, 24, 25, 26, 27]
     f = 600
     sensorSize = np.array([1600, 1200])
     sensorWidth = sensorSize[0]
@@ -102,6 +101,9 @@ if __name__ == '__main__':
     sweepData = sio.loadmat(sweepDataPath, squeeze_me=True)['sweepData']
     trimesh_model = trimesh.load(meshPath)
     mesh = pyrender.Mesh.from_trimesh(trimesh_model)
+
+    if not os.path.isdir(cutoutsDir):
+        os.mkdir(cutoutsDir)
 
     for panoId in panoIds:
         sweepRecord = getSweepRecord(sweepData, panoId)
