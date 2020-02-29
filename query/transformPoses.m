@@ -3,11 +3,13 @@ addpath('points2Image');
 
 rawPosition = [-2.190593; -2.455224; 1.572377];
 rawRotation = [-0.0056 0.0287 -1.4374]; % in radians
+rawRotation = [-0.0056 0.0287 -1.3374]; % in radians
 
 % the first step of this code is to transoform the marker's position
 % and rotation into the model's coordinate system
 
 viconOrigin = [-1.886732; 0; 3.058354]; % w.r.t. model coordinate system
+viconOrigin = [0.1; 0; 3.058354]; % w.r.t. model coordinate system
 viconRotation = [90.0 180.0 0.0]; % in degrees, w.r.t. model coordinate system
 
 viconRotationRad = deg2rad(viconRotation);
@@ -25,7 +27,6 @@ markerDirection = R * markerDirection; % w.r.t. model coordinate system
 
 pc = pcread(params.pointCloud.path);
 f = 3172.435; % in pixels
-f = 2000.0;
 sensorSize = [3024 4032];
 outputSize = sensorSize;
 
