@@ -1,6 +1,10 @@
-function R = rotationMatrix(x, y, z, order)
-% x,y,z: rotation around the specified axis in radians
+function R = rotationMatrix(xyz, order)
+% xyz: rotation vector around the specified axis in radians
 % right-handed coordinate system is assumed
+
+x = xyz(1);
+y = xyz(2);
+z = xyz(3);
 
 Rx = eye(3);
 Rx(2,2) = cos(x);
