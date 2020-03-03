@@ -44,3 +44,6 @@ The usual steps are as follows:
 
 ## Build point cloud file
 1. Adjust the Space name
+
+
+TODO: the mesh should be in .obj format -> update the README and code. why .obj? to preserve high quality RGB triangulated model

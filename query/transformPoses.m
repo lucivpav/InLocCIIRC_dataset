@@ -6,16 +6,12 @@ rawRotation = [-0.0056 0.0287 -1.4374]; % in radians
 
 viconOrigin = [-1.886732; 0; 3.058354]; % w.r.t. model
 viconOrigin = [0.1; 0; 3.058354]; % w.r.t. model
-viconRotation = [90.0 180.0 0.0]; % in degrees, w.r.t. model
-viconRotationRad = deg2rad(viconRotation);
+viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
 
 cameraRotation = deg2rad([0.0 -7.0 5.73]); % w.r.t. marker
 cameraR = rotationMatrix(cameraRotation, 'XYZ');
-
 markerR = rotationMatrix(rawRotation, 'XYZ');
-defaultMarkerDirection = [0.0; 1.0; 0.0];
-
-viconR = rotationMatrix(viconRotationRad, 'XYZ');
+viconR = rotationMatrix(viconRotation, 'XYZ');
 
 markerOrigin = viconR * rawPosition + viconOrigin; % w.r.t. model
 
