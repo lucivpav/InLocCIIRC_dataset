@@ -1,4 +1,4 @@
-addpath('points2Image');
+addpath('../projectPointCloud');
 [ params ] = setupParams;
 
 rawPosition = [-2.190593; -2.455224; 1.572377];
@@ -32,7 +32,10 @@ R = cameraCoordinateSystem;
 
 %%
 R2 = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX'); % aka rFix, black magic
-t = -cameraOrigin; % note the minus sign
-projectedPointCloud = projectPointCloud(pc, f, R * R2, t, sensorSize, outputSize);
+t = cameraOrigin;
+pointSize = 6.0;
+projectedPointCloud = projectPointCloud(params.pointCloud.path, f, R * R2, ...
+                                        t, sensorSize, outputSize, pointSize, ...
+                                        params.projectPointCloudPy.path);
 figure(1);
 imshow(projectedPointCloud);
