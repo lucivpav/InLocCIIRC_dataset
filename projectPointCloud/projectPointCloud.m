@@ -14,7 +14,7 @@ cmdout
 projection = imread(outputPath);
 
 % delete temporary files
-delete inputPath
-delete outputPath
+delete(inputPath);
+delete(outputPath);
 
 end
