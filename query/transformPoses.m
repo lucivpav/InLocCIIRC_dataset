@@ -5,10 +5,11 @@ rawPosition = [-2.190593; -2.455224; 1.572377];
 rawRotation = [-0.0056 0.0287 -1.4374]; % in radians
 
 viconOrigin = [-1.886732; 0; 3.058354]; % w.r.t. model
-viconOrigin = [0.1; 0; 3.058354]; % w.r.t. model
+viconOrigin = [-0.1; 0; 2.8]; % w.r.t. model
 viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
 
 cameraRotation = deg2rad([0.0 -7.0 5.73]); % w.r.t. marker
+cameraRotation = deg2rad([1.0 -0.5 1.5]); % w.r.t. marker
 cameraR = rotationMatrix(cameraRotation, 'XYZ');
 markerR = rotationMatrix(rawRotation, 'XYZ');
 viconR = rotationMatrix(viconRotation, 'XYZ');

@@ -6,9 +6,10 @@ outputPath = strcat(tempname, '.png');
 save(inputPath, 'pcPath', 'f', 'R', 't', 'sensorSize', 'outputSize', 'pointSize');
 
 % call projectPointCloud.py
-command = sprintf('PATH=$PATH:/usr/local/bin python3 %s %s %s', projectPointCloudPyPath, inputPath, outputPath)
+command = sprintf('PATH=$PATH:/usr/local/bin python3 %s %s %s', projectPointCloudPyPath, inputPath, outputPath);
+disp(command)
 [status, cmdout] = system(command);
-cmdout
+disp(cmdout)
 
 % load results
 projection = imread(outputPath);
