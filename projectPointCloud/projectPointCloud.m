@@ -2,7 +2,7 @@ function projection = projectPointCloud(pcPath, f, R, t, sensorSize, outputSize,
                                         projectPointCloudPyPath)
 
 inputPath = strcat(tempname, '.mat');
-outputPath = strcat(tempname, '.png');
+outputPath = strcat(tempname, '.jpg');
 save(inputPath, 'pcPath', 'f', 'R', 't', 'sensorSize', 'outputSize', 'pointSize');
 
 % call projectPointCloud.py
