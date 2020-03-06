@@ -1,4 +1,5 @@
 addpath('../projectPointCloud');
+addpath('../rotationMatrix');
 [ params ] = setupParams;
 
 if exist(params.projectedPointCloud.dir, 'dir') ~= 7

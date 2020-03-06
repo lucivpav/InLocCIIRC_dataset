@@ -34,7 +34,8 @@ The usual steps are as follows:
 3. Adjust and run buildSweepDataMatFile.m
 4. Adjust and run rotatePanoramas.m
 5. For panoramas that failed to rotate properly, try changing the *goodness* in sweepData
-6. If the proper rotation still cannot be found, use manuallyRotatePanorama.m file
+6. Try increasing the point size of the point cloud projection
+7. If the proper rotation still cannot be found, use manuallyRotatePanorama.m file
 
 ## Build cutouts
 1. Adjust the Space name and the panoIds array

@@ -1,5 +1,6 @@
-panoIds = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27];
-panoIds = [20];
+%panoIds = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27]; % B-315
+panoIds = [2 3 4 5 6 7 8 9 10 11 12 13 15 16 20 21 22 23 24 25 26 27 28 29 30 31 32 33 35 36 37]; % B-670
+%panoIds = [20];
 
 %% initialize 
 startup;
@@ -7,7 +8,6 @@ startup;
 
 %%
 load(params.sweepData.mat.path);
-pc = pcread(params.pointCloud.path);
 
 if exist(params.panorama2pointClouds.dir, 'dir') ~= 7
     mkdir(params.panorama2pointClouds.dir);
@@ -26,13 +26,17 @@ sweepRecord = sweepData(find(tf));
 %% Project the point cloud
 f = 500;
 sensorSize = [1000,1000];
-rFix = [0.0, 0.0, 180.0];
+rFix = [0.0, 180.0, 180.0];
 r = rFix + sweepRecord.rotation;
-t = -sweepRecord.position;
+r = deg2rad(r);
+R = rotationMatrix(r, 'XYZ');
+t = sweepRecord.position;
 outputSize = [300 300];
-projectedPointCloud = projectPointCloud(pc, f, r, t, sensorSize, outputSize);
-%figure(1);
-%imshow(projectedPointCloud);
+projectedPointCloud = projectPointCloud(params.pointCloud.path, f, R, t, ...
+                        sensorSize, outputSize, ...
+                        8.0, params.projectPointCloudPy.path);
+% figure(1);
+% imshow(projectedPointCloud);
 
 %% Project the panorama
 panoImg = imread(fullfile(params.panoramas.dir, strcat(int2str(panoId), '.jpg')));
