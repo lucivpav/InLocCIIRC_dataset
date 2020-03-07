@@ -81,14 +81,15 @@ def getSweepRecord(sweepData, panoId):
 
 if __name__ == '__main__':
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-    spaceName = 'B-315'
-    cutoutsDir = os.path.join(datasetDir, 'cutouts', spaceName)
+    spaceName = 'B-670'
+    cutoutsDir = os.path.join(datasetDir, 'cutouts')
+    thisSpaceCutoutsDir = os.path.join(cutoutsDir, spaceName)
     panoramasDir = os.path.join(datasetDir, 'rotatedPanoramas', spaceName)
     meshPath = os.path.join(datasetDir, 'models', spaceName, 'mesh - rotated.ply')
     sweepDataPath = os.path.join(datasetDir, 'sweepData', '%s.mat' % spaceName)
     debug = True
-    panoIds = [18, 19, \
-                20, 21, 22, 23, 24, 25, 26, 27]
+    #panoIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] # B-315
+    panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13 ,15, 16, 20, 21, 22, 23 ,24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37] # B-670
     f = 600
     sensorSize = np.array([1600, 1200])
     sensorWidth = sensorSize[0]
@@ -105,10 +106,13 @@ if __name__ == '__main__':
     if not os.path.isdir(cutoutsDir):
         os.mkdir(cutoutsDir)
 
+    if not os.path.isdir(thisSpaceCutoutsDir):
+        os.mkdir(thisSpaceCutoutsDir)
+
     for panoId in panoIds:
         sweepRecord = getSweepRecord(sweepData, panoId)
 
-        thisPanoCutoutsDir = os.path.join(cutoutsDir, str(panoId))
+        thisPanoCutoutsDir = os.path.join(thisSpaceCutoutsDir, str(panoId))
         if not os.path.isdir(thisPanoCutoutsDir):
             os.mkdir(thisPanoCutoutsDir)
 

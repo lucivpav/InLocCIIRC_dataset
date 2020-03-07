@@ -9,6 +9,7 @@ The usual steps are as follows:
 5. Build cutouts
 6. Build transformations
 7. Build point cloud file
+8. Build query poses
 
 ## Obtain the sweepData.json file
 1. Run a web server in the getSweepData folder
@@ -46,5 +47,8 @@ The usual steps are as follows:
 ## Build point cloud file
 1. Adjust the Space name
 
+## Build query poses
+1. Adjust the Space name
 
-TODO: the mesh should be in .obj format -> update the README and code. why .obj? to preserve high quality RGB triangulated model
+## TODO
+* the mesh should be in .obj format -> update the README and code. why .obj? to preserve high quality RGB triangulated model
