@@ -1,0 +1,9 @@
+[submodule "functions/relja_matlab"]
+	path = functions/relja_matlab
+	url = https://github.com/Relja/relja_matlab
+[submodule "functions/netvlad"]
+	path = functions/netvlad
+	url = git@github.com:Relja/netvlad.git
+[submodule "functions/matconvnet"]
+	path = functions/matconvnet
+	url = https://github.com/vlfeat/matconvnet

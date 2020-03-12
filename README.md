@@ -11,6 +11,7 @@ The usual steps are as follows:
 7. Build point cloud file
 8. Build query poses
 9. Build file lists
+10. Build scores
 
 ## Obtain the sweepData.json file
 1. Run a web server in the getSweepData folder
@@ -54,5 +55,10 @@ The usual steps are as follows:
 ## Build file lists
 1. Note the comment on the second line
 
+## Build scores
+1. Execute buildFeatures.m on a machine with GPU
+2. Execute buildScores on a machine with ~40 GB of RAM
+
 ## TODO
-* the mesh should be in .obj format -> update the README and code. why .obj? to preserve high quality RGB triangulated model
+* The mesh should be in .obj format -> update the README and code. why .obj? to preserve high quality RGB triangulated model
+* Make the scores more relevant. Right now they don't represent the query-cutouts very well.
