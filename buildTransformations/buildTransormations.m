@@ -1,5 +1,7 @@
+addpath('../rotationMatrix');
+
 params = struct();
-params.dataset.dir = '/Volumes/GoogleDrive/Mùj disk/ARTwin/InLocCIIRC_dataset';
+params.dataset.dir = '/Volumes/GoogleDrive/MÅ¯j disk/ARTwin/InLocCIIRC_dataset';
 params.spaceName = 'B-315';
 params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));
 params.alignments.dir = fullfile(params.dataset.dir, 'alignments', params.spaceName);
@@ -25,17 +27,17 @@ knownIncorrectFile = fopen(params.known_incorrect.path, 'w');
 fclose(knownIncorrectFile);
 
 K = eye(3);
-K(1,1) = params.f;
-K(2,2) = params.f;
-K(1,3) = params.sensorSize(1)/2;
-K(2,3) = params.sensorSize(2)/2;
+% K(1,1) = params.f;
+% K(2,2) = params.f;
+% K(1,3) = params.sensorSize(1)/2;
+% K(2,3) = params.sensorSize(2)/2;
 
 for i=1:size(sweepData, 2)
     sweepRecord = sweepData(i);
     thisPanoTransformationPath = fullfile(params.transformations.dir, sprintf('trans_%d.txt', sweepRecord.panoId));
     thisTransformationFile = fopen(thisPanoTransformationPath, 'w');
     angles = sweepRecord.rotation*pi/180;
-    R = angle2dcm(angles(1),angles(2),angles(3));
+    R = rotationMatrix(angles, 'XYZ');
     P = eye(4);
     P(1:3,1:4) = K * [R sweepRecord.position];
     P_str = sprintf('%g\t%g\t%g\t%g\n%g\t%g\t%g\t%g\n%g\t%g\t%g\t%g\n%g\t%g\t%g\t%g\n', ...
