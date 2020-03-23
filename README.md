@@ -50,7 +50,7 @@ The usual steps are as follows:
 1. Adjust the Space name
 
 ## Build query poses
-1. Adjust the Space name
+1. No manual intervention necessary
 
 ## Build file lists
 1. Note the comment on the second line

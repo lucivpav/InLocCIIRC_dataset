@@ -9,7 +9,7 @@ end
 rawPosesTable = readtable(params.rawPoses.path);
 posesFile = fopen(params.poses.path, 'w');
 
-fprintf(posesFile, 'id x y z dirx diry dirz\n');
+fprintf(posesFile, 'id x y z dirx diry dirz space\n');
 
 for i=1:size(rawPosesTable,1)
 
@@ -20,6 +20,7 @@ for i=1:size(rawPosesTable,1)
     alpha = rawPosesTable{i, 'alpha'};
     beta = rawPosesTable{i, 'beta'};
     gamma = rawPosesTable{i, 'gamma'};
+    space = rawPosesTable{i, 'space'}{1,1};
     
     rawPosition = [x; y; z];
     rawRotation = [alpha beta gamma]; % in radians
@@ -67,8 +68,8 @@ for i=1:size(rawPosesTable,1)
     imwrite(projectedPointCloud, projectedPointCloudFile);
     
     dir = cameraCoordinateSystem(:,2);
-    fprintf(posesFile, '%d %g %g %g %g %g %g\n', id, t(1), t(2), t(3), ...
-            dir(1), dir(2), dir(3));
+    fprintf(posesFile, '%d %g %g %g %g %g %g %s\n', id, t(1), t(2), t(3), ...
+            dir(1), dir(2), dir(3), space);
 end
 
 fclose(posesFile);
