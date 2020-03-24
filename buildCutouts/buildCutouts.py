@@ -9,7 +9,7 @@ import os
 import open3d as o3d
 import py360convert
 
-def buildXYZcut(mesh, f, camera_position, camera_rotation, sensorSize):
+def buildXYZcut(mesh, f, camera_position, rotation_matrix, sensorSize):
     # In OpenGL, camera points toward -z by default, hence we don't need rFix like in the MATLAB code
     sensorWidth = sensorSize[0]
     sensorHeight = sensorSize[1]
@@ -20,7 +20,6 @@ def buildXYZcut(mesh, f, camera_position, camera_rotation, sensorSize):
     scene.add(mesh)
     camera = pyrender.PerspectiveCamera(fovVertical)
 
-    rotation_matrix = R.from_euler('xyz', camera_rotation, degrees=True).as_matrix()
     camera_pose = np.eye(4)
     camera_pose[0:3,0:3] = rotation_matrix
     camera_pose[0:3,3] = camera_position
@@ -138,7 +137,8 @@ if __name__ == '__main__':
             plt.imsave(path, panoramaProjection)
             # set up the mat file
             cameraRotation = sweepRecord['rotation'] + np.array([pitch, -yaw, 0.0])
-            XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], cameraRotation, sensorSize)
+            rotationMatrix = R.from_euler('xyz', cameraRotation, degrees=True).as_matrix()
+            XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], rotationMatrix, sensorSize)
             filename = filename + '.mat'
             path = os.path.join(thisPanoCutoutsDir, filename)
             sio.savemat(path, {'RGBcut': panoramaProjection, 'XYZcut': XYZcut})
