@@ -7,3 +7,6 @@
 [submodule "functions/matconvnet"]
 	path = functions/matconvnet
 	url = https://github.com/vlfeat/matconvnet
+[submodule "functions/InLocCIIRC_utils"]
+	path = functions/InLocCIIRC_utils
+	url = git@github.com:lucivpav/InLocCIIRC_utils.git
