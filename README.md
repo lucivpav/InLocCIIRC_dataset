@@ -29,8 +29,8 @@ The usual steps are as follows:
 ## Obtain MatterPak and normalize it
 1. Buy the MatterPak
 2. Download it, it contains cloud.xyz, .obj files
-3. Rotate them along the x axis (psi angle) by -90.0 degrees
-4. Save them accordingly into the models directory, use .ply extension
+3. Rotate them along the x axis (psi angle) by -90.0 degrees; recommended tool: CloudCompare
+4. Save them accordingly into the models directory, use .ply extension for the point cloud, .obj extension for the mesh
 
 ## Rotate panoramas
 1. Open the rotatePanoramas folder in Matlab
@@ -61,5 +61,4 @@ The usual steps are as follows:
 2. Execute buildScores on a machine with ~40 GB of RAM
 
 ## TODO
-* The mesh should be in .obj format -> update the README and code. why .obj? to preserve high quality RGB triangulated model
 * Make the scores more relevant. Right now they don't represent the query-cutouts very well.

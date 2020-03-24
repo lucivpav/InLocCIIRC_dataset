@@ -9,15 +9,13 @@ import os
 import open3d as o3d
 import py360convert
 
-def buildXYZcut(mesh, f, camera_position, rotation_matrix, sensorSize):
+def buildXYZcut(scene, f, camera_position, rotation_matrix, sensorSize):
     # In OpenGL, camera points toward -z by default, hence we don't need rFix like in the MATLAB code
     sensorWidth = sensorSize[0]
     sensorHeight = sensorSize[1]
     fovHorizontal = 2*np.arctan((sensorWidth/2)/f)
     fovVertical = 2*np.arctan((sensorHeight/2)/f)
 
-    scene = pyrender.Scene()
-    scene.add(mesh)
     camera = pyrender.PerspectiveCamera(fovVertical)
 
     camera_pose = np.eye(4)
@@ -25,10 +23,7 @@ def buildXYZcut(mesh, f, camera_position, rotation_matrix, sensorSize):
     camera_pose[0:3,3] = camera_position
     scene.add(camera, pose=camera_pose)
 
-    light = pyrender.SpotLight(color=np.ones(3), intensity=30.0,
-                                innerConeAngle=np.pi/16.0,
-                                outerConeAngle=np.pi/2.0)
-    scene.add(light, pose=camera_pose)
+    scene._ambient_light = np.ones((3,))
 
     r = pyrender.OffscreenRenderer(sensorWidth, sensorHeight)
     #depth = r.render(scene, pyrender.constants.RenderFlags.DEPTH_ONLY)
@@ -84,7 +79,7 @@ if __name__ == '__main__':
     cutoutsDir = os.path.join(datasetDir, 'cutouts')
     thisSpaceCutoutsDir = os.path.join(cutoutsDir, spaceName)
     panoramasDir = os.path.join(datasetDir, 'rotatedPanoramas', spaceName)
-    meshPath = os.path.join(datasetDir, 'models', spaceName, 'mesh - rotated.ply')
+    meshPath = os.path.join(datasetDir, 'models', spaceName, 'mesh_rotated.obj')
     sweepDataPath = os.path.join(datasetDir, 'sweepData', '%s.mat' % spaceName)
     debug = True
     #panoIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] # B-315
@@ -99,8 +94,8 @@ if __name__ == '__main__':
     fovVertical = np.rad2deg(fovVertical)
 
     sweepData = sio.loadmat(sweepDataPath, squeeze_me=True)['sweepData']
-    trimesh_model = trimesh.load(meshPath)
-    mesh = pyrender.Mesh.from_trimesh(trimesh_model)
+    trimeshScene = trimesh.load(meshPath)
+    scene = pyrender.Scene.from_trimesh_scene(trimeshScene)
 
     if not os.path.isdir(cutoutsDir):
         os.mkdir(cutoutsDir)
@@ -138,7 +133,7 @@ if __name__ == '__main__':
             # set up the mat file
             cameraRotation = sweepRecord['rotation'] + np.array([pitch, -yaw, 0.0])
             rotationMatrix = R.from_euler('xyz', cameraRotation, degrees=True).as_matrix()
-            XYZcut, depth, meshProjection = buildXYZcut(mesh, f, sweepRecord['position'], rotationMatrix, sensorSize)
+            XYZcut, depth, meshProjection = buildXYZcut(scene, f, sweepRecord['position'], rotationMatrix, sensorSize)
             filename = filename + '.mat'
             path = os.path.join(thisPanoCutoutsDir, filename)
             sio.savemat(path, {'RGBcut': panoramaProjection, 'XYZcut': XYZcut})
