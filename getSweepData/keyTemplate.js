@@ -1,0 +1,1 @@
+key = "YOUR MATTERPORT API KEY"

@@ -14,9 +14,10 @@ The usual steps are as follows:
 10. Build scores
 
 ## Obtain the sweepData.json file
-1. Run a web server in the getSweepData folder
-2. Open the getSweepData.html in your browser **as a localhost** address - e.g. http://127.0.0.1:8887/getSweepData.html
-3. Open the console, the sweepData.json is being printed there
+1. Create a key.js file based on the keyTemplate.js file
+2. Run a web server in the getSweepData folder
+3. Open the getSweepData.html in your browser **as a localhost** address - e.g. http://127.0.0.1:8887/getSweepData.html
+4. Open the console, the sweepData.json is being printed there
 
 ## Obtain panoramas
 * Manually download a panorama for every sweep

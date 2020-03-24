@@ -5,7 +5,7 @@ function onLoad() {
     try {
         window.MP_SDK.connect(
             iframe, // Obtained earlier
-            '***REMOVED***', // Your API key
+            key, // Your API key
             '3.2' // SDK version you are using
             // Use the latest version you can for your app
         )
