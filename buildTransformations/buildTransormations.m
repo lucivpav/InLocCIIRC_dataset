@@ -1,4 +1,4 @@
-addpath('../rotationMatrix');
+addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
 params = struct();
 params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';

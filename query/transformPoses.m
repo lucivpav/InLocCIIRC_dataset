@@ -1,5 +1,5 @@
 addpath('../projectPointCloud');
-addpath('../rotationMatrix');
+addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 [ params ] = setupParams;
 
 if exist(params.projectedPointCloud.dir, 'dir') ~= 7
