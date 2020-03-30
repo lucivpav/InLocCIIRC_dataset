@@ -9,7 +9,12 @@ end
 rawPosesTable = readtable(params.rawPoses.path);
 posesFile = fopen(params.poses.path, 'w');
 
-fprintf(posesFile, 'id x y z dirx diry dirz space\n');
+fprintf(posesFile, 'id x y z dirx diry dirz space inMap\n');
+
+cutoutDescriptions = buildCutoutDescriptions(params);
+if exist(params.closest.cutout.dir, 'dir') ~= 7
+    mkdir(params.closest.cutout.dir);
+end
 
 for i=1:size(rawPosesTable,1)
 
@@ -58,18 +63,46 @@ for i=1:size(rawPosesTable,1)
     R = cameraCoordinateSystem;
 
     %%
-    R2 = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX'); % aka rFix, black magic
+    % y is the camera dir, but rendered is z dir
+    % i.e. this will bring z to where y currently is
+    rFix = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX');
     t = cameraOrigin;
     pointSize = 8.0;
-    projectedPointCloud = projectPointCloud(params.pointCloud.path, f, R * R2, ...
+    projectedPointCloud = projectPointCloud(params.pointCloud.path, f, R * rFix, ...
                                         t, sensorSize, outputSize, pointSize, ...
                                         params.projectPointCloudPy.path);
+    imshow(projectedPointCloud);
     projectedPointCloudFile = fullfile(params.projectedPointCloud.dir, sprintf('%d.jpg', id));
     imwrite(projectedPointCloud, projectedPointCloudFile);
     
-    dir = cameraCoordinateSystem(:,2);
-    fprintf(posesFile, '%d %g %g %g %g %g %g %s\n', id, t(1), t(2), t(3), ...
-            dir(1), dir(2), dir(3), space);
+    orient = R(:,2); % somehow, this contains the 180.0 rFix, which is wrong
+    % very ugly magic hack
+    if orient(3) < 0
+        orient = orient .* [1.0; -1.0; 1.0];
+    end
+
+    [inMap, closestCutout] = isQueryInMap(t, orient, params.spaceName, cutoutDescriptions, params);
+    if params.renderClosestCutouts
+        queryImg = imread(fullfile(params.query.dir, sprintf('%d.jpg', id)));
+        cutoutImg = imresize(closestCutout.img, [size(queryImg,1), size(queryImg,2)]);
+        imshowpair(queryImg, cutoutImg, 'montage');
+        caption = 'Left: query. Right: closest cutout';
+        if inMap
+            inMapDesc = 'InMap';
+        else
+            inMapDesc = 'OffMap';
+        end
+        tDiff = closestCutout.tDiff;
+        dirDiff = closestCutout.dirDiff;
+        title(sprintf('Query %d: %s. tDiff: %0.2f, dirDiff: %0.2f. %s - %s, %s.', ...
+            id, inMapDesc, tDiff, dirDiff, caption, closestCutout.name, closestCutout.space), ...
+            'Interpreter', 'none');
+        closestCutoutPath = fullfile(params.closest.cutout.dir, sprintf('%d.jpg', id));
+        saveas(gcf, closestCutoutPath);
+    end
+    
+    fprintf(posesFile, '%d %g %g %g %g %g %g %s %d\n', id, t(1), t(2), t(3), ...
+            orient(1), orient(2), orient(3), space, inMap);
 end
 
 fclose(posesFile);
