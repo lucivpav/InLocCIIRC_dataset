@@ -12,6 +12,7 @@ The usual steps are as follows:
 8. Build query poses
 9. Build file lists
 10. Build scores
+11. Plot the dataset including retrieved poses
 
 ## Obtain the sweepData.json file
 1. Create a key.js file based on the keyTemplate.js file
@@ -59,6 +60,11 @@ The usual steps are as follows:
 ## Build scores
 1. Execute buildFeatures.m on a machine with GPU
 2. Execute buildScores on a machine with ~40 GB of RAM
+
+## Plot the dataset including retrieved poses 
+1. Make sure the demo has finished and now we have retrievedPoses.csv in evaluation directory
+2. It is recommended to erase evaluation/temporary directory
+3. Run spaceTopViews.py and check that the output images are looking good
 
 ## TODO
 * Make the scores more relevant. Right now they don't represent the query-cutouts very well.
