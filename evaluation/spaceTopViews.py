@@ -36,8 +36,8 @@ def project(point, mag, sensorSize, rotationMatrix, translation):
     return projectedPoint
 
 def plotLocation(text, color, x, y, texts):
-    plt.plot(x, y, 'o', color=color, markersize=3)
-    textObject = plt.text(x, y+5, text, size=5, ha='center', va='center', color='black')
+    plt.plot(x, y, 'o', color=color, markersize=2)
+    textObject = plt.text(x, y+5, text, size=4, ha='center', va='center', color='black')
     textObject.set_path_effects([PathEffects.withStroke(linewidth=1, foreground='white')])
     texts.append(textObject)
 
@@ -50,10 +50,10 @@ if not os.path.isdir(temporaryDir):
 queryPosesPath = os.path.join(datasetDir, 'query', 'poses.csv')
 retrievedQueryPosesPath = os.path.join(evaluationDir, 'retrievedPoses.csv')
 spaceNames = ['B-315', 'B-670']
-sensorSize = np.array([1600, 1200])
+sensorSize = 2*np.array([1600, 1200])
 translations = [np.array([3.0, 1.0, 3.0]).T, np.array([-8.0, 1.0, -3.0]).T]
-magnifications = [12.0, 8.0]
-rotationMatrix = R.from_euler('xyz', np.array([-90.0, 0.0, 0.0]), degrees=True).as_matrix()
+magnifications = [18.0, 12.0]
+rotationMatrix = R.from_euler('xyz', np.array([-90.0, 90.0, 0.0]), degrees=True).as_matrix()
 
 # project spaces from top
 basicTopViews = []
