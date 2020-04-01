@@ -13,6 +13,7 @@ The usual steps are as follows:
 9. Build file lists
 10. Build scores
 11. Plot the dataset including retrieved poses
+12. Plot query pipeline
 
 ## Obtain the sweepData.json file
 1. Create a key.js file based on the keyTemplate.js file
@@ -64,7 +65,10 @@ The usual steps are as follows:
 ## Plot the dataset including retrieved poses 
 1. Make sure the demo has finished and now we have retrievedPoses.csv in evaluation directory
 2. It is recommended to erase evaluation/temporary directory
-3. Run spaceTopViews.py and check that the output images are looking good
+3. Run evaluation/spaceTopViews.py and check that the output images are looking good
+
+## Plot query pipeline
+1. Run evaluation/queryPipeline.m for queries of interest
 
 ## TODO
 * Make the scores more relevant. Right now they don't represent the query-cutouts very well.
