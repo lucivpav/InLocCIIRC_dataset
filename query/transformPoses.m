@@ -57,7 +57,7 @@ for i=1:size(rawPosesTable,1)
 
     pc = pcread(params.pointCloud.path);
     f = 3172.435; % in pixels
-    sensorSize = [3024 4032];
+    sensorSize = [3024 4032]; % height, width
     outputSize = sensorSize;
 
     R = cameraCoordinateSystem;

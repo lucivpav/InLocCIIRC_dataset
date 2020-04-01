@@ -10,3 +10,6 @@
 [submodule "functions/InLocCIIRC_utils"]
 	path = functions/InLocCIIRC_utils
 	url = git@github.com:lucivpav/InLocCIIRC_utils.git
+[submodule "functions/export_fig"]
+	path = functions/export_fig
+	url = git@github.com:altmany/export_fig.git
