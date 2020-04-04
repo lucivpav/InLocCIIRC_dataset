@@ -45,6 +45,7 @@ The usual steps are as follows:
 
 ## Build cutouts
 1. Adjust the Space name and the panoIds array
+2. It is necessary that the display is turned on, otherwise you get an error from pyrender
 
 ## Build transformations
 1. Adjust the Space name

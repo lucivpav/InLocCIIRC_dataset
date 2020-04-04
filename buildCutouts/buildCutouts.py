@@ -10,13 +10,23 @@ import open3d as o3d
 import py360convert
 
 sys.path.insert(1, os.path.join(sys.path[0], '../functions'))
-from InLocCIIRC_utils.projectMesh.projectMesh import projectMesh
+from InLocCIIRC_utils.projectMesh.projectMesh import projectMeshCached
 
 def getSweepRecord(sweepData, panoId):
     for i in range(len(sweepData)):
         sweepRecord = sweepData[i]
         if sweepRecord['panoId'] == panoId:
             return sweepRecord
+
+# FoV: degrees
+def computeFocalLength(sensorSize, FoV):
+    FoV = np.deg2rad(FoV)
+    return sensorSize / (2*np.tan(FoV/2))
+
+# FoV: degrees
+def computeFoV(sensorSize, f):
+    FoV = 2*np.arctan((sensorSize/2)/f)
+    return np.rad2deg(FoV)
 
 if __name__ == '__main__':
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
@@ -29,14 +39,12 @@ if __name__ == '__main__':
     debug = True
     #panoIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] # B-315
     panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13 ,15, 16, 20, 21, 22, 23 ,24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37] # B-670
-    f = 600
-    sensorSize = np.array([1600, 1200])
+    sensorSize = np.array([1600, 1200]) # width, height
     sensorWidth = sensorSize[0]
     sensorHeight = sensorSize[1]
-    fovHorizontal = 2*np.arctan((sensorWidth/2)/f)
-    fovHorizontal = np.rad2deg(fovHorizontal)
-    fovVertical = 2*np.arctan((sensorHeight/2)/f)
-    fovVertical = np.rad2deg(fovVertical)
+    fovHorizontal = 60.0 # [deg]; to match InLoc paper
+    f = computeFocalLength(sensorWidth, fovHorizontal)
+    fovVertical = computeFoV(sensorHeight, f)
 
     sweepData = sio.loadmat(sweepDataPath, squeeze_me=True)['sweepData']
 
@@ -45,6 +53,9 @@ if __name__ == '__main__':
 
     if not os.path.isdir(thisSpaceCutoutsDir):
         os.mkdir(thisSpaceCutoutsDir)
+    
+    trimeshScene = trimesh.load(meshPath)
+    scene = pyrender.Scene.from_trimesh_scene(trimeshScene)
 
     for panoId in panoIds:
         sweepRecord = getSweepRecord(sweepData, panoId)
@@ -76,7 +87,7 @@ if __name__ == '__main__':
             # set up the mat file
             cameraRotation = sweepRecord['rotation'] + np.array([pitch, -yaw, 0.0])
             rotationMatrix = R.from_euler('xyz', cameraRotation, degrees=True).as_matrix()
-            RGBcut, XYZcut, depth = projectMesh(meshPath, f, rotationMatrix, sweepRecord['position'], sensorSize)
+            RGBcut, XYZcut, depth = projectMeshCached(scene, f, rotationMatrix, sweepRecord['position'], sensorSize, False, -1)
             filename = filename + '.mat'
             path = os.path.join(thisPanoCutoutsDir, filename)
             sio.savemat(path, {'RGBcut': panoramaProjection, 'XYZcut': XYZcut})
