@@ -44,6 +44,7 @@ if __name__ == '__main__':
     sensorHeight = sensorSize[1]
     fovHorizontal = 60.0 # [deg]; to match InLoc paper
     f = computeFocalLength(sensorWidth, fovHorizontal)
+    assert(np.allclose(f, 1385.6406460551023))
     fovVertical = computeFoV(sensorHeight, f)
 
     sweepData = sio.loadmat(sweepDataPath, squeeze_me=True)['sweepData']

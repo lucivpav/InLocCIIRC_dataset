@@ -8,7 +8,7 @@ params.alignments.dir = fullfile(params.dataset.dir, 'alignments', params.spaceN
 params.all_transformations.path = fullfile(params.alignments.dir, 'all_transformations.txt');
 params.known_incorrect.path = fullfile(params.alignments.dir, 'know_incorrect.txt');
 params.transformations.dir = fullfile(params.alignments.dir, 'transformations');
-params.f = 600;
+params.f = 1385.6406460551023;
 params.sensorSize = [1600 1200];
 
 if exist(params.alignments.dir, 'dir') ~= 7
