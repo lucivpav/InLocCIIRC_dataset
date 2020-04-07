@@ -32,8 +32,7 @@ inlierPath = fullfile(params.denseInlier.dir, queryName, buildCutoutName(cutoutP
 load(inlierPath, 'inls', 'tentatives_2d');
 inls_2d = tentatives_2d(:,inls);
 
-cutoutPath = fullfile(params.cutout.dir, cutoutPath);
-cutout = imread(cutoutPath);
+cutout = imread(fullfile(params.cutout.dir, cutoutPath));
 
 if exist(params.evaluation.queryPipeline.dir, 'dir') ~= 7
     mkdir(params.evaluation.queryPipeline.dir);
@@ -63,7 +62,7 @@ set(gca,'YDir','reverse');
 set(gca, 'Visible', 'off');
 image(cutout);
 scatter(inls_2d(3,:), inls_2d(4,:), 12, 'green', 'filled');
-cutoutStepPath = fullfile(thisQueryPipelineDir, ['chosen_', cutoutName, '.png']);
+cutoutStepPath = fullfile(thisQueryPipelineDir, ['chosen_', buildCutoutName(cutoutPath, '.png')]);
 export_fig(cutoutStepPath, '-m2');
 close;
 
