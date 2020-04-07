@@ -1,6 +1,7 @@
-queryId = 3;
+queryId = 1;
 
 addpath('../functions/export_fig');
+addpath('../functions/InLocCIIRC_utils/buildCutoutName')
 params = struct();
 params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';
 params.query.dir = fullfile(params.dataset.dir, 'query');
@@ -22,20 +23,17 @@ fun = @(x) strcmp(ImgList(x).queryname, queryName);
 tf = arrayfun(fun, 1:numel(ImgList));
 ImgListRecord = ImgList(tf);
 cutoutPath = ImgListRecord.topNname{1};
-cutoutName = strsplit(cutoutPath, '/');
-cutoutName = cutoutName{3};
-cutoutName = strsplit(cutoutName, '.');
-cutoutName = cutoutName{1};
-cutoutPath = fullfile(params.cutout.dir, cutoutPath);
-cutout = imread(cutoutPath);
 
-synthPath = fullfile(params.synthesized.dir, queryName, [cutoutName, '.synth.mat']);
+synthPath = fullfile(params.synthesized.dir, queryName, buildCutoutName(cutoutPath, '.synth.mat'));
 load(synthPath, 'RGBpersp', 'errmap');
 synth = RGBpersp;
 
-inlierPath = fullfile(params.denseInlier.dir, queryName, [cutoutName, '.pnp_dense_inlier.mat']);
+inlierPath = fullfile(params.denseInlier.dir, queryName, buildCutoutName(cutoutPath, '.pnp_dense_inlier.mat'));
 load(inlierPath, 'inls', 'tentatives_2d');
 inls_2d = tentatives_2d(:,inls);
+
+cutoutPath = fullfile(params.cutout.dir, cutoutPath);
+cutout = imread(cutoutPath);
 
 if exist(params.evaluation.queryPipeline.dir, 'dir') ~= 7
     mkdir(params.evaluation.queryPipeline.dir);
