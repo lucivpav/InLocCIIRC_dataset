@@ -1,22 +1,24 @@
-function [inMap, closestCutout] = isQueryInMap(queryT, queryDir, querySpace, cutoutDescriptions, params)
+function [inMap, closestCutout] = isQueryInMap(P, querySpace, cutoutDescriptions, params)
+    addpath('../functions/InLocCIIRC_utils/rotationDistance');
     closestCutout.tDiff = inf;
-    closestCutout.dirDiff = inf;
+    closestCutout.rotDist = inf;
     inMap = false;
     for i=1:size(cutoutDescriptions,2)
         cutout = cutoutDescriptions(i);
         if ~strcmp(querySpace, cutout.space)
             continue
         end
+        queryT = -inv(P(1:3,1:3))*P(1:3,4);
         tDiff = norm(queryT - cutout.position);
-        dirDiff = atan2d(norm(cross(queryDir,cutout.direction)),dot(queryDir,cutout.direction));
-        if tDiff < closestCutout.tDiff || (tDiff == closestCutout.tDiff && dirDiff < closestCutout.dirDiff)
+        rotDist = rotationDistance(P(1:3,1:3), cutout.R);
+        if tDiff < closestCutout.tDiff || (tDiff == closestCutout.tDiff && rotDist < closestCutout.rotDist)
             closestCutout.tDiff = tDiff;
-            closestCutout.dirDiff = dirDiff;
+            closestCutout.rotDist = rotDist;
             closestCutoutIdx = i;
             closestCutout.name = cutout.name;
             closestCutout.space = cutout.space;
         end
-        if tDiff < params.inMap.tDiffMax && dirDiff < params.inMap.dirDiffMax
+        if tDiff < params.inMap.tDiffMax && rotDist < params.inMap.rotDistMax
             inMap = true;
         end
     end

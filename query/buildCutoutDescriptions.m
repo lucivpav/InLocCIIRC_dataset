@@ -33,8 +33,7 @@ function desc = buildCutoutDescriptions(params)
         sweepRecord = sweepData(tf);
         
         cameraRotation = sweepRecord.rotation + [pitch, -yaw, 0.0];
-        R = rotationMatrix(deg2rad(cameraRotation), 'ZYX');
-        desc(i).direction = R * [0.0; 0.0; -1.0];
+        desc(i).R = rotationMatrix(deg2rad(cameraRotation), 'ZYX');
         desc(i).position = sweepRecord.position;
     end
 end
