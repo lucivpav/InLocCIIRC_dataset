@@ -57,6 +57,14 @@ if __name__ == "__main__":
     cameraCS = np.array([[0.76, -0.47, 0.46], [0.19, 0.82, 0.54], [-0.63, -0.32, 0.71]])
     #plot_csystem(ax, cameraCS, origin, 'cameraCSfixedDir-z', 'brown')
 
+    # w.r.t. model, y *= -1 applied
+    markerCS = np.array([[0.77, -0.46, 0.44], [0.19, 0.82, 0.54], [-0.61, -0.33, 0.72]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'yellow')
+
+    # w.r.t. model, y *= -1 NOT applied
+    markerCS = np.array([[0.77, -0.22, 0.60], [-0.19, 0.82, 0.54], [-0.61, -0.53, 0.60]]) 
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'brown')
+
     cutoutR = np.array([[0.72, -0.35, 0.61], [-0.00, 0.87, 0.50], [-0.70, -0.36, 0.62]])
     #plot_csystem(ax, cutoutR, origin, 'cutoutR', 'red')
 
@@ -78,15 +86,74 @@ if __name__ == "__main__":
     cutoutR = np.array([[-0.26, 0.48, 0.83], [0.00, 0.86, -0.50], [-0.97, -0.13, -0.23]])
     #plot_csystem(ax, cutoutR, origin, 'cutoutR', 'red')
 
+    # w.r.t. model, y *= -1 applied
+    markerCS = np.array([[-0.11, -0.96, 0.27], [-0.20, 0.29, 0.94], [-0.97, 0.05, -0.23]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'yellow')
+
+    # w.r.t. model, y *= -1 NOT applied
+    markerCS = np.array([[-0.11, -0.94, 0.32], [0.20, 0.29, 0.94], [-0.97, 0.17, 0.16]]) # above not applied
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'brown')
+
     ### query 3
 
     # w.r.t. model, camera points to -z, cameraCS2
     cameraCS = np.array([[0.15, 0.99, -0.00], [-0.02, 0.01, 1.00], [0.99, -0.15, 0.02]]) 
-    plot_csystem(ax, cameraCS, origin, 'cameraCSModelDiryPrerFix', 'yellow')
+    #plot_csystem(ax, cameraCS, origin, 'cameraCSModelDiryPrerFix', 'yellow')
 
     cutoutR = np.array([[0.26, 0.00, -0.97], [-0.00, 1.00, 0.00], [0.97, -0.00, 0.26]])
+    #plot_csystem(ax, cutoutR, origin, 'cutoutR', 'red')
+
+
+    ### query 36
+
+    # w.r.t. model, y *= -1 applied, ZYX order
+    markerCS = np.array([[0.77, -0.24, 0.59], [-0.61, -0.53, 0.58], [0.18, -0.81, -0.56]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'yellow')
+
+    # w.r.t. model, y *= -1 applied, ZYX order, rFixed along xAxis
+    markerCS = np.array([[0.77, 0.59, 0.24], [-0.61, 0.58, 0.53], [0.18, -0.56, 0.81]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'yellow')
+
+    # w.r.t. model, y *= -1 NOT applied, ZYX order
+    markerCS = np.array([[0.77, 0.57, -0.29], [0.61, -0.53, 0.58], [0.18, -0.62, -0.76]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'brown')
+
+    # w.r.t. model, y *= -1 NOT applied, XYZ order
+    # NOTE: although it looks more correct than when y *= -1 is applied, it is in fact still incorrect
+    markerCS = np.array([[0.77, 0.18, 0.61], [-0.59, 0.56, 0.58], [-0.24, -0.81, 0.53]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'blue')
+
+    # w.r.t. model, y *= -1 applied, XYZ order
+    # NOTE: this is also not correct, although it looks like it could be
+    markerCS = np.array([[0.77, 0.18, -0.61], [0.29, 0.76, 0.58], [0.57, -0.62, 0.53]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'brown')
+
+    # w.r.t. model, y *= -1 applied, ZYX order, Y-coordinates flipped
+    markerCS = np.array([[0.77, -0.24, 0.59], [0.61, 0.53, -0.58], [0.18, -0.81, -0.56]])
+    #plot_csystem(ax, markerCS, origin, 'markerCS', 'blue')
+
+    # w.r.t. model, camera points to ??? should point to y!
+    cameraCS = np.array([[0.77, -0.26, 0.58], [-0.61, -0.53, 0.58], [0.16, -0.80, -0.57]])
+    #plot_csystem(ax, cameraCS, origin, 'cameraCS', 'yellow')
+
+    # w.r.t. model, this is fed directly to projectPC,
+    cameraCS = np.array([[0.77, -0.58, -0.26], [-0.61, -0.58, -0.53], [0.16, 0.57, -0.80]])
+    #plot_csystem(ax, cameraCS, origin, 'cameraCS', 'blue')
+
+    # used for finding the closest cutout
+    cameraCS = np.array([[0.77, -0.26, 0.58], [-0.61, -0.53, 0.58], [0.16, -0.80, -0.57]])
+    #plot_csystem(ax, cameraCS, origin, 'cameraCS', 'blue')
+    # TODO: compare with reference closest cutout in backup
+
+    # w.r.t. model, this is fed directly to projectPC, from master branch
+    cameraCS = np.array([[0.77, -0.58, -0.26], [-0.61, -0.58, -0.53], [0.16, 0.57, -0.80]])
+    #plot_csystem(ax, cameraCS, origin, 'cameraCSmaster', 'pink')
+
+    cutoutR = np.array([[0.93, -0.18, -0.31], [-0.00, 0.86, -0.50], [0.36, 0.47, 0.81]])
     plot_csystem(ax, cutoutR, origin, 'cutoutR', 'red')
 
+    temporary = np.array([[0.77, 0.26, -0.58], [-0.61, 0.53, -0.58], [0.16, 0.80, 0.57]])
+    plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
 
 
     ax.set_xlabel('x')
