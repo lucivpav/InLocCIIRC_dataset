@@ -3,3 +3,4 @@
 .DS_Store
 key.js
 *.class
+__pycache__

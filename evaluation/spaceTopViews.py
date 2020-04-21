@@ -9,6 +9,7 @@ from adjustText import adjust_text
 import matplotlib.patheffects as PathEffects
 sys.path.insert(1, os.path.join(sys.path[0], '../functions'))
 from InLocCIIRC_utils.projectMesh.projectMesh import projectMesh
+from local.load_CIIRC_transformation.load_CIIRC_transformation  import load_CIIRC_transformation
 
 def project(point, mag, sensorSize, rotationMatrix, translation):
     xmag = mag
@@ -47,8 +48,8 @@ evaluationDir = os.path.join(datasetDir, 'evaluation')
 temporaryDir = os.path.join(evaluationDir, 'temporary')
 if not os.path.isdir(temporaryDir):
     os.mkdir(temporaryDir)
-queryPosesPath = os.path.join(datasetDir, 'query', 'poses.csv')
-retrievedQueryPosesPath = os.path.join(evaluationDir, 'retrievedPoses.csv')
+queryDescriptionsPath = os.path.join(datasetDir, 'query', 'descriptions.csv')
+retrievedQueriesPath = os.path.join(evaluationDir, 'retrievedQueries.csv')
 spaceNames = ['B-315', 'B-670']
 sensorSize = 2*np.array([1600, 1200])
 translations = [np.array([3.0, 1.0, 3.0]).T, np.array([-8.0, 1.0, -3.0]).T]
@@ -93,29 +94,29 @@ for i in range(len(spaceNames)):
         plotLocation(str(sweepId), 'red', projectedPoint[0], projectedPoint[1], texts[i])
 
 # query
-df = pd.read_csv(queryPosesPath, sep=' ')
+df = pd.read_csv(queryDescriptionsPath, sep=' ')
 for i in range(len(df)):
     queryId = df['id'][i]
-    queryX = df['x'][i]
-    queryY = df['y'][i]
-    queryZ = df['z'][i]
+    posePath = os.path.join(datasetDir, 'query', 'poses', '%d.txt' % queryId)
+    P = load_CIIRC_transformation(posePath)
+    t = -P[0:3,0:3] @ P[0:3,3]
+    t = np.reshape(t, (3,1))
     querySpace = df['space'][i]
     queryInMap = df['inMap'][i]
-    t = np.reshape(np.array([queryX, queryY, queryZ]).T, (3,1))
     spaceId = spaceNames.index(querySpace)
     projectedPoint = project(t, magnifications[spaceId], sensorSize, rotationMatrix, translations[spaceId])
     plt.figure(spaceId)
     plotLocation(str(queryId), 'blue', projectedPoint[0], projectedPoint[1], texts[spaceId])
 
 # retrieved query poses
-df = pd.read_csv(retrievedQueryPosesPath, sep=' ')
+df = pd.read_csv(retrievedQueriesPath, sep=' ')
 for i in range(len(df)):
     queryId = df['id'][i]
-    queryX = df['x'][i]
-    queryY = df['y'][i]
-    queryZ = df['z'][i]
+    posePath = os.path.join(evaluationDir, 'retrievedPoses', '%d.txt' % queryId)
+    P = load_CIIRC_transformation(posePath)
+    t = -P[0:3,0:3] @ P[0:3,3]
+    t = np.reshape(t, (3,1))
     querySpace = df['space'][i]
-    t = np.reshape(np.array([queryX, queryY, queryZ]).T, (3,1))
     if np.any(np.isnan(t)):
         continue
     spaceId = spaceNames.index(querySpace)
