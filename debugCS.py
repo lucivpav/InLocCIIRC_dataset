@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
     # from RotDist branch
     #temporary = np.array([[-0.16, 0.00, -0.99], [0.03, -1.00, -0.01], [-0.99, -0.03, 0.16]]).T # query 1
-    temporary = np.array([[0.77, -0.61, -0.16], [-0.58, -0.58, -0.57], [0.26, 0.53, -0.80]]).T # query 36
+    temporary = np.array([[0.77, 0.61, -0.16], [-0.58, 0.58, -0.57], [-0.26, 0.53, 0.80]]) # query 36
     plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
     temporary2 = np.array([[0.29, -0.77, -0.57], [-0.76, 0.18, -0.62], [0.58, 0.61, -0.53]]) # query 36
     #plot_csystem(ax, temporary2, origin, 'temporary2', 'pink')

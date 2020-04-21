@@ -18,7 +18,6 @@ cutoutDescriptions = buildCutoutDescriptions(params);
 mkdirIfNonExistent(params.closest.cutout.dir);
 
 for i=1:size(rawPosesTable,1)
-    i = 36;
 
     id = rawPosesTable{i, 'id'};
     x = rawPosesTable{i, 'x'};
@@ -40,37 +39,24 @@ for i=1:size(rawPosesTable,1)
     % TODO: why does the rotation orientation have to be flipped?
     % NOTE: this is necessary for correctness
     % NOTE: this probably forces the ugly hack later on
-    markerRotation = rawRotation .* [1.0 1.0 1.0];
+    markerRotation = rawRotation .* [1.0 -1.0 1.0];
 
     cameraR = rotationMatrix(cameraRotation, 'XYZ');
-    markerR = rotationMatrix(markerRotation, 'XYZ');
+    markerR = rotationMatrix(markerRotation, 'ZYX');
     viconR = rotationMatrix(viconRotation, 'XYZ');
 
     markerOrigin = viconR * rawPosition + viconOrigin; % w.r.t. model
 
     % note: coordinate vectors are columns
-    markerCoordinateSystem = eye(3) * markerR; % w.r.t. vicon
-    markerCoordinateSystem = markerCoordinateSystem * viconR; % w.r.t. model
-    
-    brokenRawData = false;
-    if markerCoordinateSystem(3,2) < 0
-        brokenRawData = true;
-        rFix = rotationMatrix([pi/2, 0.0, 0.0], 'ZYX');
-        markerCoordinateSystem = markerCoordinateSystem * rFix;
-    end
+    markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
+    markerCoordinateSystem = viconR * markerCoordinateSystem; % w.r.t. model
     
     cameraOrigin = 0.01 * [-3; 1; -4]; % w.r.t. marker, from marker origin
     cameraOrigin = markerCoordinateSystem * cameraOrigin + markerOrigin; % w.r.t. marker, from model origin
 
-    markerCoordinateSystem = eye(3) * markerR; % w.r.t. vicon
-    
-    if brokenRawData
-        rFix = rotationMatrix([pi/2, 0.0, 0.0], 'ZYX');
-        markerCoordinateSystem = markerCoordinateSystem * rFix;
-    end
-    
-    cameraCoordinateSystem = markerCoordinateSystem * cameraR; % w.r.t. vicon 
-    cameraCoordinateSystem = cameraCoordinateSystem * viconR; % w.r.t. model, camera points to y
+    markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
+    cameraCoordinateSystem = cameraR * markerCoordinateSystem; % w.r.t. vicon 
+    cameraCoordinateSystem = viconR * cameraCoordinateSystem; % w.r.t. model, camera points to y
     
     pc = pcread(params.pointCloud.path);
     
@@ -78,15 +64,20 @@ for i=1:size(rawPosesTable,1)
     sensorSize = [3024, 4032]; % height, width
     
     outputSize = sensorSize;
-
-    % bring -z to where y is, as required by cutout.R
-    rFix = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX');
-    cameraCoordinateSystem = rFix * cameraCoordinateSystem;
     
+    % bring z to where y is, as required by projectPC
+    rFix = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX');
+    cameraCoordinateSystem = cameraCoordinateSystem * rFix;
+    %RprojectPC = eye(3);
+
+    % bring -z to where z is, as required by cutout.R
+    rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
+    cameraCoordinateSystem2 = cameraCoordinateSystem' * rFix;
+
     t = cameraOrigin;
     P = eye(4);
-    P(1:3,1:3) = cameraCoordinateSystem';
-    P(1:3,4) = cameraCoordinateSystem' * -t;
+    P(1:3,1:3) = cameraCoordinateSystem2;
+    P(1:3,4) = cameraCoordinateSystem2 * -t;
 
     poseFile = fopen(fullfile(params.poses.dir, sprintf('%d.txt', id)), 'w');
     P_str = P_to_str(P);
@@ -94,12 +85,8 @@ for i=1:size(rawPosesTable,1)
     fclose(poseFile);
 
     pointSize = 8.0;
-    % bring -z to where -y is, as required by projectPC
-    rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
-    RprojectPC = rFix * cameraCoordinateSystem;
-    %RprojectPC = eye(3);
     
-    projectedPointCloud = projectPointCloud(params.pointCloud.path, f, RprojectPC, ...
+    projectedPointCloud = projectPointCloud(params.pointCloud.path, f, cameraCoordinateSystem, ...
                                         t, sensorSize, outputSize, pointSize, ...
                                         params.projectPointCloudPy.path);
     imshow(projectedPointCloud);
