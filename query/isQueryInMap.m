@@ -10,7 +10,9 @@ function [inMap, closestCutout] = isQueryInMap(P, querySpace, cutoutDescriptions
         end
         queryT = -inv(P(1:3,1:3))*P(1:3,4);
         tDiff = norm(queryT - cutout.position);
-        rotDist = rotationDistance(P(1:3,1:3), cutout.R);
+        rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX'); % cutout.R is pointing to -z
+        cutoutR = cutout.R * rFix;
+        rotDist = rotationDistance(P(1:3,1:3), cutoutR);
         if tDiff < closestCutout.tDiff || (tDiff == closestCutout.tDiff && rotDist < closestCutout.rotDist)
             closestCutout.tDiff = tDiff;
             closestCutout.rotDist = rotDist;

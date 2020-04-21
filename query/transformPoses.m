@@ -1,7 +1,7 @@
 addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
-addpath('../functions/local/P_to_str')
+addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/local/R_to_numpy_array')
 [ params ] = setupParams;
 
@@ -70,14 +70,10 @@ for i=1:size(rawPosesTable,1)
     cameraCoordinateSystem = cameraCoordinateSystem * rFix;
     %RprojectPC = eye(3);
 
-    % bring -z to where z is, as required by cutout.R
-    rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
-    cameraCoordinateSystem2 = cameraCoordinateSystem' * rFix;
-
     t = cameraOrigin;
     P = eye(4);
-    P(1:3,1:3) = cameraCoordinateSystem2;
-    P(1:3,4) = cameraCoordinateSystem2 * -t;
+    P(1:3,1:3) = cameraCoordinateSystem;
+    P(1:3,4) = cameraCoordinateSystem * -t;
 
     poseFile = fopen(fullfile(params.poses.dir, sprintf('%d.txt', id)), 'w');
     P_str = P_to_str(P);

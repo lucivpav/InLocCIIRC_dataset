@@ -156,32 +156,16 @@ if __name__ == "__main__":
     markerCS = np.array([[-0.13, -0.99, -0.00], [0.03, -0.01, 1.00], [-0.99, 0.13, 0.03]])
     #plot_csystem(ax, markerCS, origin, 'markerCS', 'blue')
 
-    # query X
-    # from master branch
-    #temporary = np.array([[-0.16, 0.00, -0.99], [0.03, -1.00, -0.01], [-0.99, -0.03, 0.16]]) # query 1
-    #temporary = np.array([[-0.90, -0.00, -0.44], [0.15, -0.94, -0.30], [-0.42, -0.34, 0.84]]) # query 13
-    #temporary = np.array([[0.86, 0.01, -0.51], [0.18, -0.94, 0.28], [-0.48, -0.33, -0.81]]) # query 15
-    #temporary = np.array([[-0.70, -0.47, -0.53], [0.02, -0.77, 0.64], [-0.71, 0.44, 0.55]]) # query 33, could not verify whether .T or not.T is correct
-    temporary = np.array([[0.77, -0.58, -0.26], [-0.61, -0.58, -0.53], [0.16, 0.57, -0.80]]) # query 36
-    #temporary = np.array([[0.76, -0.46, -0.47], [0.19, -0.54, 0.82], [-0.63, -0.71, -0.32]]) # query 40
-    plot_csystem(ax, temporary.T, origin, 'Rmaster', 'blue')
-    #plot_csystem(ax, temporary, origin, 'RmasterFlip', 'pink')
+    ### query X
+    temporary = np.array([[-0.16, -0.03, 0.99], [0.00, 1.00, 0.03], [-0.99, 0.01, -0.16]])
+    plot_csystem(ax, temporary, origin, 'reference', 'blue')
 
-    markerCS = np.array([[0.77, -0.24, 0.59], [-0.61, -0.53, 0.58], [0.18, -0.81, -0.56]]) # query 36
-    #plot_csystem(ax, markerCS, origin, 'markerMaster', 'blue')
-    cameraCS = np.array([[0.77, -0.26, 0.58], [-0.61, -0.53, 0.58], [0.16, -0.80, -0.57]]) # query 36
-    #plot_csystem(ax, cameraCS, origin, 'cameraMaster', 'blue')
-
-
-    # from RotDist branch
-    #temporary = np.array([[-0.16, 0.00, -0.99], [0.03, -1.00, -0.01], [-0.99, -0.03, 0.16]]).T # query 1
-    temporary = np.array([[0.77, 0.61, -0.16], [-0.58, 0.58, -0.57], [-0.26, 0.53, 0.80]]) # query 36
+    temporary = np.array([[-0.15, -0.02, 0.99], [0.01, 1.00, 0.02], [-0.99, 0.01, -0.15]])
     plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
-    temporary2 = np.array([[0.29, -0.77, -0.57], [-0.76, 0.18, -0.62], [0.58, 0.61, -0.53]]) # query 36
     #plot_csystem(ax, temporary2, origin, 'temporary2', 'pink')
 
-    cutoutR = np.array([[0.99, -0.08, -0.15], [-0.01, 0.87, -0.50], [0.16, 0.49, 0.86]]) # cutout_4_120_30.jpg
-    #plot_csystem(ax, cutoutR, origin, 'cutoutR', 'blue')
+
+
 
 
     ax.set_xlabel('x')
