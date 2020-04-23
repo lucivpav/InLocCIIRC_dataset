@@ -3,7 +3,7 @@ addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/local/R_to_numpy_array')
-[ params ] = setupParams;
+[ params ] = setupParams('s10e');
 
 mkdirIfNonExistent(params.projectedPointCloud.dir);
 mkdirIfNonExistent(params.poses.dir);
@@ -31,10 +31,12 @@ for i=1:size(rawPosesTable,1)
     rawPosition = [x; y; z];
     rawRotation = [alpha beta gamma]; % in radians
 
+    %% this stuff must be extracted into a function
+
     viconOrigin = [-0.13; 0.04; 2.80]; % w.r.t. model
     viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
 
-    cameraRotation = deg2rad([0.0 0.0 1.5]); % w.r.t. marker
+    cameraRotation = params.camera.rotation.wrt.marker;
     
     % TODO: why does the rotation orientation have to be flipped?
     % NOTE: this is necessary for correctness
@@ -51,17 +53,15 @@ for i=1:size(rawPosesTable,1)
     markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
     markerCoordinateSystem = viconR * markerCoordinateSystem; % w.r.t. model
     
-    cameraOrigin = 0.01 * [-3; 1; -4]; % w.r.t. marker, from marker origin
+    cameraOrigin = params.camera.origin.wrt.marker;
     cameraOrigin = markerCoordinateSystem * cameraOrigin + markerOrigin; % w.r.t. marker, from model origin
 
     markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
     cameraCoordinateSystem = cameraR * markerCoordinateSystem; % w.r.t. vicon 
     cameraCoordinateSystem = viconR * cameraCoordinateSystem; % w.r.t. model, camera points to y
     
-    pc = pcread(params.pointCloud.path);
-    
-    f = 3172.435; % in pixels
-    sensorSize = [3024, 4032]; % height, width
+    f = params.camera.fl; % in pixels
+    sensorSize = params.camera.sensor.size; % height, width
     
     outputSize = sensorSize;
     
@@ -85,6 +85,9 @@ for i=1:size(rawPosesTable,1)
     projectedPointCloud = projectPointCloud(params.pointCloud.path, f, cameraCoordinateSystem, ...
                                         t, sensorSize, outputSize, pointSize, ...
                                         params.projectPointCloudPy.path);
+    
+    %% end of extraction
+
     imshow(projectedPointCloud);
     queryFilename = sprintf('%d.jpg', id);
     projectedPointCloudFile = fullfile(params.projectedPointCloud.dir, queryFilename);
