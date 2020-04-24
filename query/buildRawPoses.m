@@ -15,7 +15,7 @@ measurementTable = removevars(measurementTable, {'FPS', 'marker', 'frameNumber'}
 measurementTable = measurementTable(~measurementTable.invalid, {'timestampMs', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'});
 
 %% try a synchronization constant
-syncConstant = 15 * 1000; % [ms]
+syncConstant = 41.4 * 1000; % [ms]
 [~, idx] = closest_value(measurementTable.timestampMs, syncConstant);
 
 %% project and check whether it corresponds to the initial sequence image
