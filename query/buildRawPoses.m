@@ -27,8 +27,13 @@ queryTable = table({files.name}', timestamps);
 queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
 %% try a synchronization constant
-syncConstant = 41.4 * 1000; % [ms]
-[~, idx] = closest_value(measurementTable.timestampMs, syncConstant);
+syncConstant = 10.1 * 1000; % [ms]
+
+queryName = '00132321090868821963.jpg';
+queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
+queryTimestamp = queryTimestamp{1,1};
+viconTimestamp = syncConstant + queryTimestamp;
+[~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp);
 
 %% project and check whether it corresponds to the initial sequence image
 closestEvent = measurementTable(idx,:);
