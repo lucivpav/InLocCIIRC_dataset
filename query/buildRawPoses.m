@@ -1,5 +1,6 @@
 addpath('../functions/closest_value');
 addpath('../functions/local/projectPointCloud');
+addpath('../functions/disperse');
 
 measurementPath = '/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences/measurement1.txt';
 
@@ -13,6 +14,17 @@ measurementTable.frameNumber = measurementTable.frameNumber - measurementTable.f
 measurementTable.timestampMs = measurementTable.frameNumber * (1 / FPS) * 1000;
 measurementTable = removevars(measurementTable, {'FPS', 'marker', 'frameNumber'});
 measurementTable = measurementTable(~measurementTable.invalid, {'timestampMs', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'});
+
+files = dir('/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences/HoloLensRecording__2020_04_23__09_53_01/pv');
+files = files(endsWith({files.name}, '.jpg'));
+
+timestamps = {files.name};
+timestamps = extractBetween(timestamps, 1, strlength(timestamps)-4);
+timestamps = strcat('uint64(', timestamps, ')');
+timestamps = str2num(str2mat(timestamps));
+timestamps = (timestamps - timestamps(1)) / 10000;
+queryTable = table({files.name}', timestamps);
+queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
 %% try a synchronization constant
 syncConstant = 41.4 * 1000; % [ms]
