@@ -27,7 +27,7 @@ queryTable = table({files.name}', timestamps);
 queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
 %% try a synchronization constant
-syncConstant = 10.4 * 1000; % [ms]
+syncConstant = 10.2 * 1000; % [ms]
 
 queryName = '00132321090555753820.jpg';
 %queryName = '00132321090868821963.jpg';
