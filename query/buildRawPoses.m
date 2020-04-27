@@ -30,8 +30,9 @@ queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 syncConstant = 10.2 * 1000; % [ms]
 
 %queryName = '00132321090555753820.jpg';
-queryName = '00132321090868821963.jpg';
+%queryName = '00132321090868821963.jpg';
 %queryName = '00132321091341754646.jpg';
+queryName = '00132321091488297196.jpg';
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
 viconTimestamp = syncConstant + queryTimestamp;
