@@ -5,8 +5,7 @@ function [ params ] = s10eParams(params)
     params.camera.rotation.wrt.marker = deg2rad([-7.0 6.0 -4.0]); % this is optimal for queries 1, 4
     %params.camera.rotation.wrt.marker = deg2rad([-2.0 7.0 -7.0]); % this is optimal for query 2
     %params.camera.rotation.wrt.marker = deg2rad([1.0 9.0 4.0]); % this is optimal for query 3
-    params.camera.origin.wrt.marker = 0.023 * [5; 20; -3]; % this is optimal for queries 1, 4
-    %params.camera.origin.wrt.marker = 0.023 * [5; 20; -3]; % this is optimal for query 2
+    params.camera.origin.wrt.marker = 0.023 * [3; 20; -3];
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1015; % in pixels
     
