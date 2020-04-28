@@ -77,3 +77,11 @@ The usual steps are as follows:
 
 ## TODO
 * Make the scores more relevant. Right now they don't represent the query-cutouts very well.
+
+If you have query sequences, you need to generate raw poses
+
+1. Navigate to buildRawPoses.m
+2. Guess a synchronization constant
+3. Set up parameters in *params* folder
+4. Set generateMiniSequence to true, until you find the right synchronization constant
+5. Set generateMiniSequence to false, adjust the params until projections match queries

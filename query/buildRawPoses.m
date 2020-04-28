@@ -1,6 +1,13 @@
 addpath('../functions/closest_value');
 addpath('../functions/local/projectPointCloud');
 addpath('../functions/disperse');
+addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
+
+generateMiniSequence = false;
+
+[ params ] = setupParams('holoLens1Params');
+miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
+mkdirIfNonExistent(miniSequenceDir);
 
 measurementPath = '/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences/measurement1.txt';
 
@@ -27,7 +34,7 @@ queryTable = table({files.name}', timestamps);
 queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
 %% try a synchronization constant
-syncConstant = 10.2 * 1000; % [ms]
+syncConstant = 10.7 * 1000; % [ms]
 
 %queryName = '00132321090555753820.jpg';
 %queryName = '00132321090868821963.jpg';
@@ -36,13 +43,20 @@ queryName = '00132321091488297196.jpg';
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
 viconTimestamp = syncConstant + queryTimestamp;
-[~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp);
+
+padding = 1500;
+tDiffsMs = -padding:100:padding;
+if ~generateMiniSequence
+    tDiffsMs = 0:1:0;
+end
+for i=1:size(tDiffsMs,2)
+tDiffMs = tDiffsMs(1,i);
+[~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp+tDiffMs);
 
 %% project and check whether it corresponds to the initial sequence image
 closestEvent = measurementTable(idx,:);
 rawPosition = [closestEvent{1,'x'}; closestEvent{1,'y'}; closestEvent{1,'z'}];
 rawRotation = [closestEvent{1,'alpha'}, closestEvent{1,'beta'}, closestEvent{1,'gamma'}];
-[ params ] = setupParams('holoLens1Params');
 [R, t] = rawPoseToPose(rawPosition, rawRotation, params);
 
 pointSize = 8.0;
@@ -50,4 +64,11 @@ outputSize = params.camera.sensor.size;
 projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
                                     t, params.camera.sensor.size, outputSize, pointSize, ...
                                     params.projectPointCloudPy.path);
-imshow(projectedPointCloud);
+if generateMiniSequence
+    projectedPointCloudPath = fullfile(miniSequenceDir, sprintf('%d_%d.jpg',i,tDiffMs));
+    imwrite(projectedPointCloud, projectedPointCloudPath);
+else
+    imshow(projectedPointCloud);
+end
+
+end
