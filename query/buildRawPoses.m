@@ -1,6 +1,5 @@
 addpath('../functions/closest_value');
 addpath('../functions/local/projectPointCloud');
-addpath('../functions/disperse');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 
 generateMiniSequence = false;
@@ -9,10 +8,8 @@ generateMiniSequence = false;
 miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
-measurementPath = '/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences/measurement1.txt';
-
 %% prepare Vicon table with millisecond timestamps
-measurementTable = readtable(measurementPath);
+measurementTable = readtable(params.measurement.path);
 measurementTable.Properties.VariableNames = {'frameNumber', 'FPS', 'marker', 'invalid', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'};
 
 FPS = 100; % TODO: check with the data that this is true
@@ -22,15 +19,15 @@ measurementTable.timestampMs = measurementTable.frameNumber * (1 / FPS) * 1000;
 measurementTable = removevars(measurementTable, {'FPS', 'marker', 'frameNumber'});
 measurementTable = measurementTable(~measurementTable.invalid, {'timestampMs', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'});
 
-files = dir('/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences/HoloLensRecording__2020_04_23__09_53_01/pv');
-files = files(endsWith({files.name}, '.jpg'));
+queryFiles = dir(params.input.query.dir);
+queryFiles = queryFiles(endsWith({queryFiles.name}, '.jpg'));
 
-timestamps = {files.name};
+timestamps = {queryFiles.name};
 timestamps = extractBetween(timestamps, 1, strlength(timestamps)-4);
 timestamps = strcat('uint64(', timestamps, ')');
 timestamps = str2num(str2mat(timestamps));
 timestamps = (timestamps - timestamps(1)) / 10000;
-queryTable = table({files.name}', timestamps);
+queryTable = table({queryFiles.name}', timestamps);
 queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
 %% try a synchronization constant
@@ -73,5 +70,31 @@ if generateMiniSequence
 else
     imshow(projectedPointCloud);
 end
+
+return
+
+%% once good enough parameters are found, run this to generate rawPoses.csv
+rawPosesFile = fopen(params.rawPoses.path, 'w');
+fprintf(rawPosesFile, 'id x y z alpha beta gamma space\n');
+
+for i=1:size(queryTable,1)
+    inputQueryPath = fullfile(queryFiles(i).folder, queryFiles(i).name);
+    outputQueryPath = fullfile(params.query.dir, sprintf('%d.jpg', i));
+    copyfile(inputQueryPath, outputQueryPath);
+    
+    queryTimestamp = queryTable(i, 'timestampMs');
+    queryTimestamp = queryTimestamp{1,1};
+    viconTimestamp = syncConstant + queryTimestamp;
+    [~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp);
+    closestEvent = measurementTable(idx,:);
+    space = 'B-315';
+    fprintf(rawPosesFile, '%d %f %f %f %f %f %f %s\n', ...
+        i, closestEvent{1,'x'}, closestEvent{1,'y'}, closestEvent{1,'z'}, ...
+        closestEvent{1,'alpha'}, closestEvent{1,'beta'}, closestEvent{1,'gamma'}, ...
+        space);
+end
+
+fclose(rawPosesFile);
+
 
 end
