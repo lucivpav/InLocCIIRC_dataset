@@ -39,7 +39,10 @@ syncConstant = 10.7 * 1000; % [ms]
 %queryName = '00132321090555753820.jpg';
 %queryName = '00132321090868821963.jpg';
 %queryName = '00132321091341754646.jpg';
-queryName = '00132321091488297196.jpg';
+%queryName = '00132321091488297196.jpg';
+%queryName = '00132321091075313721.jpg';
+%queryName = '00132321091195212118.jpg'; % broken, sadly
+queryName = '00132321091305119025.jpg';
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
 viconTimestamp = syncConstant + queryTimestamp;
@@ -47,7 +50,7 @@ viconTimestamp = syncConstant + queryTimestamp;
 padding = 1500;
 tDiffsMs = -padding:100:padding;
 if ~generateMiniSequence
-    tDiffsMs = 0:1:0;
+    tDiffsMs = [0];
 end
 for i=1:size(tDiffsMs,2)
 tDiffMs = tDiffsMs(1,i);
