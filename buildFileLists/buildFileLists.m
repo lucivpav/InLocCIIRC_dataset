@@ -1,7 +1,7 @@
 params = struct();
 params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'; % Note: this path is intentionally not UTF-8 style. This is because dir() cannot handle UTF-8 characters properly.
 params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
-params.query.dir = fullfile(params.dataset.dir, 'query');
+params.query.dir = fullfile(params.dataset.dir, 'query-HoloLens1');
 params.query_imgnames_all.path = fullfile(params.inputs.dir, 'query_imgnames_all.mat');
 params.cutouts.dir = fullfile(params.dataset.dir, 'cutouts');
 params.cutout_imgnames_all.path = fullfile(params.inputs.dir, 'cutout_imgnames_all.mat');

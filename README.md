@@ -59,10 +59,12 @@ The usual steps are as follows:
 
 ## Build file lists
 1. Note the comment on the second line
+2. Change params.query.dir accordingly
 
 ## Build scores
-1. Execute buildFeatures.m on a machine with GPU
+1. Execute buildFeatures.m on a machine with GPU. It can hang after it finishes. Be patient, otherwise data loss may occur.
 2. Execute buildScores on a machine with ~40 GB of RAM
+3. Set up appropriate params.query.dir
 
 ## Plot the dataset including retrieved poses 
 1. Make sure the demo has finished and now we have retrievedPoses directory in evaluation directory
@@ -85,3 +87,7 @@ If you have query sequences, you need to generate raw poses
 3. Set up parameters in *params* folder
 4. Set generateMiniSequence to true, until you find the right synchronization constant
 5. Set generateMiniSequence to false, adjust the params until projections match queries
+6. Once the parameters are good enough, scroll down and execute the code snippet that generates rawPoses.csv
+
+## WARNINGS
+* Do not overwrite functions/matconvnet when syncing local repo with remote repo. It contains already built package for the remote. However, if hit accidentally happens, prebuilt binary can be found at boruvka:/datagrid/personal/lucivpav/matconvnet

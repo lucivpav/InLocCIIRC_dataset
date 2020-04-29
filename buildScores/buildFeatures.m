@@ -1,7 +1,7 @@
 addpath('../functions/relja_matlab');
 addpath('../functions/relja_matlab/matconvnet/');
 addpath('../functions/netvlad/');
-addpath('../functions/at_netvlad_function');
+addpath('../functions/InLocCIIRC_utils/at_netvlad_function');
 run('../functions/matconvnet/matlab/vl_setupnn.m');
 
 params = struct();
@@ -11,7 +11,7 @@ params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
 params.input_features.dir = fullfile(params.dataset.dir, 'inputFeatures');
 params.query_imgnames_all.path = fullfile(params.inputs.dir, 'query_imgnames_all.mat');
 params.cutout_imgnames_all.path = fullfile(params.inputs.dir, 'cutout_imgnames_all.mat');
-params.query.dir = fullfile(params.dataset.dir, 'query/'); % NOTE: the slash is important
+params.query.dir = fullfile(params.dataset.dir, 'query-HoloLens1/'); % NOTE: the slash is important
 params.cutouts.dir = fullfile(params.dataset.dir, 'cutouts/');
 
 if exist(params.input_features.dir, 'dir') ~= 7
@@ -26,9 +26,14 @@ net = relja_cropToLayer(net, 'preL2');
 x = load(params.query_imgnames_all.path);
 imageFilenames = x.query_imgnames_all;
 
+featureLength = 3840000;
+
 %serialAllFeats(net, params.query.dir, imageFilenames, params.input_features.dir, 'useGPU', false, 'batchSize', 1);
-for i=1:size(imageFilenames,2)
-    fprintf('Finding features for query #%d/%d\n\n', i, size(imageFilenames,2))
+
+nQueries = size(imageFilenames,2);
+queryFeatures = zeros(nQueries, featureLength);
+for i=1:nQueries
+    fprintf('Finding features for query #%d/%d\n\n', i, nQueries)
     cnn = at_serialAllFeats_convfeat(net, params.query.dir, imageFilenames{i}, 'useGPU', true);
     queryFeatures(i,:) = cnn{5}.x(:);
 end
@@ -36,8 +41,10 @@ end
 %% cutouts
 x = load(params.cutout_imgnames_all.path);
 imageFilenames = x.cutout_imgnames_all;
-for i=1:size(imageFilenames,2)
-    fprintf('Finding features for cutout #%d/%d\n\n', i, size(imageFilenames,2))
+nCutouts = size(imageFilenames,2);
+cutoutFeatures = zeros(nCutouts, featureLength);
+for i=1:nCutouts
+    fprintf('Finding features for cutout #%d/%d\n\n', i, nCutouts)
     cnn = at_serialAllFeats_convfeat(net, params.cutouts.dir, imageFilenames{i}, 'useGPU', true);
     cutoutFeatures(i,:) = cnn{5}.x(:);
 end

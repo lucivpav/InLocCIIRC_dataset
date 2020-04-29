@@ -26,11 +26,6 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     cameraCoordinateSystem = cameraR * markerCoordinateSystem; % w.r.t. vicon 
     cameraCoordinateSystem = viconR * cameraCoordinateSystem; % w.r.t. model, camera points to y
     
-    f = params.camera.fl; % in pixels
-    sensorSize = params.camera.sensor.size; % height, width
-    
-    outputSize = sensorSize;
-    
     % bring z to where y is, as required by projectPC
     rFix = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX');
     cameraCoordinateSystem = cameraCoordinateSystem * rFix;
