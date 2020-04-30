@@ -10,20 +10,17 @@ files = dir(fullfile(params.cutouts.dir, '**/cutout*.jpg'));
 nCutouts = size(files,1);
 
 %x = matfile(params.features.path);
-x = load(params.features.path);
-queryFeatures = x.queryFeatures;
+load(params.features.path, 'queryFeatures', 'cutoutFeatures');
 nQueries = size(queryFeatures,1);
-score = zeros(nQueries, nCutouts);
+score = zeros(nQueries, nCutouts, 'single');
+
+cutoutFeatures = cutoutFeatures';
 
 for i=1:nQueries
     fprintf('processing query %d/%d\n', i, nQueries)
     thisQueryFeatures = queryFeatures(i,:);
-    similarityScores = zeros(nCutouts,1);
-    for j=1:nCutouts
-        fprintf('loading cutout %d/%d\n', j, nCutouts)
-        thisCutoutFeatures = x.cutoutFeatures(j,:);
-        similarityScores(j,1) = dot(thisQueryFeatures, thisCutoutFeatures);
-    end
+    thisQueryFeatures = repmat(thisQueryFeatures, nCutouts, 1)';
+    similarityScores = dot(thisQueryFeatures, cutoutFeatures);
     similarityScores = similarityScores / max(similarityScores); % softmax expects values in <0,1> range
     probabilityScores = softmax(similarityScores);
     score(i,:) = probabilityScores;

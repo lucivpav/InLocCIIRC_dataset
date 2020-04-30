@@ -62,7 +62,7 @@ The usual steps are as follows:
 2. Change params.query.dir accordingly
 
 ## Build scores
-1. Execute buildFeatures.m on a machine with GPU. It can hang after it finishes. Be patient, otherwise data loss may occur.
+1. Execute buildFeatures.m on a machine with GPU.
 2. Execute buildScores on a machine with ~40 GB of RAM
 3. Set up appropriate params.query.dir
 

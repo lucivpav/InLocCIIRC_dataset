@@ -31,7 +31,7 @@ featureLength = 3840000;
 %serialAllFeats(net, params.query.dir, imageFilenames, params.input_features.dir, 'useGPU', false, 'batchSize', 1);
 
 nQueries = size(imageFilenames,2);
-queryFeatures = zeros(nQueries, featureLength);
+queryFeatures = zeros(nQueries, featureLength, 'single');
 for i=1:nQueries
     fprintf('Finding features for query #%d/%d\n\n', i, nQueries)
     cnn = at_serialAllFeats_convfeat(net, params.query.dir, imageFilenames{i}, 'useGPU', true);
@@ -42,7 +42,7 @@ end
 x = load(params.cutout_imgnames_all.path);
 imageFilenames = x.cutout_imgnames_all;
 nCutouts = size(imageFilenames,2);
-cutoutFeatures = zeros(nCutouts, featureLength);
+cutoutFeatures = zeros(nCutouts, featureLength, 'single');
 for i=1:nCutouts
     fprintf('Finding features for cutout #%d/%d\n\n', i, nCutouts)
     cnn = at_serialAllFeats_convfeat(net, params.cutouts.dir, imageFilenames{i}, 'useGPU', true);
