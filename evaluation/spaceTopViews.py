@@ -9,7 +9,7 @@ from adjustText import adjust_text
 import matplotlib.patheffects as PathEffects
 sys.path.insert(1, os.path.join(sys.path[0], '../functions'))
 from InLocCIIRC_utils.projectMesh.projectMesh import projectMesh
-from local.load_CIIRC_transformation.load_CIIRC_transformation  import load_CIIRC_transformation
+from InLocCIIRC_utils.load_CIIRC_transformation.load_CIIRC_transformation  import load_CIIRC_transformation
 
 def project(point, mag, sensorSize, rotationMatrix, translation):
     xmag = mag
