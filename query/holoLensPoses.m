@@ -25,12 +25,13 @@ for i=1:nQueries
                     rawHoloLensPosesTable{i, 'Orientation_X'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Y'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Z'}];
-    R = quat2rotm(orientation); % from docs: "When using the rotation matrix, premultiply it with the coordinates to be rotated (as opposed to postmultiplying)."
+    R = rotmat(quaternion(orientation), 'frame');
+    %R = quat2rotm(orientation); % this actually gives lower t error
     P = eye(4);
     P(1:3,1:3) = R;
+    t = 1.0 * t; % experiment % 0.6 is good
     P(1:3,4) = R * -t;
     Ps{i} = P;
-    xxx = 1;
 end
 Ps = {Ps};
 Ps = Ps{1,1};
@@ -53,7 +54,10 @@ for i=1:nQueries
     P = holoLensPosesTable.P{i};
     P = A * P;
     holoLensPosesTable.P{i} = P;
+    t = -inv(P(1:3,1:3))*P(1:3,4);
+    Ts{i} = t;
 end
+Ts = reshape(Ts, nQueries, 1);
 
 %% store the HoloLens poses for future reference
 mkdirIfNonExistent(params.HoloLensPoses.dir);
@@ -82,7 +86,12 @@ for i=1:nQueries
     errors(i).queryId = id;
     errors(i).translation = norm(T - T_ref);
     errors(i).orientation = rotationDistance(R_ref, R);
+    Ts_ref{i} = T_ref;
 end
+Ts_ref = reshape(Ts_ref, nQueries, 1);
+meanTerror = mean(cell2mat({errors.translation}));
+meanRerror = mean(cell2mat({errors.orientation}));
+fprintf('Average errors: translation: %0.2f, orientation: %0.f\n', meanTerror, meanRerror);
 
 %% write errors to file
 for i=1:nQueries

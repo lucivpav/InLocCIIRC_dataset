@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
+# columns are considered as the bases
 def plot_csystem(ax, base, origin, name, color):
     axisNames = ['x', 'y', 'z']
     for i in range(base.shape[1]):
@@ -156,11 +157,11 @@ if __name__ == "__main__":
     markerCS = np.array([[-0.13, -0.99, -0.00], [0.03, -0.01, 1.00], [-0.99, 0.13, 0.03]])
     #plot_csystem(ax, markerCS, origin, 'markerCS', 'blue')
 
-    ### query X
-    temporary = np.array([[-0.16, -0.03, 0.99], [0.00, 1.00, 0.03], [-0.99, 0.01, -0.16]])
+    ### query 32
+    temporary = np.array([[0.75, -0.08, -0.65], [-0.09, -1.00, 0.01], [-0.65, 0.05, -0.76]]).T
     plot_csystem(ax, temporary, origin, 'reference', 'blue')
 
-    temporary = np.array([[-0.15, -0.02, 0.99], [0.01, 1.00, 0.02], [-0.99, 0.01, -0.15]])
+    temporary = np.array([[0.46, -0.06, -0.89], [-0.12, -0.99, 0.00], [-0.88, 0.11, -0.46]]).T
     plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
     #plot_csystem(ax, temporary2, origin, 'temporary2', 'pink')
 
