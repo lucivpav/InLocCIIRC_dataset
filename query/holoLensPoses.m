@@ -14,6 +14,9 @@ descriptionsTable = readtable(params.queryDescriptions.path); % decribes the ref
 rawHoloLensPosesTable = readtable(params.input.poses.path);
 assert(size(descriptionsTable,1) == size(rawHoloLensPosesTable,1));
 nQueries = size(descriptionsTable,1);
+nPts = nQueries;
+%nPts = nQueries*4;
+pts = zeros(nPts,3);
 for i=1:nQueries
     id = descriptionsTable{i, 'id'};
     %space = descriptionsTable{i, 'space'}{1,1};
@@ -36,9 +39,12 @@ for i=1:nQueries
     P(1:3,1:3) = R;
     P(1:3,4) = R * -t;
     Ps{i} = P;
-    Ts{i} = t;
+    pts(i,:) = t';
+%     pts((i-1)*4+1,:) = t';
+%     pts((i-1)*4+2,:) = t' + R(1,:);
+%     pts((i-1)*4+3,:) = t' + R(2,:);
+%     pts((i-1)*4+4,:) = t' + R(3,:);
 end
-Ts = reshape(Ts, nQueries, 1);
 Ps = {Ps};
 Ps = Ps{1,1};
 Ps = reshape(Ps, nQueries, 1);
@@ -49,19 +55,22 @@ holoLensPosesTable = table(ids, Ps);
 holoLensPosesTable.Properties.VariableNames = {'id', 'P'};
 
 %% extract reference poses
+pts_ref = zeros(nPts,3);
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
     P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
-    T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
-    Ts_ref{i} = T_ref;
+    R_ref = P_ref(1:3,1:3);
+    T_ref = -inv(R_ref)*P_ref(1:3,4);
+    pts_ref(i,:) = T_ref';
+%     pts_ref((i-1)*4+1,:) = T_ref';
+%     pts_ref((i-1)*4+2,:) = T_ref' + R_ref(1,:);
+%     pts_ref((i-1)*4+3,:) = T_ref' + R_ref(2,:);
+%     pts_ref((i-1)*4+4,:) = T_ref' + R_ref(3,:);
 end
-Ts_ref = reshape(Ts_ref, nQueries, 1);
 
 %% build HoloLens poses table w.r.t. to model CS
 A = eye(4);
-X = [Ts_ref{:,1}]';
-Y = [Ts{:,1}]';
-[d,Z,transform] = procrustes(X,Y, 'scaling', false, 'reflection', false);
+[d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
 R = transform.T';
 A(1:3,1:3) = R; % NOTE: first, R must be correct, then t can be correct
 A(1:3,4) = -R*transform.c(1,:)';
