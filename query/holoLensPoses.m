@@ -26,13 +26,19 @@ for i=1:nQueries
                     rawHoloLensPosesTable{i, 'Orientation_Y'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Z'}];
     R = rotmat(quaternion(orientation), 'frame');
-    %R = quat2rotm(orientation); % this actually gives lower t error
+    
+    % camera points to -z in HoloLens
+    % see https://docs.microsoft.com/en-us/windows/mixed-reality/coordinate-systems-in-directx
+    rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
+    R = rFix * R;
+    
     P = eye(4);
     P(1:3,1:3) = R;
-    t = 1.0 * t; % experiment % 0.6 is good
     P(1:3,4) = R * -t;
     Ps{i} = P;
+    Ts{i} = t;
 end
+Ts = reshape(Ts, nQueries, 1);
 Ps = {Ps};
 Ps = Ps{1,1};
 Ps = reshape(Ps, nQueries, 1);
@@ -42,17 +48,27 @@ ids = reshape(ids, nQueries, 1);
 holoLensPosesTable = table(ids, Ps);
 holoLensPosesTable.Properties.VariableNames = {'id', 'P'};
 
+%% extract reference poses
+for i=1:nQueries
+    id = holoLensPosesTable{i, 'id'};
+    P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
+    T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
+    Ts_ref{i} = T_ref;
+end
+Ts_ref = reshape(Ts_ref, nQueries, 1);
+
 %% build HoloLens poses table w.r.t. to model CS
-% this should be a query Id for which we have a pretty correct reference pose and for which the HoloLens pose is pretty correct
-goodQueryId = 1;
-P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', goodQueryId)));
-goodIdx = find(holoLensPosesTable{:, 'id'} == goodQueryId);
-P = holoLensPosesTable{goodIdx, 'P'}{1,1};
-A = P_ref * inv(P); % transforms P from HoloLens CS to model (Matterport) CS
+A = eye(4);
+X = [Ts_ref{:,1}]';
+Y = [Ts{:,1}]';
+[d,Z,transform] = procrustes(X,Y, 'scaling', false, 'reflection', false);
+R = transform.T';
+A(1:3,1:3) = R; % NOTE: first, R must be correct, then t can be correct
+A(1:3,4) = -R*transform.c(1,:)';
 
 for i=1:nQueries
     P = holoLensPosesTable.P{i};
-    P = A * P;
+    P = P * A; % why is this not A * P ??
     holoLensPosesTable.P{i} = P;
     t = -inv(P(1:3,1:3))*P(1:3,4);
     Ts{i} = t;
@@ -86,12 +102,17 @@ for i=1:nQueries
     errors(i).queryId = id;
     errors(i).translation = norm(T - T_ref);
     errors(i).orientation = rotationDistance(R_ref, R);
-    Ts_ref{i} = T_ref;
 end
-Ts_ref = reshape(Ts_ref, nQueries, 1);
-meanTerror = mean(cell2mat({errors.translation}));
-meanRerror = mean(cell2mat({errors.orientation}));
-fprintf('Average errors: translation: %0.2f, orientation: %0.f\n', meanTerror, meanRerror);
+
+% NOTE: some reference poses are wrong due to Vicon error, blacklist them
+blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
+blacklistedQueries = false(1,nQueries);
+blacklistedQueries(blacklistedQueryInd) = true;
+whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries);
+
+avgTerror = mean(cell2mat({errors(whitelistedQueries).translation}));
+avgRerror = mean(cell2mat({errors(whitelistedQueries).orientation}));
+fprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.f [deg]\n', avgTerror, avgRerror);
 
 %% write errors to file
 for i=1:nQueries
@@ -102,3 +123,18 @@ errorsTable = table({errors.queryId}', translation2', orientation2');
 errorsTable.Properties.VariableNames = {'id', 'translation', 'orientation'};
 errorsPath = fullfile(params.HoloLensPoses.dir, 'errors.csv');
 writetable(errorsTable, errorsPath);
+
+%% visualize error distributions (whitelist only)
+tiledlayout(2,1);
+
+nexttile
+histogram(cell2mat({errors(whitelistedQueries).translation}));
+title('HoloLens to Matterport poses: Translation errors (whitelist only)');
+xlabel('Translation error [m]');
+ylabel('Number of occurences');
+
+nexttile
+histogram(cell2mat({errors(whitelistedQueries).orientation}));
+title('HoloLens to Matterport poses: Orientation errors (whitelist only)');
+xlabel('Orientation error [deg]');
+ylabel('Number of occurences');

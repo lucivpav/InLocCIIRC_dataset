@@ -161,7 +161,7 @@ if __name__ == "__main__":
     temporary = np.array([[0.75, -0.08, -0.65], [-0.09, -1.00, 0.01], [-0.65, 0.05, -0.76]]).T
     plot_csystem(ax, temporary, origin, 'reference', 'blue')
 
-    temporary = np.array([[0.46, -0.06, -0.89], [-0.12, -0.99, 0.00], [-0.88, 0.11, -0.46]]).T
+    temporary = np.array([[0.19, -0.05, -0.98], [-0.17, -0.98, 0.01], [-0.97, 0.17, -0.20]]).T
     plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
     #plot_csystem(ax, temporary2, origin, 'temporary2', 'pink')
 
