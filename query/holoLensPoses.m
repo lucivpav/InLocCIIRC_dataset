@@ -10,7 +10,7 @@ addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 [ params ] = setupParams('holoLens1Params');
 
-projectPC = false; % NOTE: tweak
+projectPC = true; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
@@ -179,13 +179,13 @@ writetable(errorsTable, errorsPath);
 tiledlayout(2,1);
 
 nexttile
-histogram(cell2mat({errors(whitelistedQueries).translation}));
+histogram(cell2mat({relevantErrors.translation}));
 title('HoloLens to Matterport poses: Translation errors (whitelist only)');
 xlabel('Translation error [m]');
 ylabel('Number of occurences');
 
 nexttile
-histogram(cell2mat({errors(whitelistedQueries).orientation}));
+histogram(cell2mat({relevantErrors.orientation}));
 title('HoloLens to Matterport poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
