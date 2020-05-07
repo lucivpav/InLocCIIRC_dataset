@@ -14,9 +14,17 @@ descriptionsTable = readtable(params.queryDescriptions.path); % decribes the ref
 rawHoloLensPosesTable = readtable(params.input.poses.path);
 assert(size(descriptionsTable,1) == size(rawHoloLensPosesTable,1));
 nQueries = size(descriptionsTable,1);
-nPts = nQueries;
-%nPts = nQueries*4;
+
+% NOTE: some reference poses are wrong due to Vicon error, blacklist them
+blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
+blacklistedQueries = false(1,nQueries);
+blacklistedQueries(blacklistedQueryInd) = true;
+whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries);
+
+nPts = sum(whitelistedQueries);
+%nPts = sum(whitelistedQueries)*4;
 pts = zeros(nPts,3);
+idx = 1;
 for i=1:nQueries
     id = descriptionsTable{i, 'id'};
     %space = descriptionsTable{i, 'space'}{1,1};
@@ -39,11 +47,17 @@ for i=1:nQueries
     P(1:3,1:3) = R;
     P(1:3,4) = R * -t;
     Ps{i} = P;
-    pts(i,:) = t';
-%     pts((i-1)*4+1,:) = t';
-%     pts((i-1)*4+2,:) = t' + R(1,:);
-%     pts((i-1)*4+3,:) = t' + R(2,:);
-%     pts((i-1)*4+4,:) = t' + R(3,:);
+    
+    if ~whitelistedQueries(i)
+        continue;
+    end
+    
+    pts(idx,:) = t';
+%     pts((idx-1)*4+1,:) = t';
+%     pts((idx-1)*4+2,:) = t' + R(1,:);
+%     pts((idx-1)*4+3,:) = t' + R(2,:);
+%     pts((idx-1)*4+4,:) = t' + R(3,:);
+    idx = idx + 1;
 end
 Ps = {Ps};
 Ps = Ps{1,1};
@@ -56,16 +70,23 @@ holoLensPosesTable.Properties.VariableNames = {'id', 'P'};
 
 %% extract reference poses
 pts_ref = zeros(nPts,3);
+idx = 1;
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
     P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
     R_ref = P_ref(1:3,1:3);
     T_ref = -inv(R_ref)*P_ref(1:3,4);
-    pts_ref(i,:) = T_ref';
-%     pts_ref((i-1)*4+1,:) = T_ref';
-%     pts_ref((i-1)*4+2,:) = T_ref' + R_ref(1,:);
-%     pts_ref((i-1)*4+3,:) = T_ref' + R_ref(2,:);
-%     pts_ref((i-1)*4+4,:) = T_ref' + R_ref(3,:);
+    
+    if ~whitelistedQueries(i)
+        continue;
+    end
+    
+    pts_ref(idx,:) = T_ref';
+%     pts_ref((idx-1)*4+1,:) = T_ref';
+%     pts_ref((idx-1)*4+2,:) = T_ref' + R_ref(1,:);
+%     pts_ref((idx-1)*4+3,:) = T_ref' + R_ref(2,:);
+%     pts_ref((idx-1)*4+4,:) = T_ref' + R_ref(3,:);
+    idx = idx + 1;
 end
 
 %% build HoloLens poses table w.r.t. to model CS
@@ -113,12 +134,6 @@ for i=1:nQueries
     errors(i).orientation = rotationDistance(R_ref, R);
 end
 
-% NOTE: some reference poses are wrong due to Vicon error, blacklist them
-blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
-blacklistedQueries = false(1,nQueries);
-blacklistedQueries(blacklistedQueryInd) = true;
-whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries);
-
 avgTerror = mean(cell2mat({errors(whitelistedQueries).translation}));
 avgRerror = mean(cell2mat({errors(whitelistedQueries).orientation}));
 fprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.f [deg]\n', avgTerror, avgRerror);
@@ -147,3 +162,25 @@ histogram(cell2mat({errors(whitelistedQueries).orientation}));
 title('HoloLens to Matterport poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
+
+%% project PC using the transformed HoloLens poses
+mkdirIfNonExistent(params.HoloLensProjectedPointCloud.dir);
+for i=1:nQueries
+    id = holoLensPosesTable{i, 'id'};
+    P = holoLensPosesTable.P{i};
+    R = P(1:3,1:3);
+    t = -inv(R)*P(1:3,4);
+    
+    pointSize = 8.0;
+    f = params.camera.fl; % in pixels
+    sensorSize = params.camera.sensor.size; % height, width
+    outputSize = sensorSize;
+    projectedPointCloud = projectPointCloud(params.pointCloud.path, f, R, ...
+                                        t, sensorSize, outputSize, pointSize, ...
+                                        params.projectPointCloudPy.path);
+                                    
+    imshow(projectedPointCloud);
+    queryFilename = sprintf('%d.jpg', id);
+    projectedPointCloudFile = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
+    imwrite(projectedPointCloud, projectedPointCloudFile);
+end
