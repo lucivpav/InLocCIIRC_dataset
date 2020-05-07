@@ -9,9 +9,23 @@ mkdirIfNonExistent(params.projectedPointCloud.dir);
 mkdirIfNonExistent(params.poses.dir);
 
 rawPosesTable = readtable(params.rawPoses.path);
-descriptionsFile = fopen(params.queryDescriptions.path, 'w');
 
-fprintf(descriptionsFile, 'id space inMap\n');
+createDescriptionsFile = true;
+if exist(params.queryDescriptions.path, 'file') == 2
+    createDescriptionsFile = false;
+    [~,name,ext] = fileparts(params.queryDescriptions.path);
+    descriptionsFilename = [name, ext];
+    prompt = sprintf('Overwrite %s file?\n', descriptionsFilename);
+    answer = input(prompt, 's');
+    if strcmp(answer, 'yes') || strcmp(answer, '1')
+        createDescriptionsFile = true;
+    end
+end
+
+if createDescriptionsFile
+    descriptionsFile = fopen(params.queryDescriptions.path, 'w');
+    fprintf(descriptionsFile, 'id space inMap\n');
+end
 
 cutoutDescriptions = buildCutoutDescriptions(params);
 
@@ -74,8 +88,12 @@ for i=1:size(rawPosesTable,1)
         closestCutoutPath = fullfile(params.closest.cutout.dir, queryFilename);
         saveas(gcf, closestCutoutPath);
     end
-
-    fprintf(descriptionsFile, '%d %s %d\n', id, space, inMap);
+    
+    if createDescriptionsFile
+        fprintf(descriptionsFile, '%d %s %d\n', id, space, inMap);
+    end
 end
 
-fclose(descriptionsFile);
+if createDescriptionsFile
+    fclose(descriptionsFile);
+end
