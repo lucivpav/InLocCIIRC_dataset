@@ -9,6 +9,8 @@ addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 [ params ] = setupParams('holoLens1Params');
 
+projectPC = false; % NOTE: tweak
+
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
 rawHoloLensPosesTable = readtable(params.input.poses.path);
@@ -164,6 +166,9 @@ xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
 
 %% project PC using the transformed HoloLens poses
+if ~projectPC
+    return;
+end
 mkdirIfNonExistent(params.HoloLensProjectedPointCloud.dir);
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
