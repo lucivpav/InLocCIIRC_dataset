@@ -9,6 +9,7 @@ function [ params ] = s10eParams(params)
     params.input.poses.path = fullfile(params.input.recording.dir, 'pv_locationData.csv');
     params.HoloLensPoses.dir = fullfile(params.query.dir, 'HoloLensPoses');
     params.HoloLensProjectedPointCloud.dir = fullfile(params.query.dir, 'HoloLensProjectedPointCloud');
+    params.HoloLensPosesDelay = 4; % in frames, w.r.t. reference poses
     %params.camera.rotation.wrt.marker = deg2rad([-6.0 6.0 -4.0]); % this is optimal for query 1
     %params.camera.rotation.wrt.marker = deg2rad([-5.0 6.0 -5.0]); % this is optimal for query 2
     %params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -3.0]); % this is optimal for query 3

@@ -7,6 +7,7 @@ addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 [ params ] = setupParams('holoLens1Params');
 
 projectPC = false; % NOTE: tweak
@@ -92,6 +93,11 @@ for i=1:nQueries
 end
 
 %% build HoloLens poses table w.r.t. to model CS
+
+% due to a (possible) delay, we need to match frames between HoloLens and reference (Vicon)
+pts = pts(params.HoloLensPosesDelay+1:size(pts,1),:);
+pts_ref = pts_ref(1:size(pts_ref,1)-params.HoloLensPosesDelay,:);
+
 A = eye(4);
 [d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
 R = transform.T';
@@ -122,22 +128,41 @@ for i=1:nQueries
 end
 
 %% Evaluate w.r.t reference poses
-errors = struct();
+% NOTE: these errors are w.r.t. HoloLens frames. This means that for
+% params.HoloLensPosesDelay > 1, the first pose in HL frames does not a
+% reference pose. Also, the last pose in reference frames does not have a
+% matching HoloLens pose.
+clearvars errors
+errors(nQueries,1) = struct();
+for i=1:nQueries % TODO: ugly init, due to my lack of MATLAB understanding
+    id = holoLensPosesTable{i, 'id'};
+    errors(i).queryId = id;
+    errors(i).translation = -1; % this means we couldn't verify the,
+    errors(i).orientation = -1; % correctness due to the delay
+end
+
+%%
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
+    id = id - params.HoloLensPosesDelay;
+    if id < 1
+        continue;
+    end
     P = holoLensPosesTable.P{i};
-    P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
+    referencePosePath = fullfile(params.poses.dir, sprintf('%d.txt', id));
+    P_ref = load_CIIRC_transformation(referencePosePath);
     T = -inv(P(1:3,1:3))*P(1:3,4);
     T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
     R = P(1:3,1:3);
     R_ref = P_ref(1:3,1:3);
-    errors(i).queryId = id;
     errors(i).translation = norm(T - T_ref);
     errors(i).orientation = rotationDistance(R_ref, R);
 end
 
-avgTerror = mean(cell2mat({errors(whitelistedQueries).translation}));
-avgRerror = mean(cell2mat({errors(whitelistedQueries).orientation}));
+relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
+relevantErrors = errors(relevancyArray);
+avgTerror = mean(cell2mat({relevantErrors.translation}));
+avgRerror = mean(cell2mat({relevantErrors.orientation}));
 fprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.f [deg]\n', avgTerror, avgRerror);
 
 %% write errors to file
