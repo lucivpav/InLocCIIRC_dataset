@@ -9,6 +9,8 @@ addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 [ params ] = setupParams('holoLens1Params');
 
+projectPC = false; % NOTE: tweak
+
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
 rawHoloLensPosesTable = readtable(params.input.poses.path);
@@ -21,7 +23,7 @@ blacklistedQueries = false(1,nQueries);
 blacklistedQueries(blacklistedQueryInd) = true;
 whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries);
 
-nPts = sum(whitelistedQueries);
+nPts = nQueries;
 %nPts = sum(whitelistedQueries)*4;
 pts = zeros(nPts,3);
 idx = 1;
@@ -49,7 +51,7 @@ for i=1:nQueries
     Ps{i} = P;
     
     if ~whitelistedQueries(i)
-        continue;
+        %continue;
     end
     
     pts(idx,:) = t';
@@ -78,7 +80,17 @@ for i=1:nQueries
     T_ref = -inv(R_ref)*P_ref(1:3,4);
     
     if ~whitelistedQueries(i)
-        continue;
+        typicalBlacklistedR = [-0.95,0.17,0.26;0.25,0.92,0.30;-0.19,0.35,-0.92];
+        typicalBlacklistedT = [0.91;-2.27;1.96];
+        firstRefPoseR = [0.20,0.06,-0.98;-0.15,-0.98,-0.09;-0.97,0.16,-0.19];
+        firstRefPoseT = [-0.25;2.00;1.92];
+        
+        R = firstRefPoseR;
+        t = firstRefPoseT;
+        T_ref = -inv(R) * t;
+        xmin = -1;
+        xmax = 1;
+        T_ref = T_ref + xmin+rand(3,1)*(xmax-xmin); % uniform
     end
     
     pts_ref(idx,:) = T_ref';
@@ -164,6 +176,9 @@ xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
 
 %% project PC using the transformed HoloLens poses
+if ~projectPC
+    return;
+end
 mkdirIfNonExistent(params.HoloLensProjectedPointCloud.dir);
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
