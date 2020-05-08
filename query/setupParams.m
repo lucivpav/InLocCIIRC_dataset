@@ -11,6 +11,10 @@ if strcmp(mode, 's10e')
     params = s10eParams(params);
 elseif strcmp(mode, 'holoLens1Params')
     params = holoLens1Params(params);
+elseif strcmp(mode, 'holoLens2Params')
+    params = holoLens2Params(params);
+else
+    error('Unrecognized mode');
 end
 
 params.spaceName = 'B-315';

@@ -4,7 +4,7 @@ addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 
 generateMiniSequence = false;
 
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('holoLens2Params');
 miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
@@ -31,18 +31,22 @@ queryTable = table({queryFiles.name}', timestamps);
 queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
 %% try a synchronization constant
-syncConstant = 10.7 * 1000; % [ms]
 
+% HoloLens1
 %queryName = '00132321090555753820.jpg';
 %queryName = '00132321090868821963.jpg';
 %queryName = '00132321091341754646.jpg';
 %queryName = '00132321091488297196.jpg';
 %queryName = '00132321091075313721.jpg';
 %queryName = '00132321091195212118.jpg'; % broken, sadly
-queryName = '00132321091305119025.jpg';
+%queryName = '00132321091305119025.jpg';
+
+% HoloLens2
+queryName = '00132321103461934087.jpg';
+
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
-viconTimestamp = syncConstant + queryTimestamp;
+viconTimestamp = params.HoloLensViconSyncConstant + queryTimestamp;
 
 padding = 1500;
 tDiffsMs = -padding:100:padding;
@@ -86,7 +90,7 @@ for i=1:size(queryTable,1)
     
     queryTimestamp = queryTable(i, 'timestampMs');
     queryTimestamp = queryTimestamp{1,1};
-    viconTimestamp = syncConstant + queryTimestamp;
+    viconTimestamp = params.HoloLensViconSyncConstant + queryTimestamp;
     [~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp);
     closestEvent = measurementTable(idx,:);
     space = 'B-315';
