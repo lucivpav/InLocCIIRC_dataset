@@ -22,7 +22,13 @@ nQueries = size(descriptionsTable,1);
 blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 blacklistedQueries = false(1,nQueries);
 blacklistedQueries(blacklistedQueryInd) = true;
-whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries);
+whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries); % w.r.t. reference frames
+
+blacklistedQueryIndHL = blacklistedQueryInd + params.HoloLensPosesDelay;
+blacklistedQueryIndHL = blacklistedQueryIndHL(blacklistedQueryIndHL < nQueries);
+blacklistedQueriesHL = false(1,nQueries);
+blacklistedQueriesHL(blacklistedQueryIndHL) = true;
+whitelistedQueriesHL = logical(ones(1,nQueries) - blacklistedQueriesHL); % w.r.t. HoloLens frames
 
 nPts = sum(whitelistedQueries);
 %nPts = sum(whitelistedQueries)*4;
@@ -51,7 +57,7 @@ for i=1:nQueries
     P(1:3,4) = R * -t;
     Ps{i} = P;
     
-    if ~whitelistedQueries(i)
+    if ~whitelistedQueriesHL(i)
         continue;
     end
     
@@ -159,7 +165,7 @@ for i=1:nQueries
     errors(i).orientation = rotationDistance(R_ref, R);
 end
 
-relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
+relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueriesHL);
 relevantErrors = errors(relevancyArray);
 avgTerror = mean(cell2mat({relevantErrors.translation}));
 avgRerror = mean(cell2mat({relevantErrors.orientation}));
