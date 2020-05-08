@@ -10,7 +10,7 @@ addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 [ params ] = setupParams('holoLens1Params');
 
-projectPC = true; % NOTE: tweak
+projectPC = false; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
@@ -194,6 +194,7 @@ ylabel('Number of occurences');
 if ~projectPC
     return;
 end
+figure();
 mkdirIfNonExistent(params.HoloLensProjectedPointCloud.dir);
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
