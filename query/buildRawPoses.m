@@ -71,6 +71,8 @@ else
     imshow(projectedPointCloud);
 end
 
+end
+
 return
 
 %% once good enough parameters are found, run this to generate rawPoses.csv
@@ -95,6 +97,3 @@ for i=1:size(queryTable,1)
 end
 
 fclose(rawPosesFile);
-
-
-end
