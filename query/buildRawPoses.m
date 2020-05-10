@@ -92,6 +92,7 @@ rotationDiffs = -rotationPadding:1:rotationPadding;
 %queryInd = 1:size(queries);
 %queryInd = [1,2];
 queryInd = [3,4]; % these two should be independent subsequences, due to possible hat shift TODO: verify
+queryInd = [1,2,4];
 
 interestingPointsPC{1} = [5.2058, 1.1974, 2.2684; ...
                           4.0178, 0.7731, 2.5884; ...
