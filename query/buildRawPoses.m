@@ -42,8 +42,9 @@ queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 %queryName = '00132321091305119025.jpg';
 
 % HoloLens2
-queryName = '00132321103461934087.jpg';
+% queryName = '00132321103461934087.jpg';
 % queryName = '00132321104757170200.jpg';
+queryName = '00132321103645112241.jpg';
 
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
