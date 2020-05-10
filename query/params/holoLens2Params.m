@@ -23,7 +23,7 @@ function [ params ] = holoLens2Params(params)
     params.camera.fl = 1015; % in pixels
     %params.HoloLensViconSyncConstant = 29.0 * 1000; % [ms]; expected: <28.8, 29.4> % this is near optimal for query 1
     %params.HoloLensViconSyncConstant = 29.0 * 1000; % [ms]; expected: <28.8, 29.4> % this is near optimal for query 2
-    params.HoloLensViconSyncConstant = 29.0 * 1000; % [ms]; expected: <28.8, 29.4> % this is near optimal for query 3
-    %params.HoloLensViconSyncConstant = 29.0 * 1000; % [ms]; expected: <28.8, 29.4> % this aims to be generic
+    %params.HoloLensViconSyncConstant = 29.0 * 1000; % [ms]; expected: <28.8, 29.4> % this is near optimal for query 3
+    params.HoloLensViconSyncConstant = 29.1 * 1000; % [ms]; expected: <28.8, 29.4> % this aims to be generic
     
 end
