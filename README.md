@@ -87,7 +87,8 @@ If you have query sequences, you need to generate raw poses
 3. Set up parameters in *params* folder
 4. Set generateMiniSequence to true, until you find the right synchronization constant
 5. Set generateMiniSequence to false, adjust the params until projections match queries
-6. Once the parameters are good enough, scroll down and execute the code snippet that generates rawPoses.csv
+6. Next, when a not-great-not-terrible generic params are found, use the next section to build upon them and find even better params
+7. Once the parameters are good enough, scroll down and execute the code snippet that generates rawPoses.csv
 
 ## WARNINGS
 * Do not overwrite functions/matconvnet when syncing local repo with remote repo. It contains already built package for the remote. However, if hit accidentally happens, prebuilt binary can be found at boruvka:/datagrid/personal/lucivpav/matconvnet

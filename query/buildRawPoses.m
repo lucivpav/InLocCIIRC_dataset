@@ -42,9 +42,8 @@ queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 %queryName = '00132321091305119025.jpg';
 
 % HoloLens2
-% queryName = '00132321103461934087.jpg';
-% queryName = '00132321104757170200.jpg';
-queryName = '00132321103645112241.jpg';
+queries = ["00132321103461934087.jpg", "00132321104757170200.jpg", "00132321103645112241.jpg"];
+queryName = queries(3);
 
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
@@ -80,6 +79,135 @@ end
 end
 
 return
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
+padding = 200;
+tDiffsMs = -padding:100:padding;
+originPadding = 5;
+originDiffs = -originPadding:1:originPadding;
+rotationPadding = 5;
+rotationDiffs = -rotationPadding:1:rotationPadding;
+%queryInd = 1:size(queries);
+queryInd = [1,3]; % number 2 ignored, as I believe it could had been captured with a shifted hat... TODO
+
+interestingPointsPC{1} = [5.2058, 1.1974, 2.2684; ...
+                          4.0178, 0.7731, 2.5884; ...
+                          2.7156, 0.0101, 2.2784; ...
+                          5.1687, 0.9174, 2.2984]';
+interestingPointsQuery{1} = [87, 21; ...
+                             594, 79; ...
+                             1243, 601; ...
+                             187, 112]';
+
+interestingPointsPC{3} = [-2.2044, 3.544, -2.7116; ...
+                          -3.5044, 3.0874, -3.2630; ...
+                          0.2856, 3.5303, -2.1116; ...
+                          -2.4144, 3.5350, -0.8916]';
+interestingPointsQuery{3} = [523, 406; ...
+                             307, 582; ...
+                             1227, 210; ...
+                             157, 132]'; % first row: x, second row: y
+
+K = eye(3);
+K(1,1) = params.camera.fl;
+K(2,2) = params.camera.fl;
+K(1,3) = params.camera.sensor.size(2)/2;
+K(2,3) = params.camera.sensor.size(1)/2;
+
+bestOrigin = params.camera.origin.wrt.marker;
+bestRotation = params.camera.rotation.wrt.marker;
+clearvars rawPositions;
+clearvars rawRotations;
+for i1=1:size(tDiffsMs,2) 
+    tDiffMs = tDiffsMs(1,i1);
+    syncConstant = params.HoloLensViconSyncConstant + tDiffMs;
+    for i2=1:size(queryInd,2)
+        queryIdx = queryInd(i2);
+        [rawPosition, rawRotation] = buildRawPose(queryIdx, queries, queryTable, measurementTable, syncConstant);
+        thisRawPositions{i2} = rawPosition;
+        thisRawRotations{i2} = rawRotation;
+    end
+    rawPositions{i1} = thisRawPositions;
+    rawRotations{i1} = thisRawRotations;
+end
+bestSyncConstantIdx = uint8(round(size(tDiffsMs,2)/2));
+thisRawPositions = rawPositions{bestSyncConstantIdx};
+thisRawRotations = rawRotations{bestSyncConstantIdx};
+lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
+                              interestingPointsPC, interestingPointsQuery, thisRawPositions, thisRawRotations, K, params);
+
+%% brute-force search
+fprintf('Error: %0.2f\n', lowestError);
+for i1=1:size(tDiffsMs,2)
+    thisRawPositions = rawPositions{i1};
+    thisRawRotations = rawRotations{i1};
+    for i2=1:size(originDiffs,2)
+        for i3=1:size(originDiffs,2)
+            for i4=1:size(originDiffs,2)
+                originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
+                origin = params.camera.origin.wrt.marker + originDiff;
+                for i5=1:size(rotationDiffs,2)
+                    for i6=1:size(rotationDiffs,2)
+                        for i7=1:size(rotationDiffs,2)
+                            rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
+                            rotation = params.camera.rotation.wrt.marker + rotationDiff;
+                            error = projectionError(queryInd, origin, rotation, interestingPointsPC, interestingPointsQuery, ...
+                                                    thisRawPositions, thisRawRotations, K, params);
+                            if error < lowestError
+                                lowestError = error;
+                                fprintf('Error: %0.2f\n', error);
+                                bestSyncConstantIdx = i1;
+                                bestOrigin = origin;
+                                bestRotation = rotation;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        fprintf('Round %d/%d, %0.0f%% done.\n', i1, size(tDiffsMs,2), i2*100/size(originDiffs,2));
+    end
+end
+
+%% visualize correspondences and errors
+for i=1:size(queryInd,2)
+    queryIdx = queryInd(i);
+    paramsBak = params;
+    params.camera.origin.wrt.marker = bestOrigin;
+    params.camera.rotation.wrt.marker = bestRotation;
+    thisRawPositions = rawPositions{bestSyncConstantIdx};
+    thisRawRotations = rawRotations{bestSyncConstantIdx};
+    thisRawPosition = thisRawPositions{i};
+    thisRawRotation = thisRawRotations{i};
+    projectedInterestingPoints = projectPoints(interestingPointsPC{queryIdx}, thisRawPosition, thisRawRotation, K, params);
+    params = paramsBak;
+    thisInterestingPointsQuery = interestingPointsQuery{queryIdx};
+
+    figure;
+    [R, t] = rawPoseToPose(thisRawPosition, thisRawRotation, params);
+    pointSize = 8.0;
+    outputSize = params.camera.sensor.size;
+    projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
+                                        t, params.camera.sensor.size, outputSize, pointSize, ...
+                                        params.projectPointCloudPy.path);
+    image(projectedPointCloud);
+    axis image;
+
+    hold on;
+    scatter(projectedInterestingPoints(1,:), projectedInterestingPoints(2,:), 40, 'r', 'filled');
+    scatter(thisInterestingPointsQuery(1,:), thisInterestingPointsQuery(2,:), 40, 'g', 'filled');
+    nCorrespondences = size(thisInterestingPointsQuery,2);
+    for i=1:nCorrespondences
+        plot([thisInterestingPointsQuery(1,i), projectedInterestingPoints(1,i)], ...
+             [thisInterestingPointsQuery(2,i), projectedInterestingPoints(2,i)], ...
+             'r-', 'linewidth', 2);
+    end
+    hold off;
+end
+
+return
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% once good enough parameters are found, run this to generate rawPoses.csv
 rawPosesFile = fopen(params.rawPoses.path, 'w');
