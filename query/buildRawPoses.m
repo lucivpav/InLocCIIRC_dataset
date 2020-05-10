@@ -85,7 +85,7 @@ return
 padding = 200;
 tDiffsMs = -padding:100:padding;
 originPadding = 5;
-originDiffs = -originPadding:1:originPadding;
+originDiffs = params.camera.originConstant * (-originPadding:1:originPadding);
 rotationPadding = 5;
 rotationDiffs = -rotationPadding:1:rotationPadding;
 %queryInd = 1:size(queries);
@@ -137,7 +137,7 @@ thisRawRotations = rawRotations{bestSyncConstantIdx};
 lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
                               interestingPointsPC, interestingPointsQuery, thisRawPositions, thisRawRotations, K, params);
 
-%% brute-force search
+%%
 fprintf('Error: %0.2f\n', lowestError);
 for i1=1:size(tDiffsMs,2)
     thisRawPositions = rawPositions{i1};
@@ -181,11 +181,11 @@ for i=1:size(queryInd,2)
     thisRawPosition = thisRawPositions{i};
     thisRawRotation = thisRawRotations{i};
     projectedInterestingPoints = projectPoints(interestingPointsPC{queryIdx}, thisRawPosition, thisRawRotation, K, params);
+    [R, t] = rawPoseToPose(thisRawPosition, thisRawRotation, params);
     params = paramsBak;
     thisInterestingPointsQuery = interestingPointsQuery{queryIdx};
 
     figure;
-    [R, t] = rawPoseToPose(thisRawPosition, thisRawRotation, params);
     pointSize = 8.0;
     outputSize = params.camera.sensor.size;
     projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
