@@ -1,5 +1,4 @@
 function [ params ] = holoLens2Params(params)
-    % queries: [00132321103461934087.jpg, 00132321104757170200.jpg , 00132321103645112241.jpg] aka 1, 2, 3
 
     params.query.dir = fullfile(params.dataset.dir, 'query-HoloLens2');
     params.input.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences';
@@ -11,13 +10,13 @@ function [ params ] = holoLens2Params(params)
     params.HoloLensProjectedPointCloud.dir = fullfile(params.query.dir, 'HoloLensProjectedPointCloud');
     params.HoloLensPosesDelay = 0; % in frames, w.r.t. reference poses
     %params.camera.rotation.wrt.marker = deg2rad([2.0 2.0 3.0]); % this is near optimal for query 1
-    %params.camera.rotation.wrt.marker = deg2rad([-1.0 3.0 4.0]); % this is near optimal for query 2
-    %params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is near optimal for query 3
+    %params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is near optimal for query 2
+    %params.camera.rotation.wrt.marker = deg2rad([-1.0 3.0 4.0]); % this is near optimal for query 3
     params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is aims to be generic
     params.camera.originConstant = 0.023;
     %params.camera.origin.wrt.marker = params.camera.originConstant * [-3; 13; -5]; % this is near optimal for query 1
-    %params.camera.origin.wrt.marker = params.camera.originConstant * [3; 13; -7]; % this is near optimal for query 2
-    %params.camera.origin.wrt.marker = params.camera.originConstant * [3; 16; -3]; % this is near optimal for query 3
+    %params.camera.origin.wrt.marker = params.camera.originConstant * [3; 16; -3]; % this is near optimal for query 2
+    %params.camera.origin.wrt.marker = params.camera.originConstant * [3; 13; -7]; % this is near optimal for query 3
     params.camera.origin.wrt.marker = params.camera.originConstant * [1; 15; -7]; % this aims to be generic
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1015; % in pixels
