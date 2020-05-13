@@ -66,12 +66,18 @@ for i=1:size(rawPosesTable,1)
 
     imshow(projectedPointCloud);
     queryFilename = sprintf('%d.jpg', id);
-    projectedPointCloudFile = fullfile(params.projectedPointCloud.dir, queryFilename);
-    imwrite(projectedPointCloud, projectedPointCloudFile);
+    outPCFilename = sprintf('%d-PC.jpg', id);
+    outQueryFilename = sprintf('%d-query.jpg', id);
+
+    outPCPath = fullfile(params.projectedPointCloud.dir, outPCFilename);
+    imwrite(projectedPointCloud, outPCPath);
+
+    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    outQueryPath = fullfile(params.projectedPointCloud.dir, outQueryFilename);
+    imwrite(queryImg, outQueryPath);
     
     [inMap, closestCutout] = isQueryInMap(P, params.spaceName, cutoutDescriptions, params);
     if params.renderClosestCutouts
-        queryImg = imread(fullfile(params.query.dir, queryFilename));
         cutoutImg = imresize(closestCutout.img, [size(queryImg,1), size(queryImg,2)]);
         imshowpair(queryImg, cutoutImg, 'montage');
         caption = 'Left: query. Right: closest cutout';
