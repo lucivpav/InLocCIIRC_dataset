@@ -8,7 +8,7 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
+[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
@@ -212,6 +212,11 @@ histogram(cell2mat({relevantErrors.orientation}));
 title('HoloLens to Matterport poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
+
+queryDirName = strsplit(params.query.dir, '/');
+queryDirName = queryDirName{end};
+filename = sprintf('errorDistribution-%s.pdf', queryDirName);
+saveas(gcf, fullfile(params.HoloLensPoses.dir, filename));
 
 %% project PC using the transformed HoloLens poses
 if ~projectPC
