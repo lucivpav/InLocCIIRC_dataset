@@ -8,7 +8,7 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
+[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
@@ -170,7 +170,11 @@ relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueriesHL);
 relevantErrors = errors(relevancyArray);
 avgTerror = mean(cell2mat({relevantErrors.translation}));
 avgRerror = mean(cell2mat({relevantErrors.orientation}));
-fprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.f [deg]\n', avgTerror, avgRerror);
+summaryMessage = sprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.f [deg]\n', avgTerror, avgRerror);
+fprintf(summaryMessage);
+summaryFile = fopen(fullfile(params.HoloLensPoses.dir, 'errorSummary.txt'), 'w');
+fprintf(summaryFile, summaryMessage);
+fclose(summaryFile);
 
 %% write errors to file
 for i=1:nQueries
@@ -218,7 +222,18 @@ for i=1:nQueries
                                         params.projectPointCloudPy.path);
                                     
     imshow(projectedPointCloud);
-    queryFilename = sprintf('%d.jpg', id);
-    projectedPointCloudFile = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
-    imwrite(projectedPointCloud, projectedPointCloudFile);
+    outPCFilename = sprintf('%d-PC.jpg', id);
+    outPCPath = fullfile(params.HoloLensProjectedPointCloud.dir, outPCFilename);
+    imwrite(projectedPointCloud, outPCPath);
+
+    idRef = id - params.HoloLensPosesDelay;
+    if idRef < 1
+        continue;
+    end
+
+    queryFilename = sprintf('%d.jpg', idRef);
+    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    outQueryFilename = sprintf('%d-query-original-%d.jpg', id, idRef);
+    outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, outQueryFilename);
+    imwrite(queryImg, outQueryPath);
 end
