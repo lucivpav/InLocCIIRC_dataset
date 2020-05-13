@@ -10,6 +10,10 @@ function [ params ] = holoLens1Params(params)
     params.HoloLensPoses.dir = fullfile(params.query.dir, 'HoloLensPoses');
     params.HoloLensProjectedPointCloud.dir = fullfile(params.query.dir, 'HoloLensProjectedPointCloud');
     params.HoloLensPosesDelay = 4; % in frames, w.r.t. reference poses
+
+    % NOTE: some reference poses are wrong due to Vicon error, blacklist them
+    params.blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
+
     %params.camera.rotation.wrt.marker = deg2rad([-6.0 6.0 -4.0]); % this is optimal for query 1
     %params.camera.rotation.wrt.marker = deg2rad([-5.0 6.0 -5.0]); % this is optimal for query 2
     %params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -3.0]); % this is optimal for query 3

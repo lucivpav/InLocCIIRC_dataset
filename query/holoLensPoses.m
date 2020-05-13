@@ -8,7 +8,7 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
@@ -18,13 +18,14 @@ rawHoloLensPosesTable = readtable(params.input.poses.path);
 assert(size(descriptionsTable,1) == size(rawHoloLensPosesTable,1));
 nQueries = size(descriptionsTable,1);
 
-% NOTE: some reference poses are wrong due to Vicon error, blacklist them
-blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 blacklistedQueries = false(1,nQueries);
-blacklistedQueries(blacklistedQueryInd) = true;
+blacklistedQueries(params.blacklistedQueryInd) = true;
+nBlacklistedQueries = sum(blacklistedQueries);
+fprintf('You have blacklisted %0.0f%% queries. %d queries remain.\n', ...
+            nBlacklistedQueries*100/nQueries, nQueries-nBlacklistedQueries);
 whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries); % w.r.t. reference frames
 
-blacklistedQueryIndHL = blacklistedQueryInd + params.HoloLensPosesDelay;
+blacklistedQueryIndHL = params.blacklistedQueryInd + params.HoloLensPosesDelay;
 blacklistedQueryIndHL = blacklistedQueryIndHL(blacklistedQueryIndHL < nQueries);
 blacklistedQueriesHL = false(1,nQueries);
 blacklistedQueriesHL(blacklistedQueryIndHL) = true;
@@ -106,7 +107,7 @@ pts_ref = pts_ref(1:size(pts_ref,1)-params.HoloLensPosesDelay,:);
 
 A = eye(4);
 [d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
-R = transform.T';
+R = transform.T;
 A(1:3,1:3) = R; % NOTE: first, R must be correct, then t can be correct
 A(1:3,4) = -R*transform.c(1,:)';
 

@@ -8,7 +8,11 @@ function [ params ] = holoLens2Params(params)
     params.input.poses.path = fullfile(params.input.recording.dir, 'pv_locationData.csv');
     params.HoloLensPoses.dir = fullfile(params.query.dir, 'HoloLensPoses');
     params.HoloLensProjectedPointCloud.dir = fullfile(params.query.dir, 'HoloLensProjectedPointCloud');
-    params.HoloLensPosesDelay = 0; % in frames, w.r.t. reference poses
+    params.HoloLensPosesDelay = 4; % in frames, w.r.t. reference poses
+
+    % NOTE: some reference poses are wrong due to Vicon error, blacklist them
+    params.blacklistedQueryInd = [1:86, 88, 91, 212:235, 239:240, 253:332, 335, 376:391, 403:436, 442:485, 561:564, 567:572];
+
     %params.camera.rotation.wrt.marker = deg2rad([2.0 2.0 3.0]); % this is near optimal for query 1
     %params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is near optimal for query 2
     %params.camera.rotation.wrt.marker = deg2rad([-1.0 3.0 4.0]); % this is near optimal for query 3
