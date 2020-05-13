@@ -8,7 +8,7 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
+[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
@@ -31,15 +31,9 @@ blacklistedQueriesHL = false(1,nQueries);
 blacklistedQueriesHL(blacklistedQueryIndHL) = true;
 whitelistedQueriesHL = logical(ones(1,nQueries) - blacklistedQueriesHL); % w.r.t. HoloLens frames
 
-includeBases = true;
-if ~includeBases
-    pointsPerFrame = 1;
-else
-    pointsPerFrame = 4;
-end
-nPts = sum(whitelistedQueries)*pointsPerFrame;
+nPts = sum(whitelistedQueries);
 pts = zeros(nPts,3);
-idx = 1;
+idx1 = 1;
 for i=1:nQueries
     id = descriptionsTable{i, 'id'};
     %space = descriptionsTable{i, 'space'}{1,1};
@@ -63,19 +57,10 @@ for i=1:nQueries
     P(1:3,4) = R * -t;
     Ps{i} = P;
     
-    if ~whitelistedQueriesHL(i)
-        continue;
+    if whitelistedQueriesHL(i)
+        pts(idx1,:) = t';
+        idx1 = idx1 + 1;
     end
-    
-    if ~includeBases
-        pts(idx,:) = t';
-    else
-        pts((idx-1)*4+1,:) = t';
-        pts((idx-1)*4+2,:) = t' + R(1,:);
-        pts((idx-1)*4+3,:) = t' + R(2,:);
-        pts((idx-1)*4+4,:) = t' + R(3,:);
-    end
-    idx = idx + 1;
 end
 Ps = {Ps};
 Ps = Ps{1,1};
@@ -93,29 +78,29 @@ for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
     P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
     R_ref = P_ref(1:3,1:3);
-    T_ref = -inv(R_ref)*P_ref(1:3,4);
+
+    idDelayed = id + params.HoloLensPosesDelay;
+    if idDelayed > nQueries
+        pts_ref(idx,:) = zeros(1,3); % dummy, will be discarded later
+        idx = idx + 1;
+        continue
+    end
+    P_refDelayed = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', idDelayed)));
+    T2_ref = -inv(R_ref)*P_refDelayed(1:3,4);
     
     if ~whitelistedQueries(i)
         continue;
     end
     
-    if ~includeBases
-        pts_ref(idx,:) = T_ref';
-    else
-        pts_ref((idx-1)*4+1,:) = T_ref';
-        pts_ref((idx-1)*4+2,:) = T_ref' + R_ref(1,:);
-        pts_ref((idx-1)*4+3,:) = T_ref' + R_ref(2,:);
-        pts_ref((idx-1)*4+4,:) = T_ref' + R_ref(3,:);
-    end
+    pts_ref(idx,:) = T2_ref';
     idx = idx + 1;
 end
 
 %% build HoloLens poses table w.r.t. to model CS
 
 % due to a (possible) delay, we need to match frames between HoloLens and reference (Vicon)
-from = params.HoloLensPosesDelay*pointsPerFrame+1;
-pts = pts(from:nPts,:);
-pts_ref = pts_ref(1:nPts-params.HoloLensPosesDelay*pointsPerFrame,:);
+pts = pts(params.HoloLensPosesDelay+1:nPts,:);
+pts_ref = pts_ref(1:nPts-params.HoloLensPosesDelay,:);
 
 A = eye(4);
 [d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
