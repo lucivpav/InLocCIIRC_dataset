@@ -31,8 +31,13 @@ blacklistedQueriesHL = false(1,nQueries);
 blacklistedQueriesHL(blacklistedQueryIndHL) = true;
 whitelistedQueriesHL = logical(ones(1,nQueries) - blacklistedQueriesHL); % w.r.t. HoloLens frames
 
-nPts = sum(whitelistedQueries);
-%nPts = sum(whitelistedQueries)*4;
+includeBases = true;
+if ~includeBases
+    pointsPerFrame = 1;
+else
+    pointsPerFrame = 4;
+end
+nPts = sum(whitelistedQueries)*pointsPerFrame;
 pts = zeros(nPts,3);
 idx = 1;
 for i=1:nQueries
@@ -62,11 +67,14 @@ for i=1:nQueries
         continue;
     end
     
-    pts(idx,:) = t';
-%     pts((idx-1)*4+1,:) = t';
-%     pts((idx-1)*4+2,:) = t' + R(1,:);
-%     pts((idx-1)*4+3,:) = t' + R(2,:);
-%     pts((idx-1)*4+4,:) = t' + R(3,:);
+    if ~includeBases
+        pts(idx,:) = t';
+    else
+        pts((idx-1)*4+1,:) = t';
+        pts((idx-1)*4+2,:) = t' + R(1,:);
+        pts((idx-1)*4+3,:) = t' + R(2,:);
+        pts((idx-1)*4+4,:) = t' + R(3,:);
+    end
     idx = idx + 1;
 end
 Ps = {Ps};
@@ -91,19 +99,23 @@ for i=1:nQueries
         continue;
     end
     
-    pts_ref(idx,:) = T_ref';
-%     pts_ref((idx-1)*4+1,:) = T_ref';
-%     pts_ref((idx-1)*4+2,:) = T_ref' + R_ref(1,:);
-%     pts_ref((idx-1)*4+3,:) = T_ref' + R_ref(2,:);
-%     pts_ref((idx-1)*4+4,:) = T_ref' + R_ref(3,:);
+    if ~includeBases
+        pts_ref(idx,:) = T_ref';
+    else
+        pts_ref((idx-1)*4+1,:) = T_ref';
+        pts_ref((idx-1)*4+2,:) = T_ref' + R_ref(1,:);
+        pts_ref((idx-1)*4+3,:) = T_ref' + R_ref(2,:);
+        pts_ref((idx-1)*4+4,:) = T_ref' + R_ref(3,:);
+    end
     idx = idx + 1;
 end
 
 %% build HoloLens poses table w.r.t. to model CS
 
 % due to a (possible) delay, we need to match frames between HoloLens and reference (Vicon)
-pts = pts(params.HoloLensPosesDelay+1:size(pts,1),:);
-pts_ref = pts_ref(1:size(pts_ref,1)-params.HoloLensPosesDelay,:);
+from = params.HoloLensPosesDelay*pointsPerFrame+1;
+pts = pts(from:nPts,:);
+pts_ref = pts_ref(1:nPts-params.HoloLensPosesDelay*pointsPerFrame,:);
 
 A = eye(4);
 [d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
