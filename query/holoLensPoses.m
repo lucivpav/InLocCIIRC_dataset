@@ -105,7 +105,9 @@ for i=1:nQueries
         P = zeros(4);
     else
         P = holoLensPosesTable.P{j};
-        P = [P(1:4,1:3), Pdelayed(1:4,4)]; % assuming that only the orientation is delayed
+        t = -inv(Pdelayed(1:3,1:3))*Pdelayed(1:3,4);
+        t = [-P(1:3,1:3)*t; 0];
+        P = [P(1:4,1:3), t]; % assuming that only the orientation is delayed
         P = P * A; % why is this not A * P ??
     end
     holoLensPosesTable.P{i} = P;
