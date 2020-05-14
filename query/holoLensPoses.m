@@ -8,7 +8,7 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
+[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
@@ -31,13 +31,7 @@ blacklistedQueriesHL = false(1,nQueries);
 blacklistedQueriesHL(blacklistedQueryIndHL) = true;
 whitelistedQueriesHL = logical(ones(1,nQueries) - blacklistedQueriesHL); % w.r.t. HoloLens frames
 
-includeBases = true;
-if ~includeBases
-    pointsPerFrame = 1;
-else
-    pointsPerFrame = 4;
-end
-nPts = sum(whitelistedQueries)*pointsPerFrame;
+nPts = sum(whitelistedQueries);
 pts = zeros(nPts,3);
 idx = 1;
 for i=1:nQueries
@@ -63,18 +57,11 @@ for i=1:nQueries
     P(1:3,4) = R * -t;
     Ps{i} = P;
     
-    if ~whitelistedQueriesHL(i)
+    if ~whitelistedQueries(i)
         continue;
     end
     
-    if ~includeBases
-        pts(idx,:) = t';
-    else
-        pts((idx-1)*4+1,:) = t';
-        pts((idx-1)*4+2,:) = t' + R(1,:);
-        pts((idx-1)*4+3,:) = t' + R(2,:);
-        pts((idx-1)*4+4,:) = t' + R(3,:);
-    end
+    pts(idx,:) = t';
     idx = idx + 1;
 end
 Ps = {Ps};
@@ -99,23 +86,11 @@ for i=1:nQueries
         continue;
     end
     
-    if ~includeBases
-        pts_ref(idx,:) = T_ref';
-    else
-        pts_ref((idx-1)*4+1,:) = T_ref';
-        pts_ref((idx-1)*4+2,:) = T_ref' + R_ref(1,:);
-        pts_ref((idx-1)*4+3,:) = T_ref' + R_ref(2,:);
-        pts_ref((idx-1)*4+4,:) = T_ref' + R_ref(3,:);
-    end
+    pts_ref(idx,:) = T_ref';
     idx = idx + 1;
 end
 
 %% build HoloLens poses table w.r.t. to model CS
-
-% due to a (possible) delay, we need to match frames between HoloLens and reference (Vicon)
-from = params.HoloLensPosesDelay*pointsPerFrame+1;
-pts = pts(from:nPts,:);
-pts_ref = pts_ref(1:nPts-params.HoloLensPosesDelay*pointsPerFrame,:);
 
 A = eye(4);
 [d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
@@ -124,8 +99,15 @@ A(1:3,1:3) = R; % NOTE: first, R must be correct, then t can be correct
 A(1:3,4) = -R*transform.c(1,:)';
 
 for i=1:nQueries
-    P = holoLensPosesTable.P{i};
-    P = P * A; % why is this not A * P ??
+    Pdelayed = holoLensPosesTable.P{i};
+    j = i+params.HoloLensPosesDelay;
+    if j > nQueries
+        P = zeros(4);
+    else
+        P = holoLensPosesTable.P{j};
+        P = [P(1:4,1:3), Pdelayed(1:4,4)]; % assuming that only the orientation is delayed
+        P = P * A; % why is this not A * P ??
+    end
     holoLensPosesTable.P{i} = P;
     t = -inv(P(1:3,1:3))*P(1:3,4);
     Ts{i} = t;
@@ -161,12 +143,8 @@ for i=1:nQueries % TODO: ugly init, due to my lack of MATLAB understanding
 end
 
 %%
-for i=1:nQueries
+for i=1:nQueries-params.HoloLensPosesDelay
     id = holoLensPosesTable{i, 'id'};
-    id = id - params.HoloLensPosesDelay;
-    if id < 1
-        continue;
-    end
     P = holoLensPosesTable.P{i};
     referencePosePath = fullfile(params.poses.dir, sprintf('%d.txt', id));
     P_ref = load_CIIRC_transformation(referencePosePath);
@@ -178,7 +156,7 @@ for i=1:nQueries
     errors(i).orientation = rotationDistance(R_ref, R);
 end
 
-relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueriesHL);
+relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
 relevantErrors = errors(relevancyArray);
 avgTerror = mean(cell2mat({relevantErrors.translation}));
 avgRerror = mean(cell2mat({relevantErrors.orientation}));
@@ -243,14 +221,9 @@ for i=1:nQueries
     outPCPath = fullfile(params.HoloLensProjectedPointCloud.dir, outPCFilename);
     imwrite(projectedPointCloud, outPCPath);
 
-    idRef = id - params.HoloLensPosesDelay;
-    if idRef < 1
-        continue;
-    end
-
-    queryFilename = sprintf('%d.jpg', idRef);
+    queryFilename = sprintf('%d.jpg', id);
     queryImg = imread(fullfile(params.query.dir, queryFilename));
-    outQueryFilename = sprintf('%d-query-original-%d.jpg', id, idRef);
+    outQueryFilename = sprintf('%d-query.jpg', id);
     outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, outQueryFilename);
     imwrite(queryImg, outQueryPath);
 end
