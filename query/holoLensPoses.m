@@ -95,7 +95,7 @@ for i=1:nQueries
     P(1:3,1:3) = R;
     P(1:3,4) = R * -t;
     Ps{i} = P;
-    origins{i} = frameToOrigin' * P;
+    origins{i} = frameToOrigin * P;
     
     if ~whitelistedQueriesHL(i)
         continue;
