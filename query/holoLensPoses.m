@@ -8,9 +8,9 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
+[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
 
-projectPC = false; % NOTE: tweak
+projectPC = true; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
@@ -139,18 +139,17 @@ fprintf(readmeFile, 'HoloLens poses w.r.t model (Matterport) CS.\nErrors are w.r
 fclose(readmeFile);
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
+    idRef = id - params.HoloLensPosesDelay;
     P = holoLensPosesTable.P{i};
-    poseFile = fopen(fullfile(params.HoloLensPoses.dir, sprintf('%d.txt', id)), 'w');
+    poseFile = fopen(fullfile(params.HoloLensPoses.dir, sprintf('%d.txt', idRef)), 'w');
     P_str = P_to_str(P);
     fprintf(poseFile, '%s', P_str);
     fclose(poseFile);
 end
 
 %% Evaluate w.r.t reference poses
-% NOTE: these errors are w.r.t. HoloLens frames. This means that for
-% params.HoloLensPosesDelay > 1, the first pose in HL frames does not a
-% reference pose. Also, the last pose in reference frames does not have a
-% matching HoloLens pose.
+% NOTE: For params.HoloLensPosesDelay > 1, the last pose in reference frames does
+% not have a matching HoloLens pose.
 clearvars errors
 errors(nQueries,1) = struct();
 for i=1:nQueries % TODO: ugly init, due to my lack of MATLAB understanding
@@ -161,15 +160,11 @@ for i=1:nQueries % TODO: ugly init, due to my lack of MATLAB understanding
 end
 
 %%
-for i=1:nQueries
-    id = holoLensPosesTable{i, 'id'};
-    id = id - params.HoloLensPosesDelay;
-    if id < 1
-        continue;
-    end
-    P = holoLensPosesTable.P{i};
-    referencePosePath = fullfile(params.poses.dir, sprintf('%d.txt', id));
-    P_ref = load_CIIRC_transformation(referencePosePath);
+for i=1:nQueries-params.HoloLensPosesDelay
+    id = holoLensPosesTable{i, 'id'} + params.HoloLensPosesDelay;
+    P = holoLensPosesTable.P{id};
+    posePath = fullfile(params.poses.dir, sprintf('%d.txt', i));
+    P_ref = load_CIIRC_transformation(posePath);
     T = -inv(P(1:3,1:3))*P(1:3,4);
     T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
     R = P(1:3,1:3);
@@ -178,7 +173,7 @@ for i=1:nQueries
     errors(i).orientation = rotationDistance(R_ref, R);
 end
 
-relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueriesHL);
+relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
 relevantErrors = errors(relevancyArray);
 avgTerror = mean(cell2mat({relevantErrors.translation}));
 avgRerror = mean(cell2mat({relevantErrors.orientation}));
@@ -238,19 +233,18 @@ for i=1:nQueries
                                         t, sensorSize, outputSize, pointSize, ...
                                         params.projectPointCloudPy.path);
                                     
+    idRef = id - params.HoloLensPosesDelay;
     imshow(projectedPointCloud);
-    outPCFilename = sprintf('%d-PC.jpg', id);
+    outPCFilename = sprintf('%d-PC.jpg', idRef);
     outPCPath = fullfile(params.HoloLensProjectedPointCloud.dir, outPCFilename);
     imwrite(projectedPointCloud, outPCPath);
 
-    idRef = id - params.HoloLensPosesDelay;
     if idRef < 1
-        continue;
+        continue
     end
 
     queryFilename = sprintf('%d.jpg', idRef);
     queryImg = imread(fullfile(params.query.dir, queryFilename));
-    outQueryFilename = sprintf('%d-query-original-%d.jpg', id, idRef);
-    outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, outQueryFilename);
+    outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
     imwrite(queryImg, outQueryPath);
 end
