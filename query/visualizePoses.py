@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     queryDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset/query-HoloLens1'
     referencePosesDir = os.path.join(queryDir, 'poses')
-    holoLensPosesDir = os.path.join(queryDir, 'HoloLensPosesDelay4') # w.r.t. model CS
+    holoLensPosesDir = os.path.join(queryDir, 'HoloLensPoses') # w.r.t. model CS
     descriptionsPath = os.path.join(queryDir, 'descriptions.csv')
 
     descriptionsDf = pd.read_csv(descriptionsPath, sep=' ')

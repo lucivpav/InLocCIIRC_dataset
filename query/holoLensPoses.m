@@ -10,7 +10,7 @@ addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 [ params ] = setupParams('holoLens1Params'); % NOTE: tweak
 
-projectPC = true; % NOTE: tweak
+projectPC = false; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
@@ -25,19 +25,7 @@ fprintf('You have blacklisted %0.0f%% queries. %d queries remain.\n', ...
             nBlacklistedQueries*100/nQueries, nQueries-nBlacklistedQueries);
 whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries); % w.r.t. reference frames
 
-blacklistedQueryIndHL = params.blacklistedQueryInd + params.HoloLensPosesDelay;
-blacklistedQueryIndHL = blacklistedQueryIndHL(blacklistedQueryIndHL < nQueries);
-blacklistedQueriesHL = false(1,nQueries);
-blacklistedQueriesHL(blacklistedQueryIndHL) = true;
-whitelistedQueriesHL = logical(ones(1,nQueries) - blacklistedQueriesHL); % w.r.t. HoloLens frames
-
-includeBases = true;
-if ~includeBases
-    pointsPerFrame = 1;
-else
-    pointsPerFrame = 4;
-end
-nPts = sum(whitelistedQueries)*pointsPerFrame;
+nPts = nQueries;
 pts = zeros(nPts,3);
 idx = 1;
 for i=1:nQueries
@@ -62,19 +50,7 @@ for i=1:nQueries
     P(1:3,1:3) = R;
     P(1:3,4) = R * -t;
     Ps{i} = P;
-    
-    if ~whitelistedQueriesHL(i)
-        continue;
-    end
-    
-    if ~includeBases
-        pts(idx,:) = t';
-    else
-        pts((idx-1)*4+1,:) = t';
-        pts((idx-1)*4+2,:) = t' + R(1,:);
-        pts((idx-1)*4+3,:) = t' + R(2,:);
-        pts((idx-1)*4+4,:) = t' + R(3,:);
-    end
+    pts(idx,:) = t';
     idx = idx + 1;
 end
 Ps = {Ps};
@@ -95,27 +71,28 @@ for i=1:nQueries
     R_ref = P_ref(1:3,1:3);
     T_ref = -inv(R_ref)*P_ref(1:3,4);
     
-    if ~whitelistedQueries(i)
-        continue;
-    end
-    
-    if ~includeBases
-        pts_ref(idx,:) = T_ref';
-    else
-        pts_ref((idx-1)*4+1,:) = T_ref';
-        pts_ref((idx-1)*4+2,:) = T_ref' + R_ref(1,:);
-        pts_ref((idx-1)*4+3,:) = T_ref' + R_ref(2,:);
-        pts_ref((idx-1)*4+4,:) = T_ref' + R_ref(3,:);
-    end
+    pts_ref(idx,:) = T_ref';
     idx = idx + 1;
 end
 
 %% build HoloLens poses table w.r.t. to model CS
 
 % due to a (possible) delay, we need to match frames between HoloLens and reference (Vicon)
-from = params.HoloLensPosesDelay*pointsPerFrame+1;
-pts = pts(from:nPts,:);
-pts_ref = pts_ref(1:nPts-params.HoloLensPosesDelay*pointsPerFrame,:);
+nWhitelistedPts = sum(whitelistedQueries);
+ptsWhitelisted_ref = zeros(nWhitelistedPts,3);
+ptsWhitelisted = zeros(nWhitelistedPts,3);
+
+idx = 1;
+for i=1:nQueries
+    if whitelistedQueries(i)
+        ptsWhitelisted_ref(idx,:) = pts_ref(i,:);
+        ptsWhitelisted(idx,:) = pts(i,:);
+        idx = idx + 1;
+    end
+end
+
+pts = ptsWhitelisted(params.HoloLensTranslationDelay+1:nWhitelistedPts,:);
+pts_ref = ptsWhitelisted_ref(1:nWhitelistedPts-params.HoloLensTranslationDelay,:);
 
 A = eye(4);
 [d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
@@ -125,7 +102,18 @@ A(1:3,4) = -R*transform.c(1,:)';
 
 for i=1:nQueries
     P = holoLensPosesTable.P{i};
-    P = P * A; % why is this not A * P ??
+    translationIdx = i + params.HoloLensTranslationDelay;
+    orientationIdx = i + params.HoloLensOrientationDelay;
+    if translationIdx > nQueries || orientationIdx > nQueries
+        P = zeros(4); % dummy, will be disregarded later
+    else
+        translationP = holoLensPosesTable.P{translationIdx};
+        orientationP = holoLensPosesTable.P{orientationIdx};
+        t = -inv(translationP(1:3,1:3))*translationP(1:3,4);
+        t = [-orientationP(1:3,1:3)*t; 0];
+        P = [orientationP(1:4,1:3), t];
+        P = P * A; % why is this not A * P ??
+    end
     holoLensPosesTable.P{i} = P;
     t = -inv(P(1:3,1:3))*P(1:3,4);
     Ts{i} = t;
@@ -137,18 +125,18 @@ mkdirIfNonExistent(params.HoloLensPoses.dir);
 readmeFile = fopen(fullfile(params.HoloLensPoses.dir, 'readme.txt'), 'w');
 fprintf(readmeFile, 'HoloLens poses w.r.t model (Matterport) CS.\nErrors are w.r.t. reference poses.');
 fclose(readmeFile);
-for i=1:nQueries
+nQueriesWithoutEnd = nQueries-max([params.HoloLensTranslationDelay, params.HoloLensOrientationDelay]);
+for i=1:nQueriesWithoutEnd
     id = holoLensPosesTable{i, 'id'};
-    idRef = id - params.HoloLensPosesDelay;
     P = holoLensPosesTable.P{i};
-    poseFile = fopen(fullfile(params.HoloLensPoses.dir, sprintf('%d.txt', idRef)), 'w');
+    poseFile = fopen(fullfile(params.HoloLensPoses.dir, sprintf('%d.txt', id)), 'w');
     P_str = P_to_str(P);
     fprintf(poseFile, '%s', P_str);
     fclose(poseFile);
 end
 
 %% Evaluate w.r.t reference poses
-% NOTE: For params.HoloLensPosesDelay > 1, the last pose in reference frames does
+% NOTE: For translation/orientation delay > 1, the last pose in reference frames does
 % not have a matching HoloLens pose.
 clearvars errors
 errors(nQueries,1) = struct();
@@ -160,9 +148,8 @@ for i=1:nQueries % TODO: ugly init, due to my lack of MATLAB understanding
 end
 
 %%
-for i=1:nQueries-params.HoloLensPosesDelay
-    id = holoLensPosesTable{i, 'id'} + params.HoloLensPosesDelay;
-    P = holoLensPosesTable.P{id};
+for i=1:nQueriesWithoutEnd
+    P = holoLensPosesTable.P{i};
     posePath = fullfile(params.poses.dir, sprintf('%d.txt', i));
     P_ref = load_CIIRC_transformation(posePath);
     T = -inv(P(1:3,1:3))*P(1:3,4);
@@ -233,17 +220,12 @@ for i=1:nQueries
                                         t, sensorSize, outputSize, pointSize, ...
                                         params.projectPointCloudPy.path);
                                     
-    idRef = id - params.HoloLensPosesDelay;
     imshow(projectedPointCloud);
-    outPCFilename = sprintf('%d-PC.jpg', idRef);
+    outPCFilename = sprintf('%d-PC.jpg', id);
     outPCPath = fullfile(params.HoloLensProjectedPointCloud.dir, outPCFilename);
     imwrite(projectedPointCloud, outPCPath);
 
-    if idRef < 1
-        continue
-    end
-
-    queryFilename = sprintf('%d.jpg', idRef);
+    queryFilename = sprintf('%d.jpg', id);
     queryImg = imread(fullfile(params.query.dir, queryFilename));
     outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
     imwrite(queryImg, outQueryPath);
