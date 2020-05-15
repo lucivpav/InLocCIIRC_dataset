@@ -9,7 +9,7 @@ function [ params ] = holoLens1Params(params)
     params.input.poses.path = fullfile(params.input.recording.dir, 'pv_locationData.csv');
     params.HoloLensPoses.dir = fullfile(params.query.dir, 'HoloLensPoses');
     params.HoloLensProjectedPointCloud.dir = fullfile(params.query.dir, 'HoloLensProjectedPointCloud');
-    params.HoloLensTranslationDelay = 6; % in frames, w.r.t. reference poses
+    params.HoloLensTranslationDelay = 4; % in frames, w.r.t. reference poses
     params.HoloLensOrientationDelay = 4; % in frames, w.r.t. reference poses
 
     % NOTE: some reference poses are wrong due to Vicon error, blacklist them

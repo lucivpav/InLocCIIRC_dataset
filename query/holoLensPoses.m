@@ -86,12 +86,17 @@ idx = 1;
 for i=1:nQueries
     if whitelistedQueries(i)
         ptsWhitelisted_ref(idx,:) = pts_ref(i,:);
-        ptsWhitelisted(idx,:) = pts(i,:);
+        j = i + params.HoloLensTranslationDelay;
+        if j > nQueries
+            ptsWhitelisted(idx,:) = repmat(-1,1,3); % dummy, will be disregarded later
+        else
+            ptsWhitelisted(idx,:) = pts(j,:);
+        end
         idx = idx + 1;
     end
 end
 
-pts = ptsWhitelisted(params.HoloLensTranslationDelay+1:nWhitelistedPts,:);
+pts = ptsWhitelisted(1:nWhitelistedPts-params.HoloLensTranslationDelay,:);
 pts_ref = ptsWhitelisted_ref(1:nWhitelistedPts-params.HoloLensTranslationDelay,:);
 
 A = eye(4);
@@ -149,8 +154,9 @@ end
 
 %%
 for i=1:nQueriesWithoutEnd
+    id = holoLensPosesTable{i, 'id'};
     P = holoLensPosesTable.P{i};
-    posePath = fullfile(params.poses.dir, sprintf('%d.txt', i));
+    posePath = fullfile(params.poses.dir, sprintf('%d.txt', id));
     P_ref = load_CIIRC_transformation(posePath);
     T = -inv(P(1:3,1:3))*P(1:3,4);
     T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
