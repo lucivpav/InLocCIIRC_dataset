@@ -8,7 +8,7 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens2Params'); % NOTE: tweak
+[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
@@ -191,13 +191,13 @@ tiledlayout(2,1);
 
 nexttile
 histogram(cell2mat({relevantErrors.translation}));
-title('HoloLens to Matterport poses: Translation errors (whitelist only)');
+title('HoloLens to reference poses: Translation errors (whitelist only)');
 xlabel('Translation error [m]');
 ylabel('Number of occurences');
 
 nexttile
 histogram(cell2mat({relevantErrors.orientation}));
-title('HoloLens to Matterport poses: Orientation errors (whitelist only)');
+title('HoloLens to reference poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
 

@@ -53,7 +53,7 @@ if __name__ == "__main__":
     descriptionsDf = pd.read_csv(descriptionsPath, sep=' ')
     queryIds = descriptionsDf['id']
 
-    queryIds = np.array([50, 70, 94]) # only a subset, to reduce clutter
+    queryIds = np.array([30, 50, 70, 94, 118, 155]) # only a subset, to reduce clutter
     visualizePoseSequence(referencePosesDir, queryIds, 'blue', '')
     visualizePoseSequence(holoLensPosesDir, queryIds, 'red', '')
 

@@ -5,7 +5,7 @@ addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
 generateMiniSequence = false;
 
-[ params ] = setupParams('holoLens2Params');
+[ params ] = setupParams('holoLens1Params');
 miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
@@ -34,17 +34,11 @@ queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 %% try a synchronization constant
 
 % HoloLens1
-%queryName = '00132321090555753820.jpg';
-%queryName = '00132321090868821963.jpg';
-%queryName = '00132321091341754646.jpg';
-%queryName = '00132321091488297196.jpg';
-%queryName = '00132321091075313721.jpg';
 %queryName = '00132321091195212118.jpg'; % broken, sadly
-%queryName = '00132321091305119025.jpg';
+queryName = params.interestingQueries(5);
 
 % HoloLens2
-queries = ["00132321103461934087.jpg", "00132321103645112241.jpg", "00132321104757170200.jpg", "00132321104893721201.jpg"];
-queryName = queries(3);
+% queryName = params.interestingQueries(3);
 
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
@@ -84,51 +78,20 @@ return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
 padding = 200;
-tDiffsMs = -padding:100:padding;
+tDiffsMs = -padding:50:padding;
 originPadding = 5;
 originDiffs = params.camera.originConstant * (-originPadding:1:originPadding);
 rotationPadding = 5;
 rotationDiffs = -rotationPadding:1:rotationPadding;
-%queryInd = 1:size(queries);
-%queryInd = [1,2];
-queryInd = [3,4]; % these two should be independent subsequences, due to possible hat shift TODO: verify
-queryInd = [1,2,4];
 
-interestingPointsPC{1} = [5.2058, 1.1974, 2.2684; ...
-                          4.0178, 0.7731, 2.5884; ...
-                          2.7156, 0.0101, 2.2784; ...
-                          5.1687, 0.9174, 2.2984]';
-interestingPointsQuery{1} = [87, 21; ...
-                             594, 79; ...
-                             1243, 601; ...
-                             187, 112]';
+%% HoloLens1 specific %%
+queryInd = 1:size(params.interestingQueries,2);
 
-interestingPointsPC{2} = [-2.2044, 3.544, -2.7116; ...
-                          -3.5044, 3.0874, -3.2630; ...
-                          0.2856, 3.5303, -2.1116; ...
-                          -2.4144, 3.5350, -0.8916]';
-interestingPointsQuery{2} = [523, 406; ...
-                             307, 582; ...
-                             1227, 210; ...
-                             157, 132]'; % first row: x, second row: y
-
-interestingPointsPC{3} = [4.3559, 0.7856, 5.3284; ...
-                          9.8700, 1.9774, 1.5384; ...
-                          16.8459, 2.0674, 6.6384; ...
-                          9.1756, 0.7735, 7.8538]';
-interestingPointsQuery{3} = [1032, 502; ...
-                             325, 12; ...
-                             946, 34;
-                             1297, 223]';
-
-interestingPointsPC{4} = [3.9556, 3.5440, 8.2384; ...
-                          7.0156, 3.4907, 8.2184; ...
-                          5.8256, 2.0874, 7.8641; ...
-                          1.8656, 2.5312, 8.9884]';
-interestingPointsQuery{4} = [655, 256; ...
-                             142, 404; ...
-                             207, 663; ...
-                             1317, 477]';
+%% HoloLens2 specific %%
+% %queryInd = 1:size(params.interestingQueries,2);
+% %queryInd = [1,2];
+% queryInd = [3,4]; % these two should be independent subsequences, due to possible hat shift TODO: verify
+% queryInd = [1,2,4];
 
 K = eye(3);
 K(1,1) = params.camera.fl;
@@ -145,7 +108,7 @@ for i1=1:size(tDiffsMs,2)
     syncConstant = params.HoloLensViconSyncConstant + tDiffMs;
     for i2=1:size(queryInd,2)
         queryIdx = queryInd(i2);
-        [rawPosition, rawRotation] = buildRawPose(queryIdx, queries, queryTable, measurementTable, syncConstant);
+        [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, measurementTable, syncConstant);
         thisRawPositions{i2} = rawPosition;
         thisRawRotations{i2} = rawRotation;
     end
@@ -156,7 +119,8 @@ bestSyncConstantIdx = uint8(round(size(tDiffsMs,2)/2));
 thisRawPositions = rawPositions{bestSyncConstantIdx};
 thisRawRotations = rawRotations{bestSyncConstantIdx};
 lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
-                              interestingPointsPC, interestingPointsQuery, thisRawPositions, thisRawRotations, K, params);
+                              params.interestingPointsPC, params.interestingPointsQuery, ...
+                              thisRawPositions, thisRawRotations, K, params);
 
 %%
 fprintf('Error: %0.2f\n', lowestError);
@@ -173,7 +137,8 @@ for i1=1:size(tDiffsMs,2)
                         for i7=1:size(rotationDiffs,2)
                             rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
                             rotation = params.camera.rotation.wrt.marker + rotationDiff;
-                            error = projectionError(queryInd, origin, rotation, interestingPointsPC, interestingPointsQuery, ...
+                            error = projectionError(queryInd, origin, rotation, ...
+                                                    params.interestingPointsPC, params.interestingPointsQuery, ...
                                                     thisRawPositions, thisRawRotations, K, params);
                             if error < lowestError
                                 lowestError = error;
@@ -201,10 +166,10 @@ for i=1:size(queryInd,2)
     thisRawRotations = rawRotations{bestSyncConstantIdx};
     thisRawPosition = thisRawPositions{i};
     thisRawRotation = thisRawRotations{i};
-    projectedInterestingPoints = projectPoints(interestingPointsPC{queryIdx}, thisRawPosition, thisRawRotation, K, params);
+    projectedInterestingPoints = projectPoints(params.interestingPointsPC{queryIdx}, thisRawPosition, thisRawRotation, K, params);
     [R, t] = rawPoseToPose(thisRawPosition, thisRawRotation, params);
     params = paramsBak;
-    thisInterestingPointsQuery = interestingPointsQuery{queryIdx};
+    thisInterestingPointsQuery = params.interestingPointsQuery{queryIdx};
 
     figure;
     pointSize = 8.0;
