@@ -100,7 +100,7 @@ pts = ptsWhitelisted(1:nWhitelistedPts-params.HoloLensTranslationDelay,:);
 pts_ref = ptsWhitelisted_ref(1:nWhitelistedPts-params.HoloLensTranslationDelay,:);
 
 A = eye(4);
-[d,Z,transform] = procrustes(pts_ref, pts, 'scaling', false, 'reflection', false);
+[d,Z,transform] = procrustes(pts_ref, pts, 'scaling', true, 'reflection', false);
 R = transform.T;
 A(1:3,1:3) = R; % NOTE: first, R must be correct, then t can be correct
 A(1:3,4) = -R*transform.c(1,:)';
@@ -115,6 +115,7 @@ for i=1:nQueries
         translationP = holoLensPosesTable.P{translationIdx};
         orientationP = holoLensPosesTable.P{orientationIdx};
         t = -inv(translationP(1:3,1:3))*translationP(1:3,4);
+        t = transform.b * t;
         t = [-orientationP(1:3,1:3)*t; 0];
         P = [orientationP(1:4,1:3), t];
         P = P * A; % why is this not A * P ??
