@@ -105,6 +105,7 @@ R = transform.T;
 A(1:3,1:3) = R; % NOTE: first, R must be correct, then t can be correct
 A(1:3,4) = -R*transform.c(1,:)';
 
+Ts = repmat(-1, nQueries, 3);
 for i=1:nQueries
     P = holoLensPosesTable.P{i};
     translationIdx = i + params.HoloLensTranslationDelay;
@@ -122,9 +123,8 @@ for i=1:nQueries
     end
     holoLensPosesTable.P{i} = P;
     t = -inv(P(1:3,1:3))*P(1:3,4);
-    Ts{i} = t;
+    Ts(i,:) = t;
 end
-Ts = reshape(Ts, nQueries, 1);
 
 %% store the HoloLens poses for future reference
 mkdirIfNonExistent(params.HoloLensPoses.dir);
@@ -154,17 +154,23 @@ for i=1:nQueries % TODO: ugly init, due to my lack of MATLAB understanding
 end
 
 %%
-for i=1:nQueriesWithoutEnd
-    id = holoLensPosesTable{i, 'id'};
-    P = holoLensPosesTable.P{i};
-    posePath = fullfile(params.poses.dir, sprintf('%d.txt', id));
-    P_ref = load_CIIRC_transformation(posePath);
-    T = -inv(P(1:3,1:3))*P(1:3,4);
-    T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
-    R = P(1:3,1:3);
-    R_ref = P_ref(1:3,1:3);
-    errors(i).translation = norm(T - T_ref);
-    errors(i).orientation = rotationDistance(R_ref, R);
+Ts_ref = repmat(-1, nQueries, 3);
+for i=1:nQueries
+    if i <= nQueriesWithoutEnd
+        id = holoLensPosesTable{i, 'id'};
+        P = holoLensPosesTable.P{i};
+        posePath = fullfile(params.poses.dir, sprintf('%d.txt', id));
+        P_ref = load_CIIRC_transformation(posePath);
+        T = -inv(P(1:3,1:3))*P(1:3,4);
+        T_ref = -inv(P_ref(1:3,1:3))*P_ref(1:3,4);
+        R = P(1:3,1:3);
+        R_ref = P_ref(1:3,1:3);
+        errors(i).translation = norm(T - T_ref);
+        errors(i).orientation = rotationDistance(R_ref, R);
+    else
+        T_ref = zeros(3,1);
+    end
+    Ts_ref(i,:) = T_ref;
 end
 
 relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
@@ -207,6 +213,22 @@ queryDirName = queryDirName{end};
 filename = sprintf('errorDistribution-%s.pdf', queryDirName);
 saveas(gcf, fullfile(params.HoloLensPoses.dir, filename));
 
+figure();
+Ts_ref = Ts_ref(relevancyArray,:);
+Ts = Ts(relevancyArray,:);
+Tdiffs = Ts - Ts_ref;
+scatter3(Tdiffs(:,1), Tdiffs(:,2), Tdiffs(:,3));
+title('Position diffs (whitelist only)');
+xlabel('x');
+ylabel('y');
+zlabel('z');
+filename = sprintf('positionDiffs-%s.pdf', queryDirName);
+saveas(gcf, fullfile(params.HoloLensPoses.dir, filename));
+TdiffsMedian = median(Tdiffs);
+fprintf('Position diffs median (whitelist only): [%f, %f, %f]\n', ...
+        TdiffsMedian(1), TdiffsMedian(2), TdiffsMedian(3)); % NOTE: not an absolute error
+TdiffsCov = cov(Tdiffs)
+    
 %% project PC using the transformed HoloLens poses
 if ~projectPC
     return;
