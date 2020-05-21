@@ -7,7 +7,7 @@ params = struct();
 
 params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';
 
-if strcmp(mode, 's10e')
+if strcmp(mode, 's10eParams')
     params = s10eParams(params);
 elseif strcmp(mode, 'holoLens1Params')
     params = holoLens1Params(params);
@@ -29,5 +29,11 @@ params.inMap.tDiffMax = 1.3;
 params.inMap.rotDistMax = 10; % in degrees
 params.renderClosestCutouts = true;
 params.closest.cutout.dir = fullfile(params.query.dir, 'closestCutout');
+
+params.K = eye(3);
+params.K(1,1) = params.camera.fl;
+params.K(2,2) = params.camera.fl;
+params.K(1,3) = params.camera.sensor.size(2)/2;
+params.K(2,3) = params.camera.sensor.size(1)/2;
 
 end

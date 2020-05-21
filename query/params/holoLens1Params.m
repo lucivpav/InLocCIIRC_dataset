@@ -20,7 +20,8 @@ function [ params ] = holoLens1Params(params)
     %params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -4.0]); % this is optimal for query 4
     params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -4.0]); % this aims to be generic
     params.camera.originConstant = 0.023;
-    params.camera.origin.wrt.marker = params.camera.originConstant * [1; 15; -1];
+    params.camera.origin.relative.wrt.marker = [1; 15; -1];
+    params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1015; % in pixels
     params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]
@@ -30,7 +31,8 @@ function [ params ] = holoLens1Params(params)
                                     "00132321090868821963.jpg", ... % aka query 2 (94.jpg)
                                     "00132321091341754646.jpg", ... % aka query 3
                                     "00132321091488297196.jpg", ... % aka query 4
-                                    "00132321091068652686.jpg"]; % aka query 5
+                                    "00132321091068652686.jpg", ... % aka query 5
+                                    "00132321091211864676.jpg"]; % aka query 6 (198.jpg)
                                     % TODO: 00132321091305119025.jpg
     % interestingPointsQuery{i} are 2D projections of points in interestingPointsPC{i}.
     % i is the i-th query in params.interestingQueries
@@ -76,4 +78,13 @@ function [ params ] = holoLens1Params(params)
                                         956, 42; ...
                                         661, 630; ...
                                         175, 646]';
+
+    params.interestingPointsPC{6} = [0.8956, 3.5306, 6.4184; ...
+                                        10.2356, 2.5374, -3.3136; ...
+                                        0.8456, 0.0060, 3.2784; ...
+                                        16.8462, 2.0574, 6.6484]';
+    params.interestingPointsQuery{6} = [1194, 64; ...
+                                        309, 60; ...
+                                        75, 429; ...
+                                        894, 475]';
 end
