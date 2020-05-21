@@ -41,6 +41,7 @@ for i=1:size(queryInd,2)
              'r-', 'linewidth', 2);
     end
     hold off;
+    set(gcf, 'Position', get(0, 'Screensize'));
 end
 
 end
