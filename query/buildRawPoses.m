@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = true;
+justEvaluateOnMatches = false;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params');
@@ -87,12 +87,14 @@ return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
 close all
-padding = 200;
-tDiffsMs = -padding:50:padding;
+tDiffsMs = -300:100:1200;
 originPadding = 5;
 originDiffs = -originPadding:1:originPadding;
-rotationPadding = 5;
+rotationPadding = 10;
 rotationDiffs = -rotationPadding:1:rotationPadding;
+errors = inf(size(tDiffsMs,2), ...
+                size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
+                size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
 
 %% HoloLens1 specific %%
 queryInd = 1:size(params.interestingQueries,2);
@@ -119,7 +121,7 @@ for i1=1:size(tDiffsMs,2)
     rawPositions{i1} = thisRawPositions;
     rawRotations{i1} = thisRawRotations;
 end
-bestSyncConstantIdx = uint8(round(size(tDiffsMs,2)/2));
+bestSyncConstantIdx = find(tDiffsMs == 0);
 thisRawPositions = rawPositions{bestSyncConstantIdx};
 thisRawRotations = rawRotations{bestSyncConstantIdx};
 lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
@@ -128,37 +130,45 @@ lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
 
 %%
 fprintf('Error: %0.2f\n', lowestError);
-for i1=1:size(tDiffsMs,2)
+nOriginDiffs = size(originDiffs,2);
+nRotationDiffs = size(rotationDiffs,2);
+p = parpool;
+opts = parforOptions(p,'RangePartitionMethod','fixed','SubrangeSize',2);
+parfor i1=1:size(tDiffsMs,2)
+    fprintf('Processing round %d/%d.\n', i1, size(tDiffsMs,2));
     thisRawPositions = rawPositions{i1};
     thisRawRotations = rawRotations{i1};
-    for i2=1:size(originDiffs,2)
-        for i3=1:size(originDiffs,2)
-            for i4=1:size(originDiffs,2)
+    for i2=1:nOriginDiffs
+        for i3=1:nOriginDiffs
+            for i4=1:nOriginDiffs
                 originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
                 origin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
-                for i5=1:size(rotationDiffs,2)
-                    for i6=1:size(rotationDiffs,2)
-                        for i7=1:size(rotationDiffs,2)
+                for i5=1:nRotationDiffs
+                    for i6=1:nRotationDiffs
+                        for i7=1:nRotationDiffs
                             rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
                             rotation = params.camera.rotation.wrt.marker + rotationDiff;
                             error = projectionError(queryInd, origin, rotation, ...
                                                     params.interestingPointsPC, params.interestingPointsQuery, ...
                                                     thisRawPositions, thisRawRotations, params);
-                            if error < lowestError
-                                lowestError = error;
-                                fprintf('Error: %0.2f\n', error);
-                                bestSyncConstantIdx = i1;
-                                bestOrigin = origin;
-                                bestRotation = rotation;
-                            end
+                            errors(i1,i2,i3,i4,i5,i6,i7) = error;
                         end
                     end
                 end
             end
         end
-        fprintf('Round %d/%d, %0.0f%% done.\n', i1, size(tDiffsMs,2), i2*100/size(originDiffs,2));
     end
 end
+
+%%
+close all
+[lowestError,idx] = min(errors(:));
+[i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
+originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
+bestOrigin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
+rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
+bestRotation = params.camera.rotation.wrt.marker + rotationDiff;
+bestSyncConstantIdx = i1;
 
 optimalParams = params;
 optimalParams.camera.origin.wrt.marker = bestOrigin;

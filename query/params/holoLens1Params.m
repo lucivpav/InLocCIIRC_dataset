@@ -8,23 +8,23 @@ function [ params ] = holoLens1Params(params)
     params.input.poses.path = fullfile(params.input.recording.dir, 'pv_locationData.csv');
     params.HoloLensPoses.dir = fullfile(params.query.dir, 'HoloLensPoses');
     params.HoloLensProjectedPointCloud.dir = fullfile(params.query.dir, 'HoloLensProjectedPointCloud');
-    params.HoloLensTranslationDelay = 6; % in frames, w.r.t. reference poses
+    params.HoloLensTranslationDelay = 5; % in frames, w.r.t. reference poses
     params.HoloLensOrientationDelay = 4; % in frames, w.r.t. reference poses
 
     % NOTE: some reference poses are wrong due to Vicon error, blacklist them
     params.blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 
-    %params.camera.rotation.wrt.marker = deg2rad([-6.0 6.0 -4.0]); % this is optimal for query 1
-    %params.camera.rotation.wrt.marker = deg2rad([-5.0 6.0 -5.0]); % this is optimal for query 2
-    %params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -3.0]); % this is optimal for query 3
-    %params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -4.0]); % this is optimal for query 4
-    params.camera.rotation.wrt.marker = deg2rad([-8.0 6.0 -4.0]); % this aims to be generic
+    %params.camera.rotation.wrt.marker = [-6.0 6.0 -4.0]; % this is optimal for query 1
+    %params.camera.rotation.wrt.marker = [-5.0 6.0 -5.0]; % this is optimal for query 2
+    %params.camera.rotation.wrt.marker = [-8.0 6.0 -3.0]; % this is optimal for query 3
+    %params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this is optimal for query 4
+    params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this aims to be generic
     params.camera.originConstant = 0.023;
-    params.camera.origin.relative.wrt.marker = [1; 15; -1];
+    params.camera.origin.relative.wrt.marker = [2; 10; -4];
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1015; % in pixels
-    params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]
+    params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1
