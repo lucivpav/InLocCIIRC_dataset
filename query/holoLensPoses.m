@@ -10,7 +10,7 @@ addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 [ params ] = setupParams('holoLens1Params'); % NOTE: tweak
 
-projectPC = true; % NOTE: tweak
+projectPC = false; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
@@ -177,7 +177,7 @@ relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
 relevantErrors = errors(relevancyArray);
 avgTerror = mean(cell2mat({relevantErrors.translation}));
 avgRerror = mean(cell2mat({relevantErrors.orientation}));
-summaryMessage = sprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.f [deg]\n', avgTerror, avgRerror);
+summaryMessage = sprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.2f [deg]\n', avgTerror, avgRerror);
 fprintf(summaryMessage);
 summaryFile = fopen(fullfile(params.HoloLensPoses.dir, 'errorSummary.txt'), 'w');
 fprintf(summaryFile, summaryMessage);
@@ -194,6 +194,7 @@ errorsPath = fullfile(params.HoloLensPoses.dir, 'errors.csv');
 writetable(errorsTable, errorsPath);
 
 %% visualize error distributions (whitelist only)
+close all
 tiledlayout(2,1);
 
 nexttile
@@ -203,7 +204,9 @@ xlabel('Translation error [m]');
 ylabel('Number of occurences');
 
 nexttile
-histogram(cell2mat({relevantErrors.orientation}));
+maxValue = ceil(max(cell2mat({relevantErrors.orientation})));
+histogram(cell2mat({relevantErrors.orientation}), 2*maxValue+1, 'BinWidth', 0.5);
+xticks(0:1:maxValue)
 title('HoloLens to reference poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
