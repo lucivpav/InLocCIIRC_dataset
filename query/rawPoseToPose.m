@@ -2,7 +2,7 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     viconOrigin = [-0.13; 0.04; 2.80]; % w.r.t. model
     viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
 
-    cameraRotation = params.camera.rotation.wrt.marker;
+    cameraRotation = deg2rad(params.camera.rotation.wrt.marker);
     
     % TODO: why does the rotation orientation have to be flipped?
     % NOTE: this is necessary for correctness

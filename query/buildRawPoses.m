@@ -3,6 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
+justEvaluateOnMatches = false;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params');
@@ -31,11 +32,19 @@ timestamps = (timestamps - timestamps(1)) / 10000;
 queryTable = table({queryFiles.name}', timestamps);
 queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 
+if justEvaluateOnMatches
+    close all
+    queryInd = 1:size(params.interestingQueries,2);
+    evaluateMatches(queryInd, params, queryTable, measurementTable);
+    return;
+end
+
 %% try a synchronization constant
 
 % HoloLens1
 %queryName = '00132321091195212118.jpg'; % broken, sadly
-queryName = params.interestingQueries(5);
+queryName = params.interestingQueries(2);
+%queryName = '00132321091211864676.jpg';
 
 % HoloLens2
 % queryName = params.interestingQueries(3);
@@ -77,12 +86,15 @@ return
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
-padding = 200;
-tDiffsMs = -padding:50:padding;
+close all
+tDiffsMs = -300:100:1200;
 originPadding = 5;
-originDiffs = params.camera.originConstant * (-originPadding:1:originPadding);
-rotationPadding = 5;
+originDiffs = -originPadding:1:originPadding;
+rotationPadding = 10;
 rotationDiffs = -rotationPadding:1:rotationPadding;
+errors = inf(size(tDiffsMs,2), ...
+                size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
+                size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
 
 %% HoloLens1 specific %%
 queryInd = 1:size(params.interestingQueries,2);
@@ -92,12 +104,6 @@ queryInd = 1:size(params.interestingQueries,2);
 % %queryInd = [1,2];
 % queryInd = [3,4]; % these two should be independent subsequences, due to possible hat shift TODO: verify
 % queryInd = [1,2,4];
-
-K = eye(3);
-K(1,1) = params.camera.fl;
-K(2,2) = params.camera.fl;
-K(1,3) = params.camera.sensor.size(2)/2;
-K(2,3) = params.camera.sensor.size(1)/2;
 
 bestOrigin = params.camera.origin.wrt.marker;
 bestRotation = params.camera.rotation.wrt.marker;
@@ -115,82 +121,61 @@ for i1=1:size(tDiffsMs,2)
     rawPositions{i1} = thisRawPositions;
     rawRotations{i1} = thisRawRotations;
 end
-bestSyncConstantIdx = uint8(round(size(tDiffsMs,2)/2));
+bestSyncConstantIdx = find(tDiffsMs == 0);
 thisRawPositions = rawPositions{bestSyncConstantIdx};
 thisRawRotations = rawRotations{bestSyncConstantIdx};
 lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
                               params.interestingPointsPC, params.interestingPointsQuery, ...
-                              thisRawPositions, thisRawRotations, K, params);
+                              thisRawPositions, thisRawRotations, params);
 
 %%
 fprintf('Error: %0.2f\n', lowestError);
-for i1=1:size(tDiffsMs,2)
+nOriginDiffs = size(originDiffs,2);
+nRotationDiffs = size(rotationDiffs,2);
+p = parpool;
+opts = parforOptions(p,'RangePartitionMethod','fixed','SubrangeSize',2);
+parfor i1=1:size(tDiffsMs,2)
+    fprintf('Processing round %d/%d.\n', i1, size(tDiffsMs,2));
     thisRawPositions = rawPositions{i1};
     thisRawRotations = rawRotations{i1};
-    for i2=1:size(originDiffs,2)
-        for i3=1:size(originDiffs,2)
-            for i4=1:size(originDiffs,2)
+    for i2=1:nOriginDiffs
+        for i3=1:nOriginDiffs
+            for i4=1:nOriginDiffs
                 originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
-                origin = params.camera.origin.wrt.marker + originDiff;
-                for i5=1:size(rotationDiffs,2)
-                    for i6=1:size(rotationDiffs,2)
-                        for i7=1:size(rotationDiffs,2)
+                origin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
+                for i5=1:nRotationDiffs
+                    for i6=1:nRotationDiffs
+                        for i7=1:nRotationDiffs
                             rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
                             rotation = params.camera.rotation.wrt.marker + rotationDiff;
                             error = projectionError(queryInd, origin, rotation, ...
                                                     params.interestingPointsPC, params.interestingPointsQuery, ...
-                                                    thisRawPositions, thisRawRotations, K, params);
-                            if error < lowestError
-                                lowestError = error;
-                                fprintf('Error: %0.2f\n', error);
-                                bestSyncConstantIdx = i1;
-                                bestOrigin = origin;
-                                bestRotation = rotation;
-                            end
+                                                    thisRawPositions, thisRawRotations, params);
+                            errors(i1,i2,i3,i4,i5,i6,i7) = error;
                         end
                     end
                 end
             end
         end
-        fprintf('Round %d/%d, %0.0f%% done.\n', i1, size(tDiffsMs,2), i2*100/size(originDiffs,2));
     end
 end
 
-%% visualize correspondences and errors
-for i=1:size(queryInd,2)
-    queryIdx = queryInd(i);
-    paramsBak = params;
-    params.camera.origin.wrt.marker = bestOrigin;
-    params.camera.rotation.wrt.marker = bestRotation;
-    thisRawPositions = rawPositions{bestSyncConstantIdx};
-    thisRawRotations = rawRotations{bestSyncConstantIdx};
-    thisRawPosition = thisRawPositions{i};
-    thisRawRotation = thisRawRotations{i};
-    projectedInterestingPoints = projectPoints(params.interestingPointsPC{queryIdx}, thisRawPosition, thisRawRotation, K, params);
-    [R, t] = rawPoseToPose(thisRawPosition, thisRawRotation, params);
-    params = paramsBak;
-    thisInterestingPointsQuery = params.interestingPointsQuery{queryIdx};
+%%
+close all
+[lowestError,idx] = min(errors(:));
+[i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
+originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
+bestOrigin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
+rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
+bestRotation = params.camera.rotation.wrt.marker + rotationDiff;
+bestSyncConstantIdx = i1;
 
-    figure;
-    pointSize = 8.0;
-    outputSize = params.camera.sensor.size;
-    projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
-                                        t, params.camera.sensor.size, outputSize, pointSize, ...
-                                        params.projectPointCloudPy.path);
-    image(projectedPointCloud);
-    axis image;
-
-    hold on;
-    scatter(projectedInterestingPoints(1,:), projectedInterestingPoints(2,:), 40, 'r', 'filled');
-    scatter(thisInterestingPointsQuery(1,:), thisInterestingPointsQuery(2,:), 40, 'g', 'filled');
-    nCorrespondences = size(thisInterestingPointsQuery,2);
-    for i=1:nCorrespondences
-        plot([thisInterestingPointsQuery(1,i), projectedInterestingPoints(1,i)], ...
-             [thisInterestingPointsQuery(2,i), projectedInterestingPoints(2,i)], ...
-             'r-', 'linewidth', 2);
-    end
-    hold off;
-end
+optimalParams = params;
+optimalParams.camera.origin.wrt.marker = bestOrigin;
+optimalParams.camera.origin.relative.wrt.marker = bestOrigin / params.camera.originConstant;
+optimalParams.camera.rotation.wrt.marker = bestRotation;
+optimalParams.HoloLensViconSyncConstant = optimalParams.HoloLensViconSyncConstant + tDiffsMs(bestSyncConstantIdx);
+evaluateMatches(queryInd, optimalParams, queryTable, measurementTable);
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

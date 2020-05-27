@@ -14,12 +14,12 @@ function [ params ] = holoLens2Params(params)
     % NOTE: some reference poses are wrong due to Vicon error, blacklist them
     params.blacklistedQueryInd = [1:86, 88, 91, 212:235, 239:240, 253:332, 335, 376:391, 403:436, 442:485, 561:564, 567:572];
 
-    %params.camera.rotation.wrt.marker = deg2rad([2.0 2.0 3.0]); % this is near optimal for query 1
-    %params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is near optimal for query 2
-    %params.camera.rotation.wrt.marker = deg2rad([-1.0 3.0 4.0]); % this is near optimal for query 3
-    %params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is optimal for query 1 & 2
-    %params.camera.rotation.wrt.marker = deg2rad([-1.0 3.0 4.0]); % this is optimal for query 3 & 4
-    params.camera.rotation.wrt.marker = deg2rad([2.0 5.0 5.0]); % this is optimal for query 1 & 2 & 4
+    %params.camera.rotation.wrt.marker = [2.0 2.0 3.0]; % this is near optimal for query 1
+    %params.camera.rotation.wrt.marker = [2.0 5.0 5.0]; % this is near optimal for query 2
+    %params.camera.rotation.wrt.marker = [-1.0 3.0 4.0]; % this is near optimal for query 3
+    %params.camera.rotation.wrt.marker = [2.0 5.0 5.0]; % this is optimal for query 1 & 2
+    %params.camera.rotation.wrt.marker = [-1.0 3.0 4.0]; % this is optimal for query 3 & 4
+    params.camera.rotation.wrt.marker = [2.0 5.0 5.0]; % this is optimal for query 1 & 2 & 4
     params.camera.originConstant = 0.023;
     %params.camera.origin.wrt.marker = params.camera.originConstant * [-3; 13; -5]; % this is near optimal for query 1
     %params.camera.origin.wrt.marker = params.camera.originConstant * [3; 16; -3]; % this is near optimal for query 2
