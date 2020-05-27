@@ -231,6 +231,7 @@ TdiffsMedian = median(Tdiffs);
 fprintf('Position diffs median (whitelist only): [%f, %f, %f]\n', ...
         TdiffsMedian(1), TdiffsMedian(2), TdiffsMedian(3)); % NOTE: not an absolute error
 TdiffsCov = cov(Tdiffs)
+TdiffsCor = corrcoef(Tdiffs)
     
 %% project PC using the transformed HoloLens poses
 if ~projectPC
