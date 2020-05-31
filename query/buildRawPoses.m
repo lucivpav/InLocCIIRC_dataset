@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = false;
+justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params');
@@ -45,6 +45,7 @@ end
 %queryName = '00132321091195212118.jpg'; % broken, sadly
 queryName = params.interestingQueries(2);
 %queryName = '00132321091211864676.jpg';
+queryName = '00132321090572406376.jpg';
 
 % HoloLens2
 % queryName = params.interestingQueries(3);
@@ -87,11 +88,11 @@ return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
 close all
-tDiffsMs = -300:100:1200;
-originPadding = 5;
-originDiffs = -originPadding:1:originPadding;
+tDiffsMs = -200:100:200;
+originPadding = 10;
+originDiffs = -originPadding:2:originPadding;
 rotationPadding = 10;
-rotationDiffs = -rotationPadding:1:rotationPadding;
+rotationDiffs = -rotationPadding:0.5:rotationPadding;
 errors = inf(size(tDiffsMs,2), ...
                 size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
                 size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
@@ -151,7 +152,7 @@ parfor i1=1:size(tDiffsMs,2)
                             error = projectionError(queryInd, origin, rotation, ...
                                                     params.interestingPointsPC, params.interestingPointsQuery, ...
                                                     thisRawPositions, thisRawRotations, params);
-                            errors(i1,i2,i3,i4,i5,i6,i7) = error;
+                            errors(i1,i2,i3,i4,i5,i6,i7) = sum(error);
                         end
                     end
                 end
