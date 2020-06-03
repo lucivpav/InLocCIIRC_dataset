@@ -30,8 +30,8 @@ function [ params ] = holoLens1Params(params)
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)
                                     "00132321090868821963.jpg", ... % aka query 2 (94.jpg)
                                     "00132321091341754646.jpg", ... % aka query 3 (237.jpg)
-                                    "00132321091488297196.jpg", ... % aka query 4
-                                    "00132321091068652686.jpg", ... % aka query 5
+                                    "00132321091488297196.jpg", ... % aka query 4 (281.jpg)
+                                    "00132321091068652686.jpg", ... % aka query 5 (155.jpg)
                                     "00132321091211864676.jpg"]; % aka query 6 (198.jpg)
                                     % TODO: 00132321091305119025.jpg
     % interestingPointsQuery{i} are 2D projections of points in interestingPointsPC{i}.
