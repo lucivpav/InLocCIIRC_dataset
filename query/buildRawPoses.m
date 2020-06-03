@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = false;
+justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params');
