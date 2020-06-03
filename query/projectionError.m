@@ -1,7 +1,8 @@
 function error = projectionError(queryInd, origin, rotation, interestingPointsPC, interestingPointsQuery, ...
                                     rawPositions, rawRotations, params)
-    error = 0.0;
-    for i=1:size(queryInd,2)
+    nQueries = size(queryInd,2);
+    error = zeros(nQueries,1);
+    for i=1:nQueries
         queryIdx = queryInd(i);
 
         paramsBak = params;
@@ -11,6 +12,6 @@ function error = projectionError(queryInd, origin, rotation, interestingPointsPC
         params = paramsBak;
 
         thisInterestingPointsQuery = interestingPointsQuery{queryIdx};
-        error = error + norm(thisInterestingPointsQuery - projectedInterestingPoints);
+        error(i) = norm(thisInterestingPointsQuery - projectedInterestingPoints);
     end
 end

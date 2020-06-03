@@ -3,7 +3,7 @@ addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/local/R_to_numpy_array')
-[ params ] = setupParams('s10eParams');
+[ params ] = setupParams('holoLens1Params');
 
 mkdirIfNonExistent(params.projectedPointCloud.dir);
 mkdirIfNonExistent(params.poses.dir);
