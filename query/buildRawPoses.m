@@ -14,7 +14,7 @@ mkdirIfNonExistent(miniSequenceDir);
 measurementTable = readtable(params.measurement.path);
 measurementTable.Properties.VariableNames = {'frameNumber', 'FPS', 'marker', 'invalid', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'};
 
-FPS = 100; % TODO: check with the data that this is true
+FPS = 100; % viz each row. TODO: assert
 
 measurementTable.frameNumber = measurementTable.frameNumber - measurementTable.frameNumber(1);
 measurementTable.timestampMs = measurementTable.frameNumber * (1 / FPS) * 1000;
