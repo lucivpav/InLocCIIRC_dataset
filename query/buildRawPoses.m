@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = true;
+justEvaluateOnMatches = false;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params');
@@ -134,7 +134,7 @@ fprintf('Error: %0.2f\n', lowestError);
 nOriginDiffs = size(originDiffs,2);
 nRotationDiffs = size(rotationDiffs,2);
 p = parpool;
-opts = parforOptions(p,'RangePartitionMethod','fixed','SubrangeSize',2);
+opts = parforOptions(p);
 parfor i1=1:size(tDiffsMs,2)
     fprintf('Processing round %d/%d.\n', i1, size(tDiffsMs,2));
     thisRawPositions = rawPositions{i1};

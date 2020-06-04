@@ -27,7 +27,7 @@ params.rawPoses.path = fullfile(params.query.dir, 'rawPoses.csv');
 params.cutouts.dir = fullfile(params.dataset.dir, 'cutouts');
 params.inMap.tDiffMax = 1.3;
 params.inMap.rotDistMax = 10; % in degrees
-params.renderClosestCutouts = true;
+params.renderClosestCutouts = false;
 params.closest.cutout.dir = fullfile(params.query.dir, 'closestCutout');
 
 params.K = eye(3);
