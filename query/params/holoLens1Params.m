@@ -18,13 +18,13 @@ function [ params ] = holoLens1Params(params)
     %params.camera.rotation.wrt.marker = [-5.0 6.0 -5.0]; % this is optimal for query 2
     %params.camera.rotation.wrt.marker = [-8.0 6.0 -3.0]; % this is optimal for query 3
     %params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this is optimal for query 4
-    params.camera.rotation.wrt.marker = [-7.5 6.0 -3.5]; % this aims to be generic
+    params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this aims to be generic
     params.camera.originConstant = 0.023;
-    params.camera.origin.relative.wrt.marker = [4; 10; -2];
+    params.camera.origin.relative.wrt.marker = [3; 20; -3];
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
-    params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]
+    params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)
