@@ -22,8 +22,9 @@ for i=1:size(queryInd,2)
     rawPosition = rawPositions{i};
     rawRotation = rawRotations{i};
     projectedInterestingPoints = projectPoints(params.interestingPointsPC{queryIdx}, rawPosition, rawRotation, params);
+    projectedInterestingPoints = projectedInterestingPoints + 1; % MATLAB is 1-based
     [R, t] = rawPoseToPose(rawPosition, rawRotation, params);
-    thisInterestingPointsQuery = params.interestingPointsQuery{queryIdx};
+    thisInterestingPointsQuery = params.interestingPointsQuery{queryIdx} + 1; % MATLAB is 1-based
 
     figure;
     pointSize = 8.0;
