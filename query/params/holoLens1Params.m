@@ -15,12 +15,14 @@ function [ params ] = holoLens1Params(params)
     params.blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 
     %params.camera.rotation.wrt.marker = [-6.0 6.0 -4.0]; % this is optimal for query 1
-    %params.camera.rotation.wrt.marker = [-5.0 6.0 -5.0]; % this is optimal for query 2
-    %params.camera.rotation.wrt.marker = [-8.0 6.0 -3.0]; % this is optimal for query 3
+    %params.camera.rotation.wrt.marker = [-3.5 8.5 -4.5]; % this is optimal for query 2
+    %params.camera.rotation.wrt.marker = [-7.5 7.0 -4.5]; % this is optimal for query 3
     %params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this is optimal for query 4
     params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this aims to be generic
     params.camera.originConstant = 0.023;
-    params.camera.origin.relative.wrt.marker = [3; 20; -3];
+    %params.camera.origin.relative.wrt.marker = [3; 22; -3]; % this is optimal for query 2
+    %params.camera.origin.relative.wrt.marker = [3; 12; -7]; % this is optimal for query 3
+    params.camera.origin.relative.wrt.marker = [3; 20; -3]; % this aims to be generic
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
@@ -28,11 +30,11 @@ function [ params ] = holoLens1Params(params)
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)
-                                    "00132321090868821963.jpg", ... % aka query 2 (94.jpg)
-                                    "00132321091341754646.jpg", ... % aka query 3 (237.jpg)
-                                    "00132321091488297196.jpg", ... % aka query 4 (281.jpg)
-                                    "00132321091068652686.jpg", ... % aka query 5 (155.jpg)
-                                    "00132321091211864676.jpg"]; % aka query 6 (198.jpg)
+                                 "00132321090868821963.jpg", ... % aka query 2 (94.jpg)
+                                 "00132321091341754646.jpg", ... % aka query 3 (237.jpg)
+                                 "00132321091488297196.jpg", ... % aka query 4 (281.jpg)
+                                 "00132321091068652686.jpg", ... % aka query 5 (155.jpg)
+                                 "00132321091211864676.jpg"]; % aka query 6 (198.jpg)
                                     % TODO: 00132321091305119025.jpg
     % interestingPointsQuery{i} are 2D projections of points in interestingPointsPC{i}.
     % i is the i-th query in params.interestingQueries
@@ -56,21 +58,25 @@ function [ params ] = holoLens1Params(params)
                                         3.8756, 3.5295, -0.9016; ...
                                         3.9756, 0.7663, 2.5484; ...
                                         4.4656, 2.9874, -0.6228; ...
-                                        1.2156, 0.8774, -2.9065]';
+                                        1.2156, 0.8774, -2.9065; ...
+                                        2.2856, 0.0017, 0.4184]';
     params.interestingPointsQuery{3} = [981, 269; ...
                                         758, 35; ...
                                         1098, 663; ...
                                         838, 133; ...
-                                        250, 388]';
+                                        250, 388; ...
+                                        442, 664]';
 
     params.interestingPointsPC{4} = [-3.5344, 2.6774, -3.2205; ...
                                         -11.2077, 2.3874, 1.0384; ...
                                         -7.0966, 0.6574, 1.0484; ...
-                                        -5.8644, 3.5374, -2.6916]';
+                                        -5.8644, 3.5374, -2.6916; ...
+                                        -2.2544, 0.0000, 1.4684]';
     params.interestingPointsQuery{4} = [1113, 198; ...
                                         406, 250; ...
                                         375, 428; ...
-                                        892, 113]';
+                                        892, 113; ...
+                                        193, 706]';
 
     params.interestingPointsPC{5} = [-8.2444, 1.1374, 8.2766; ...
                                         -10.6837, 3.5356, 5.2184; ...

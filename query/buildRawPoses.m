@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = false;
+justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params');
@@ -163,20 +163,28 @@ end
 
 %%
 close all
+for i1=1:size(tDiffsMs,2)
+    thisErrors = errors(i1,:);
+    thisErrors = reshape(thisErrors, max(size(thisErrors)), 1);
+    [lowestError,idx] = min(thisErrors);
+    dimensionSizes = size(errors);
+    [i2,i3,i4,i5,i6,i7] = ind2sub(dimensionSizes(2:end),idx);
+    originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
+    bestOrigin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
+    rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
+    bestRotation = params.camera.rotation.wrt.marker + rotationDiff;
+    bestSyncConstantIdx = i1;
+
+    optimalParams{i1} = params;
+    optimalParams{i1}.camera.origin.wrt.marker = bestOrigin;
+    optimalParams{i1}.camera.origin.relative.wrt.marker = bestOrigin / params.camera.originConstant;
+    optimalParams{i1}.camera.rotation.wrt.marker = bestRotation;
+    optimalParams{i1}.HoloLensViconSyncConstant = optimalParams{i1}.HoloLensViconSyncConstant + tDiffsMs(bestSyncConstantIdx);
+end
+
 [lowestError,idx] = min(errors(:));
 [i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
-originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
-bestOrigin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
-rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
-bestRotation = params.camera.rotation.wrt.marker + rotationDiff;
-bestSyncConstantIdx = i1;
-
-optimalParams = params;
-optimalParams.camera.origin.wrt.marker = bestOrigin;
-optimalParams.camera.origin.relative.wrt.marker = bestOrigin / params.camera.originConstant;
-optimalParams.camera.rotation.wrt.marker = bestRotation;
-optimalParams.HoloLensViconSyncConstant = optimalParams.HoloLensViconSyncConstant + tDiffsMs(bestSyncConstantIdx);
-evaluateMatches(queryInd, optimalParams, queryTable, measurementTable);
+evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable);
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
