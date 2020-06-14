@@ -1,6 +1,7 @@
 function evaluateMatches(queryInd, params, queryTable, measurementTable)
 
-for i=1:size(queryInd,2)
+nQueries = size(queryInd,2);
+for i=1:nQueries
     queryIdx = queryInd(i);
     [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
                                                 measurementTable, params.HoloLensViconSyncConstant);
@@ -12,12 +13,49 @@ error = projectionError(queryInd, params.camera.origin.wrt.marker, params.camera
                         params.interestingPointsPC, params.interestingPointsQuery, ...
                         rawPositions, rawRotations, params);
 for i=1:size(error)
-    fprintf('Interesting query %d error: %0.2f\n', queryInd(i), error(i));
+    fprintf('Interesting query %d projection error: %0.2f\n', queryInd(i), error(i));
 end
-fprintf('Error sum: %0.2f\n', sum(error,1));
+fprintf('Projection error sum: %0.2f\n', sum(error,1));
+
+% translation / rotation error
+errors = struct();
+translationErrorSum = 0.0;
+orientationErrorSum = 0.0;
+nOptimalQueries = 0;
+for i=1:nQueries
+    queryIdx = queryInd(i);
+
+    [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
+                                                measurementTable, params.HoloLensViconSyncConstant);
+    [R, t] = rawPoseToPose(rawPosition, rawRotation, params); 
+    if ~isKey(params.optimal.camera.rotation.wrt.marker, queryIdx)
+        continue;
+    end
+    if ~isKey(params.optimal.camera.origin.relative.wrt.marker, queryIdx)
+        continue;
+    end
+    paramsOrig = params;
+    params.camera.rotation.wrt.marker = params.optimal.camera.rotation.wrt.marker(queryIdx);
+    params.camera.origin.relative.wrt.marker = params.optimal.camera.origin.relative.wrt.marker(queryIdx);
+    params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
+    [refR, refT] = rawPoseToPose(rawPosition, rawRotation, params); 
+    params = paramsOrig;
+
+    translationError = norm(t - refT);
+    orientationError = rotationDistance(refR, R);
+
+    fprintf('Interesting query %d translation error: %0.2f, orientation error: %0.2f\n', ...
+            queryIdx, translationError, orientationError);
+
+    translationErrorSum = translationErrorSum + translationError;
+    orientationErrorSum = orientationErrorSum + orientationError;
+    nOptimalQueries = nOptimalQueries + 1;
+end
+fprintf('Average translation error:  %0.2f\n', translationErrorSum / nOptimalQueries);
+fprintf('Average orientation error:  %0.2f\n', orientationErrorSum/ nOptimalQueries);
                                     
 %% visualize correspondences and errors
-for i=1:size(queryInd,2)
+for i=1:nQueries
     queryIdx = queryInd(i);
     rawPosition = rawPositions{i};
     rawRotation = rawRotations{i};

@@ -14,16 +14,21 @@ function [ params ] = holoLens1Params(params)
     % NOTE: some reference poses are wrong due to Vicon error, blacklist them
     params.blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 
-    %params.camera.rotation.wrt.marker = [-6.0 6.0 -4.0]; % this is optimal for query 1
-    %params.camera.rotation.wrt.marker = [-3.5 8.5 -4.5]; % this is optimal for query 2
-    %params.camera.rotation.wrt.marker = [-7.5 7.0 -4.5]; % this is optimal for query 3
-    %params.camera.rotation.wrt.marker = [-7.5 5.5 -4.5]; % this is optimal for query 4
+    interestingQueryInd = [1,2,3,4];
+    optimalRotations = {[-6.0, 6.0, -4.0], % this is optimal for query 1; TODO
+                        [-3.5, 8.5, -4.5], % this is optimal for query 2
+                        [-7.5, 7.0, -4.5], % this is optimal for query 3
+                        [-7.5, 5.5, -4.5]}; % this is optimal for query 4
+    params.optimal.camera.rotation.wrt.marker = containers.Map(interestingQueryInd, optimalRotations);
     params.camera.rotation.wrt.marker = [-8.0 6.0 -4.0]; % this aims to be generic
-    params.camera.originConstant = 0.023;
-    %params.camera.origin.relative.wrt.marker = [3; 22; -3]; % this is optimal for query 2
-    %params.camera.origin.relative.wrt.marker = [3; 12; -7]; % this is optimal for query 3
-    %params.camera.origin.relative.wrt.marker = [-1; 16; -7]; % this is optimal for query 4
+
+    interestingQueryInd = [2,3,4];
+    optimalTranslations = {[3; 22; -3], % this is optimal for query 2
+                           [3; 12; -7], % this is optimal for query 3
+                           [-1; 16; -7]}; % this is optimal for query 4
+    params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
     params.camera.origin.relative.wrt.marker = [3; 20; -3]; % this aims to be generic
+    params.camera.originConstant = 0.023;
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
