@@ -69,6 +69,12 @@ for i=1:nInterestingQueries
     testParams.camera.origin.wrt.marker = optimalTranslationsNonRelative{i};
     testParams.camera.rotation.wrt.marker = optimalRotations{i};
 
+    % brute-force step sensitivity test
+    % NOTE: the noise values should be half of the step size
+    %testParams.camera.origin.relative.wrt.marker = testParams.camera.origin.relative.wrt.marker + 0.5;
+    %testParams.camera.origin.wrt.marker = params.camera.originConstant * testParams.camera.origin.relative.wrt.marker;
+    %testParams.camera.rotation.wrt.marker = testParams.camera.rotation.wrt.marker + 0.25;
+
     evaluateMatches([queryIdx], testParams, queryTable, measurementTable);
 end
 optimalParams.optimal.camera.origin.relative.wrt.marker = containers.Map(queryInd, optimalTranslations);

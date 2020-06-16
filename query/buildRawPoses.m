@@ -70,8 +70,8 @@ return
 %% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
 close all
 tDiffsMs = -200:100:200;
-originPadding = 10;
-originDiffs = -originPadding:2:originPadding;
+originPadding = 8;
+originDiffs = -originPadding:1:originPadding;
 rotationPadding = 10;
 rotationDiffs = -rotationPadding:0.5:rotationPadding;
 errors = inf(size(tDiffsMs,2), ...
