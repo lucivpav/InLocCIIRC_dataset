@@ -10,31 +10,12 @@ generateMiniSequence = false;
 miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
-%% prepare Vicon table with millisecond timestamps
-measurementTable = readtable(params.measurement.path);
-measurementTable.Properties.VariableNames = {'frameNumber', 'FPS', 'marker', 'invalid', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'};
-
-FPS = 100; % viz each row. TODO: assert
-
-measurementTable.frameNumber = measurementTable.frameNumber - measurementTable.frameNumber(1);
-measurementTable.timestampMs = measurementTable.frameNumber * (1 / FPS) * 1000;
-measurementTable = removevars(measurementTable, {'FPS', 'marker', 'frameNumber'});
-measurementTable = measurementTable(~measurementTable.invalid, {'timestampMs', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'});
-
-queryFiles = dir(params.input.query.dir);
-queryFiles = queryFiles(endsWith({queryFiles.name}, '.jpg'));
-
-timestamps = {queryFiles.name};
-timestamps = extractBetween(timestamps, 1, strlength(timestamps)-4);
-timestamps = strcat('uint64(', timestamps, ')');
-timestamps = str2num(str2mat(timestamps));
-timestamps = (timestamps - timestamps(1)) / 10000;
-queryTable = table({queryFiles.name}', timestamps);
-queryTable.Properties.VariableNames = {'name', 'timestampMs'};
+[measurementTable, queryTable, queryFiles] = initiMeasurementAndQueryTables(params);
 
 if justEvaluateOnMatches
     close all
     queryInd = 1:size(params.interestingQueries,2);
+    %queryInd = [4];
     evaluateMatches(queryInd, params, queryTable, measurementTable);
     return;
 end
@@ -52,7 +33,7 @@ queryName = '00132321090572406376.jpg';
 
 queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
 queryTimestamp = queryTimestamp{1,1};
-viconTimestamp = params.HoloLensViconSyncConstant + queryTimestamp;
+viconTimestamp = double(params.HoloLensViconSyncConstant + queryTimestamp);
 
 padding = 1500;
 tDiffsMs = -padding:100:padding;
@@ -200,7 +181,7 @@ for i=1:size(queryTable,1)
     
     queryTimestamp = queryTable(i, 'timestampMs');
     queryTimestamp = queryTimestamp{1,1};
-    viconTimestamp = params.HoloLensViconSyncConstant + queryTimestamp;
+    viconTimestamp = double(params.HoloLensViconSyncConstant + queryTimestamp);
     [~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp);
     closestEvent = measurementTable(idx,:);
     space = 'B-315';

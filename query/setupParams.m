@@ -20,6 +20,7 @@ end
 params.spaceName = 'B-315';
 params.pointCloud.path = fullfile(params.dataset.dir, 'models', params.spaceName, 'cloud - rotated.ply');
 params.projectPointCloudPy.path = '../functions/local/projectPointCloud/projectPointCloud.py';
+params.reconstructPosePy.path = '../functions/local/reconstructPose/reconstructPose.py';
 params.projectedPointCloud.dir = fullfile(params.query.dir, 'projectedPointCloud');
 params.poses.dir = fullfile(params.query.dir, 'poses');
 params.queryDescriptions.path = fullfile(params.query.dir, 'descriptions.csv');

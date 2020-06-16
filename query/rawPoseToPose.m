@@ -9,27 +9,28 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     % NOTE: this probably forces the ugly hack later on
     markerRotation = rawRotation .* [1.0 -1.0 1.0];
 
-    cameraR = rotationMatrix(cameraRotation, 'XYZ');
-    markerR = rotationMatrix(markerRotation, 'ZYX');
-    viconR = rotationMatrix(viconRotation, 'XYZ');
+    cameraR = rotationMatrix(cameraRotation, 'XYZ'); % camera -> marker
+    markerR = rotationMatrix(markerRotation, 'ZYX'); % marker -> vicon
+    viconR = rotationMatrix(viconRotation, 'XYZ'); % vicon -> model
 
     markerOrigin = viconR * rawPosition + viconOrigin; % w.r.t. model
 
     % note: coordinate vectors are columns
-    markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
-    markerCoordinateSystem = viconR * markerCoordinateSystem; % w.r.t. model
+    markerRwrtModel = viconR * markerR; % marker -> model
     
-    cameraOrigin = params.camera.origin.wrt.marker;
-    cameraOrigin = markerCoordinateSystem * cameraOrigin + markerOrigin; % w.r.t. marker, from model origin
+    cameraOrigin = markerRwrtModel * params.camera.origin.wrt.marker + markerOrigin; % w.r.t. model
 
-    markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
-    cameraCoordinateSystem = cameraR * markerCoordinateSystem; % w.r.t. vicon 
-    cameraCoordinateSystem = viconR * cameraCoordinateSystem; % w.r.t. model, camera points to y
+    cameraRotation = markerR * cameraR; % w.r.t. vicon
+    cameraRotation = viconR * cameraRotation; % w.r.t. model, camera points to y
     
     % bring z to where y is, as required by projectPC
     rFix = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX');
-    cameraCoordinateSystem = cameraCoordinateSystem * rFix;
+    cameraRotation = cameraRotation * rFix;
 
     t = cameraOrigin;
-    R = cameraCoordinateSystem;
+    R = cameraRotation;
+    % TODO: I don't understand. suppose I have 3D vector x. Then I can rotate it by R*x. But if I want to "rotate"
+    % it by cameraBases, I need to do inv(cameraBases)! But then why projectPoints works with R?
+    % Is R actually a rotation matrix or a matrix with bases as columns??? Or both?
+    % does it matter if I'm transforming a point versus another bases?
 end

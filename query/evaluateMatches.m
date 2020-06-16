@@ -1,5 +1,7 @@
 function evaluateMatches(queryInd, params, queryTable, measurementTable)
 
+addpath('../functions/InLocCIIRC_utils/rotationDistance');
+
 nQueries = size(queryInd,2);
 for i=1:nQueries
     queryIdx = queryInd(i);
