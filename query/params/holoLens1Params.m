@@ -1,7 +1,16 @@
 function [ params ] = holoLens1Params(params)
 
     params.query.dir = fullfile(params.dataset.dir, 'query-HoloLens1');
-    params.input.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences';
+
+    addpath('../functions/InLocCIIRC_utils/environment');
+    env = environment();
+
+    if strcmp(env, 'laptop')
+        params.input.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/personal/lucivpav/HoloLens sequences';
+    elseif strcmp(env, 'cmp')
+        params.input.dir = '/mnt/datagrid/personal/lucivpav/HoloLens sequences';
+    end
+
     params.measurement.path = fullfile(params.input.dir, 'measurement1.txt');
     params.input.recording.dir = fullfile(params.input.dir, 'HoloLensRecording__2020_04_23__09_53_01');
     params.input.query.dir = fullfile(params.input.recording.dir, 'pv');

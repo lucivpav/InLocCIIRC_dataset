@@ -1,11 +1,17 @@
 function [ params ] = setupParams(mode)
     % mode is one of {'s10e', 'annaHoloLens', 'pavelHoloLens'}
 
-addpath('./params')
+addpath('./params');
+addpath('../functions/InLocCIIRC_utils/environment');
 
 params = struct();
+env = environment();
 
-params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';
+if strcmp(env, 'laptop')
+    params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';
+elseif strcmp(env, 'cmp')
+    params.dataset.dir = '/mnt/datagrid/personal/lucivpav/InLocCIIRC_dataset';
+end
 
 if strcmp(mode, 's10eParams')
     params = s10eParams(params);

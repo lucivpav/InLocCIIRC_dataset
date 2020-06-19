@@ -6,7 +6,9 @@ addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('holoLens1Params'); % WARNING: if you change params in the file and run this again,
+                                             % the new params may not actually load on first attempt, making the evaluation result
+					                         % unexpected. IDE bug?
 miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
@@ -20,52 +22,6 @@ if justEvaluateOnMatches
     return;
 end
 
-%% try a synchronization constant
-
-% HoloLens1
-%queryName = '00132321091195212118.jpg'; % broken, sadly
-queryName = params.interestingQueries(2);
-%queryName = '00132321091211864676.jpg';
-queryName = '00132321090572406376.jpg';
-
-% HoloLens2
-% queryName = params.interestingQueries(3);
-
-queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
-queryTimestamp = queryTimestamp{1,1};
-viconTimestamp = double(params.HoloLensViconSyncConstant + queryTimestamp);
-
-padding = 1500;
-tDiffsMs = -padding:100:padding;
-if ~generateMiniSequence
-    tDiffsMs = [0];
-end
-for i=1:size(tDiffsMs,2)
-tDiffMs = tDiffsMs(1,i);
-[~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp+tDiffMs);
-
-%% project and check whether it corresponds to the initial sequence image
-closestEvent = measurementTable(idx,:);
-rawPosition = [closestEvent{1,'x'}; closestEvent{1,'y'}; closestEvent{1,'z'}];
-rawRotation = [closestEvent{1,'alpha'}, closestEvent{1,'beta'}, closestEvent{1,'gamma'}];
-[R, t] = rawPoseToPose(rawPosition, rawRotation, params);
-
-pointSize = 8.0;
-outputSize = params.camera.sensor.size;
-projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
-                                    t, params.camera.sensor.size, outputSize, pointSize, ...
-                                    params.projectPointCloudPy.path);
-if generateMiniSequence
-    projectedPointCloudPath = fullfile(miniSequenceDir, sprintf('%d_%d.jpg',i,tDiffMs));
-    imwrite(projectedPointCloud, projectedPointCloudPath);
-else
-    imshow(projectedPointCloud);
-end
-
-end
-
-return
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% once quite good parameters are found, run this to find even better parameters nearby (by brute-force search)
 close all
@@ -74,8 +30,7 @@ originPadding = 8;
 originDiffs = -originPadding:1:originPadding;
 rotationPadding = 10;
 rotationDiffs = -rotationPadding:0.5:rotationPadding;
-errors = inf(size(tDiffsMs,2), ...
-                size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
+errors = inf(size(tDiffsMs,2)*size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
                 size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
 
 %% HoloLens1 specific %%
@@ -114,33 +69,69 @@ lowestError = projectionError(queryInd, bestOrigin, bestRotation, ...
 fprintf('Error: %0.2f\n', lowestError);
 nOriginDiffs = size(originDiffs,2);
 nRotationDiffs = size(rotationDiffs,2);
-p = parpool;
+
+nTDiffs = size(tDiffsMs,2);
+[topLoop1Ind, topLoop2Ind] = ndgrid(1:nTDiffs, 1:nOriginDiffs);
+topLoopsInd = [topLoop1Ind(:), topLoop2Ind(:)];
+
+if strcmp(env, 'laptop')
+    nWorkers = 4;
+elseif strcmp(env, 'cmp')
+    nWorkers = 45;
+end
+c = parcluster;
+c.NumWorkers = nWorkers;
+saveProfile(c);
+
+p = parpool('local', nWorkers);
 opts = parforOptions(p);
-parfor i1=1:size(tDiffsMs,2)
-    fprintf('Processing round %d/%d.\n', i1, size(tDiffsMs,2));
+nTopLoopsInd = size(topLoopsInd,1);
+parfor iTop=1:nTopLoopsInd
+    fprintf('Processing round %d/%d.\n', iTop, nTopLoopsInd);
+    i1 = topLoopsInd(iTop,1);
+    i2 = topLoopsInd(iTop,2);
     thisRawPositions = rawPositions{i1};
     thisRawRotations = rawRotations{i1};
-    for i2=1:nOriginDiffs
-        for i3=1:nOriginDiffs
-            for i4=1:nOriginDiffs
-                originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
-                origin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
-                for i5=1:nRotationDiffs
-                    for i6=1:nRotationDiffs
-                        for i7=1:nRotationDiffs
-                            rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
-                            rotation = params.camera.rotation.wrt.marker + rotationDiff;
-                            error = projectionError(queryInd, origin, rotation, ...
-                                                    params.interestingPointsPC, params.interestingPointsQuery, ...
-                                                    thisRawPositions, thisRawRotations, params);
-                            errors(i1,i2,i3,i4,i5,i6,i7) = sum(error);
-                        end
+    for i3=1:nOriginDiffs
+        for i4=1:nOriginDiffs
+            originDiff = [originDiffs(1,i2); originDiffs(1,i3); originDiffs(1,i4)];
+            origin = params.camera.originConstant * (params.camera.origin.relative.wrt.marker + originDiff);
+            for i5=1:nRotationDiffs
+                for i6=1:nRotationDiffs
+                    for i7=1:nRotationDiffs
+                        rotationDiff = [rotationDiffs(1,i5), rotationDiffs(1,i6), rotationDiffs(1,i7)];
+                        rotation = params.camera.rotation.wrt.marker + rotationDiff;
+                        error = projectionError(queryInd, origin, rotation, ...
+                                                params.interestingPointsPC, params.interestingPointsQuery, ...
+                                                thisRawPositions, thisRawRotations, params);
+                        errors(iTop,i3,i4,i5,i6,i7) = sum(error);
                     end
                 end
             end
         end
     end
 end
+
+errors2 = inf(size(tDiffsMs,2), ...
+		size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
+                size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
+for i1=1:nTDiffs
+    for i2=1:nOriginDiffs
+	[q,iTop] = ismember([i1,i2], topLoopsInd, 'rows');
+        for i3=1:nOriginDiffs
+        for i4=1:nOriginDiffs
+        for i5=1:nRotationDiffs
+        for i6=1:nRotationDiffs
+        for i7=1:nRotationDiffs
+	errors2(i1,i2,i3,i4,i5,i6,i7) = errors(iTop,i3,i4,i5,i6,i7); % TODO: get rid of the inner loops
+        end
+        end
+        end
+        end
+        end
+    end
+end
+errors = errors2;
 
 %%
 close all
@@ -166,6 +157,8 @@ end
 [lowestError,idx] = min(errors(:));
 [i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
 evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable);
+
+save(fullfile(params.query.dir, 'bruteForce.mat'), 'optimalParams', 'errors', '-v7.3');
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

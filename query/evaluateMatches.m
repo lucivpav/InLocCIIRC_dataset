@@ -55,6 +55,12 @@ for i=1:nQueries
 end
 fprintf('Average translation error:  %0.2f\n', translationErrorSum / nOptimalQueries);
 fprintf('Average orientation error:  %0.2f\n', orientationErrorSum/ nOptimalQueries);
+
+env = environment();
+
+if ~strcmp(env, 'laptop')
+    return;
+end
                                     
 %% visualize correspondences and errors
 for i=1:nQueries
@@ -70,7 +76,7 @@ for i=1:nQueries
     outputSize = params.camera.sensor.size;
     projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
                                         t, params.camera.sensor.size, outputSize, pointSize, ...
-                                        params.projectPointCloudPy.path);
+                                        params.projectPointCloudPy.path); % TODO: use projectMesh instead, which can work in headless mode
     image(projectedPointCloud);
     axis image;
 
