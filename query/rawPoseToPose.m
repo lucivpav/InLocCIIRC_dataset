@@ -20,7 +20,7 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     
     cameraOrigin = markerRwrtModel * params.camera.origin.wrt.marker + markerOrigin; % w.r.t. model
 
-    cameraRotation = markerR * cameraR; % w.r.t. vicon % seems like this fix NOT is wrong!
+    cameraRotation = markerR * cameraR; % w.r.t. vicon % seems like this fix is NOT wrong!
     %cameraRotation = cameraR * markerR; % w.r.t. vicon % ORIGINAL % this is WRONG, as demonstrated in debugCS.py Why?
                                          % because here I am rotation AROUND THE VICON's Z-axis (not the marker Z-axis)
     cameraRotation = viconR * cameraRotation; % w.r.t. model, camera points to y
