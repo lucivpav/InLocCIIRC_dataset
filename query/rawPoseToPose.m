@@ -20,7 +20,9 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     
     cameraOrigin = markerRwrtModel * params.camera.origin.wrt.marker + markerOrigin; % w.r.t. model
 
-    cameraRotation = markerR * cameraR; % w.r.t. vicon
+    cameraRotation = markerR * cameraR; % w.r.t. vicon % seems like this fix NOT is wrong!
+    %cameraRotation = cameraR * markerR; % w.r.t. vicon % ORIGINAL % this is WRONG, as demonstrated in debugCS.py Why?
+                                         % because here I am rotation AROUND THE VICON's Z-axis (not the marker Z-axis)
     cameraRotation = viconR * cameraRotation; % w.r.t. model, camera points to y
     
     % bring z to where y is, as required by projectPC
@@ -29,8 +31,8 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
 
     t = cameraOrigin;
     R = cameraRotation;
-    % TODO: I don't understand. suppose I have 3D vector x. Then I can rotate it by R*x. But if I want to "rotate"
-    % it by cameraBases, I need to do inv(cameraBases)! But then why projectPoints works with R?
-    % Is R actually a rotation matrix or a matrix with bases as columns??? Or both?
-    % does it matter if I'm transforming a point versus another bases?
+    % Why projectPoints works with R? -> Because 
+    % in P = [params.K*R, -params.K*R*t], we want to go the oposite way: from world coordinates to camera coordinates
+    % Is R actually a rotation matrix or a matrix with bases as columns? Or both? -> Both
+    % Does it matter if I'm transforming a point versus another bases? -> No
 end

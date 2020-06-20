@@ -24,7 +24,7 @@ function [ params ] = holoLens1Params(params)
     params.blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 
     interestingQueryInd = [1,2,3,4,5,6];
-    optimalRotations = {[-3.9710, -6.9129, -5.9729], % this is optimal for query 1
+    optimalRotations = {[-3.9710, -6.9129, -5.9729], % this is optimal for query 1 TODO: the associated matrix makes little sense!
                         [-7.4251, -4.6931, -6.1227], % this is optimal for query 2
                         [8.5521, -4.4069, -5.1620], % this is optimal for query 3
                         [-3.8957, -7.9055, -5.6751], % this is optimal for query 4

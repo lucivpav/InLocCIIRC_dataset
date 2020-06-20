@@ -17,7 +17,7 @@ mkdirIfNonExistent(miniSequenceDir);
 if justEvaluateOnMatches
     close all
     queryInd = 1:size(params.interestingQueries,2);
-    %queryInd = [4];
+    %queryInd = [3];
     evaluateMatches(queryInd, params, queryTable, measurementTable);
     return;
 end

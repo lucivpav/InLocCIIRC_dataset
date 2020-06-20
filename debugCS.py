@@ -29,6 +29,11 @@ if __name__ == "__main__":
     origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
     plot_csystem(ax, np.eye(3), origin, 'delta', 'black')
 
+    viconR = np.array([[-1.00, 0.00, 0.00], [0.00, 0.00, 1.00], [-0.00, 1.00, -0.00]]) # wrt model
+    origin = np.reshape(np.array([-0.13, 0.04, 2.80]), (3,1)) # wrt model
+    plot_csystem(ax, viconR, origin, 'delta', 'brown')
+
+
     ### query 40
 
     markerCS = np.array([[-0.77, 0.22, -0.60], [-0.61, -0.53, 0.60], [-0.19, 0.82, 0.54]])
@@ -167,13 +172,30 @@ if __name__ == "__main__":
 
 
 
-    markerWrtModel = np.array([[0.56, -0.53, -0.64], [0.44, -0.46, 0.77], [-0.70, -0.71, -0.02]])
-    origin = np.reshape(np.array([-3.6426, 1.6608, -0.0278]), (3,1))
-    plot_csystem(ax, markerWrtModel, origin, 'markerWrtModel', 'yellow')
+    #markerWrtModel = np.array([[0.56, -0.53, -0.64], [0.44, -0.46, 0.77], [-0.70, -0.71, -0.02]])
+    #origin = np.reshape(np.array([-3.6426, 1.6608, -0.0278]), (3,1))
+    #plot_csystem(ax, markerWrtModel, origin, 'markerWrtModel', 'yellow')
 
-    cameraWrtModel = np.array([[0.54, -0.39, -0.74], [0.55, -0.50, 0.67], [-0.63, -0.77, -0.06]])
-    origin = np.reshape(np.array([-3.7976, 1.3192, -0.4465]), (3,1))
-    plot_csystem(ax, cameraWrtModel, origin, 'cameraWrtModel', 'blue')
+    #cameraWrtModel = np.array([[0.54, -0.39, -0.74], [0.55, -0.50, 0.67], [-0.63, -0.77, -0.06]])
+    #origin = np.reshape(np.array([-3.7976, 1.3192, -0.4465]), (3,1))
+    #plot_csystem(ax, cameraWrtModel, origin, 'cameraWrtModel', 'blue')
+
+
+
+    ### interesting query 2 ###
+    markerBases = np.array([[0.56, -0.53, -0.64], [0.44, -0.46, 0.77], [-0.70, -0.71, -0.02]]) # R * rFix; wrt model
+    markerT = np.reshape(np.array([-3.6426, 1.6608, -0.0278]), (3,1)) # wrt model
+    plot_csystem(ax, markerBases, markerT, 'marker', 'gray')
+
+    # rawPoseToPose: ORIGINAL
+    cameraBases = np.array([[-0.03, -0.86, -0.50], [0.44, -0.46, 0.77], [-0.90, -0.20, 0.39]]) # R * rFix; wrt model
+    cameraT = np.reshape(np.array([-3.7874, 1.4471, -0.3848]), (3,1)) # wrt model
+    plot_csystem(ax, cameraBases, cameraT, 'original', 'blue')
+
+    # rawPoseToPose: "fix"
+    cameraBases = np.array([[0.08, -0.77, -0.64], [0.04, -0.64, 0.77], [-1.00, -0.09, -0.02]]) # R * rFix; wrt model
+    cameraT = np.reshape(np.array([-3.7874, 1.4471, -0.3848]), (3,1)) # wrt model
+    plot_csystem(ax, cameraBases, cameraT, 'fix', 'orange')
 
 
 
