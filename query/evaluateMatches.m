@@ -15,7 +15,10 @@ error = projectionError(queryInd, params.camera.origin.wrt.marker, params.camera
                         params.interestingPointsPC, params.interestingPointsQuery, ...
                         rawPositions, rawRotations, params);
 for i=1:size(error)
-    fprintf('Interesting query %d projection error: %0.2f\n', queryInd(i), error(i));
+    queryIdx = queryInd(i);
+    nCorrespondences = size(params.interestingPointsPC{queryIdx},2);
+    fprintf('Interesting query %d average projection error: %0.2f, sum: %0.2f\n', queryInd(i), ...
+            error(i)/nCorrespondences, error(i));
 end
 fprintf('Projection error sum: %0.2f\n', sum(error,1));
 
