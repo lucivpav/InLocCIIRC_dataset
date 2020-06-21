@@ -59,13 +59,15 @@ for i=1:nInterestingQueries
     % bring y to where z is, (undo the format required by projection)
     rFix = rotationMatrix([pi/2, 0.0, 0.0], 'ZYX');
     markerRotation = markerRotations{i} * rFix;
-    gtRotation = cameraRotations{i} * rFix;
+    cameraRotation = cameraRotations{i} * rFix;
 
     optimalTranslationsNonRelative{i} = inv(markerRotation) * (cameraPositions{i} - markerPositions{i});
     optimalTranslations{i} = optimalTranslationsNonRelative{i} / params.camera.originConstant;
 
-    optimalRs{i} = inv(markerRotation) * gtRotation;
+    optimalRs{i} = inv(markerRotation) * cameraRotation;
     optimalRotations{i} = rad2deg(rotm2eul(optimalRs{i}, 'XYZ')); % TODO: WTF, shouldn't this be ZYX?!
+        % anyways, I have experimentally shown that I can indeed recover optimalRs{i} from optimalRotations{i} by
+        % rotationMatrix(deg2rad(optimalRotations{i}), 'XYZ'), which is done in rawPoseToPose;
 
     testParams = optimalParams;
     testParams.camera.origin.relative.wrt.marker = optimalTranslations{i};
