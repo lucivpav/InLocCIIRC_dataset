@@ -47,6 +47,12 @@ function [ params ] = holoLens1Params(params)
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
     params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
+    params.vicon.to.model.pre.rotation.matrix = rotationMatrix(deg2rad([-8.0 6.0 -4.0]), 'XYZ'); % why does
+        % this influence found translation parameters in findOptimalParamsForInterestingQueries? because
+        % if the marker rotation wrt model changes, then also the params have to change
+        % Why does this not work? Something similar worked on master. I think, the idea is just wrong.
+        % why is this param not used for the translation in rawPoseToPose as well?
+    %params.vicon.to.model.pre.rotation.matrix = rotationMatrix(deg2rad([0.0 0.0 0.0]), 'XYZ');
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)

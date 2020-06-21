@@ -1,6 +1,7 @@
 function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     viconOrigin = [-0.13; 0.04; 2.80]; % w.r.t. model
-    viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
+    viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model % NOTE: 'XYZ' order
+    %viconRotation = deg2rad([-82.0 -6.0 176.0]); % w.r.t. model
 
     cameraRotation = deg2rad(params.camera.rotation.wrt.marker);
     
@@ -21,6 +22,7 @@ function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
     cameraOrigin = markerRwrtModel * params.camera.origin.wrt.marker + markerOrigin; % w.r.t. model
 
     cameraRotation = markerR * cameraR; % w.r.t. vicon % seems like this fix is NOT wrong!
+    cameraRotation = params.vicon.to.model.pre.rotation.matrix * cameraRotation; % wrt magic CS
     %cameraRotation = cameraR * markerR; % w.r.t. vicon % ORIGINAL % this is WRONG, as demonstrated in debugCS.py Why?
                                          % because here I am rotation AROUND THE VICON's Z-axis (not the marker Z-axis)
     cameraRotation = viconR * cameraRotation; % w.r.t. model, camera points to y

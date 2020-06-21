@@ -61,10 +61,16 @@ for i=1:nInterestingQueries
     markerRotation = markerRotations{i} * rFix;
     cameraRotation = cameraRotations{i} * rFix;
 
-    optimalTranslationsNonRelative{i} = inv(markerRotation) * (cameraPositions{i} - markerPositions{i});
+    viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
+    viconR = rotationMatrix(viconRotation, 'XYZ'); % vicon -> model
+
+    trans = inv(viconR * params.vicon.to.model.pre.rotation.matrix * inv(viconR) * markerRotation);
+    %trans = inv(markerRotation);
+
+    optimalTranslationsNonRelative{i} = trans * (cameraPositions{i} - markerPositions{i});
     optimalTranslations{i} = optimalTranslationsNonRelative{i} / params.camera.originConstant;
 
-    optimalRs{i} = inv(markerRotation) * cameraRotation;
+    optimalRs{i} = trans * cameraRotation;
     optimalRotations{i} = rad2deg(rotm2eul(optimalRs{i}, 'XYZ')); % TODO: WTF, shouldn't this be ZYX?!
         % anyways, I have experimentally shown that I can indeed recover optimalRs{i} from optimalRotations{i} by
         % rotationMatrix(deg2rad(optimalRotations{i}), 'XYZ'), which is done in rawPoseToPose;
