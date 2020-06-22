@@ -23,6 +23,7 @@ else
     error('Unrecognized mode');
 end
 
+params.mode = mode;
 params.spaceName = 'B-315';
 params.pointCloud.path = fullfile(params.dataset.dir, 'models', params.spaceName, 'cloud - rotated.ply');
 params.projectPointCloudPy.path = '../functions/local/projectPointCloud/projectPointCloud.py';

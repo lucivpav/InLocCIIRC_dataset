@@ -3,23 +3,15 @@ function evaluateMatches(queryInd, params, queryTable, measurementTable, rawPose
     % rawPosesTable is set
     % those values that are not set, should be set to false
 
-if islogical(rawPosesTable) && rawPosesTable == false
-    useRawPosesTable = false;
-else
-    useRawPosesTable = true;
-end
-
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
 
 nQueries = size(queryInd,2);
 for i=1:nQueries
     queryIdx = queryInd(i);
-    if useRawPosesTable
-        [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, rawPosesTable);
-    else
-        [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
-                                                    measurementTable, params.HoloLensViconSyncConstant);
-    end
+
+    [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, queryTable, ...
+                                            measurementTable, rawPosesTable, params);
+
     rawPositions{i} = rawPosition;
     rawRotations{i} = rawRotation;
 end

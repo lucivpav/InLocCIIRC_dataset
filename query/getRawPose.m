@@ -1,9 +1,19 @@
-function [rawPosition, rawRotation] = getRawPose(queryIdx, queries, rawPosesTable)
-    queryName = queries(queryIdx);
-    queryNameWithoutExtension = strsplit(queryName, '.');
-    queryNameWithoutExtension = queryNameWithoutExtension{1};
-    rowIdx = find(rawPosesTable.id == str2double(queryNameWithoutExtension));
+function [rawPosition, rawRotation] = getRawPose(queryIdx, queries, queryTable, measurementTable, rawPosesTable, params)
+% either queryTable, measurementTable are set, or
+% rawPosesTable is set
+% those values that are not set, should be set to false
 
-    rawPosition = [rawPosesTable{rowIdx,'x'}; rawPosesTable{rowIdx,'y'}; rawPosesTable{rowIdx,'z'}];
-    rawRotation = [rawPosesTable{rowIdx,'alpha'}, rawPosesTable{rowIdx,'beta'}, rawPosesTable{rowIdx,'gamma'}];
+if islogical(rawPosesTable) && rawPosesTable == false
+    useRawPosesTable = false;
+else
+    useRawPosesTable = true;
+end
+
+if useRawPosesTable
+    [rawPosition, rawRotation] = getRawPoseStatic(queryIdx, params.interestingQueries, rawPosesTable);
+else
+    [rawPosition, rawRotation] = getRawPoseSequential(queryIdx, params.interestingQueries, queryTable, ...
+                                                        measurementTable, params.HoloLensViconSyncConstant);
+end
+
 end

@@ -3,14 +3,13 @@ addpath('../functions/local/R_to_numpy_array');
 
 close all
 
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('s10eParams');
 
 %% find ground truth camera poses
 
 % try different sync constants?
 tDiffMs = 0.0;
 
-syncConstant = params.HoloLensViconSyncConstant;
 queryInd = 1:size(params.interestingQueries,2);
 nInterestingQueries = size(queryInd,2);
 for i=1:nInterestingQueries
@@ -21,31 +20,32 @@ for i=1:nInterestingQueries
     cameraPositions{i} = C; % wrt model
 end
 
-[measurementTable, queryTable, queryFiles] = initiMeasurementAndQueryTables(params);
+if strcmp(params.mode, 's10eParams')
+    measurementTable = false;
+    queryTable = false;
+    rawPosesTable = readtable(params.rawPoses.path);
+else
+    [measurementTable, queryTable, ~] = initiMeasurementAndQueryTables(params);
+    rawPosesTable = false;
+    params.HoloLensViconSyncConstant = double(params.HoloLensViconSyncConstant + tDiffMs);
+end
 
 %% check p3p actually works
 %evaluateMatchesUsingPs(queryInd, params, cameraRotations, cameraPositions);
+%return
 
 %% find marker poses
 for i=1:nInterestingQueries
     queryIdx = queryInd(i);
-    queryName = params.interestingQueries(queryIdx);
 
-    queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
-    queryTimestamp = queryTimestamp{1,1};
-    viconTimestamp = double(params.HoloLensViconSyncConstant + tDiffMs + queryTimestamp);
-
-    [~, idx] = closest_value(measurementTable.timestampMs, viconTimestamp);
+    [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, queryTable, ...
+                                                measurementTable, rawPosesTable, params);
 
     %% project and check whether it corresponds to the initial sequence image
-    closestEvent = measurementTable(idx,:);
-    rawPosition = [closestEvent{1,'x'}; closestEvent{1,'y'}; closestEvent{1,'z'}];
-    rawRotation = [closestEvent{1,'alpha'}, closestEvent{1,'beta'}, closestEvent{1,'gamma'}];
     paramsCopy = params;
     paramsCopy.camera.origin.relative.wrt.marker = [0; 0; 0];
     paramsCopy.camera.origin.wrt.marker = [0; 0; 0];
     paramsCopy.camera.rotation.wrt.marker = [0.0 0.0 0.0];
-    paramsCopy.HoloLensViconSyncConstant = double(params.HoloLensViconSyncConstant + tDiffMs);
     [R, t] = rawPoseToPose(rawPosition, rawRotation, paramsCopy);
     markerRotations{i} = R; % wrt model
     markerPositions{i} = t; % wrt model
@@ -73,7 +73,6 @@ for i=1:nInterestingQueries
     testParams.camera.origin.relative.wrt.marker = optimalTranslations{i};
     testParams.camera.origin.wrt.marker = optimalTranslationsNonRelative{i};
     testParams.camera.rotation.wrt.marker = optimalRotations{i};
-    testParams.HoloLensViconSyncConstant = double(params.HoloLensViconSyncConstant + tDiffMs);
 
     % brute-force step sensitivity test
     % NOTE: the noise values should be half of the step size
@@ -81,7 +80,7 @@ for i=1:nInterestingQueries
     %testParams.camera.origin.wrt.marker = params.camera.originConstant * testParams.camera.origin.relative.wrt.marker;
     %testParams.camera.rotation.wrt.marker = testParams.camera.rotation.wrt.marker + 0.25;
 
-    evaluateMatches([queryIdx], testParams, queryTable, measurementTable, false);
+    evaluateMatches([queryIdx], testParams, queryTable, measurementTable, rawPosesTable);
 end
 optimalParams.optimal.camera.origin.relative.wrt.marker = containers.Map(queryInd, optimalTranslations);
 optimalParams.optimal.camera.rotation.wrt.marker = containers.Map(queryInd, optimalRotations);

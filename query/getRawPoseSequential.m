@@ -1,4 +1,4 @@
-function [rawPosition, rawRotation] = buildRawPose(queryIdx, queries, queryTable, measurementTable, syncConstant)
+function [rawPosition, rawRotation] = getRawPoseSequential(queryIdx, queries, queryTable, measurementTable, syncConstant)
     queryName = queries(queryIdx);
     queryTimestamp = queryTable(find(strcmp(queryTable.name,queryName)), 'timestampMs');
     queryTimestamp = queryTimestamp{1,1};
