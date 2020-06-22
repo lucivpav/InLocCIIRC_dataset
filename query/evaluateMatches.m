@@ -1,12 +1,25 @@
-function evaluateMatches(queryInd, params, queryTable, measurementTable)
+function evaluateMatches(queryInd, params, queryTable, measurementTable, rawPosesTable)
+    % either queryTable, measurementTable are set, or
+    % rawPosesTable is set
+    % those values that are not set, should be set to false
+
+if islogical(rawPosesTable) && rawPosesTable == false
+    useRawPosesTable = false;
+else
+    useRawPosesTable = true;
+end
 
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
 
 nQueries = size(queryInd,2);
 for i=1:nQueries
     queryIdx = queryInd(i);
-    [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
-                                                measurementTable, params.HoloLensViconSyncConstant);
+    if useRawPosesTable
+        [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, rawPosesTable);
+    else
+        [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
+                                                    measurementTable, params.HoloLensViconSyncConstant);
+    end
     rawPositions{i} = rawPosition;
     rawRotations{i} = rawRotation;
 end
@@ -29,9 +42,8 @@ orientationErrorSum = 0.0;
 nOptimalQueries = 0;
 for i=1:nQueries
     queryIdx = queryInd(i);
-
-    [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
-                                                measurementTable, params.HoloLensViconSyncConstant);
+    rawPosition = rawPositions{i};
+    rawRotation = rawRotations{i};
     [R, t] = rawPoseToPose(rawPosition, rawRotation, params); 
     if ~isKey(params.optimal.camera.rotation.wrt.marker, queryIdx)
         continue;

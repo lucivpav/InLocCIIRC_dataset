@@ -81,7 +81,7 @@ for i=1:nInterestingQueries
     %testParams.camera.origin.wrt.marker = params.camera.originConstant * testParams.camera.origin.relative.wrt.marker;
     %testParams.camera.rotation.wrt.marker = testParams.camera.rotation.wrt.marker + 0.25;
 
-    evaluateMatches([queryIdx], testParams, queryTable, measurementTable);
+    evaluateMatches([queryIdx], testParams, queryTable, measurementTable, false);
 end
 optimalParams.optimal.camera.origin.relative.wrt.marker = containers.Map(queryInd, optimalTranslations);
 optimalParams.optimal.camera.rotation.wrt.marker = containers.Map(queryInd, optimalRotations);
