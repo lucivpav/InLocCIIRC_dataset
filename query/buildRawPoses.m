@@ -35,7 +35,7 @@ queryTable.Properties.VariableNames = {'name', 'timestampMs'};
 if justEvaluateOnMatches
     close all
     queryInd = 1:size(params.interestingQueries,2);
-    evaluateMatches(queryInd, params, queryTable, measurementTable);
+    evaluateMatches(queryInd, params, queryTable, measurementTable, false);
     return;
 end
 
@@ -184,7 +184,7 @@ end
 
 [lowestError,idx] = min(errors(:));
 [i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
-evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable);
+evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable, false);
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
