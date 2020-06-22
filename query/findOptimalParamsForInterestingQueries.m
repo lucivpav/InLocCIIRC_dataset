@@ -6,10 +6,6 @@ close all
 [ params ] = setupParams('s10eParams');
 
 %% find ground truth camera poses
-
-% try different sync constants?
-tDiffMs = 0.0;
-
 queryInd = 1:size(params.interestingQueries,2);
 nInterestingQueries = size(queryInd,2);
 for i=1:nInterestingQueries
@@ -27,6 +23,7 @@ if strcmp(params.mode, 's10eParams')
 else
     [measurementTable, queryTable, ~] = initiMeasurementAndQueryTables(params);
     rawPosesTable = false;
+    tDiffMs = 0.0; % try different sync constants?
     params.HoloLensViconSyncConstant = double(params.HoloLensViconSyncConstant + tDiffMs);
 end
 
@@ -90,5 +87,18 @@ optimalGenericOrigin = mean(cell2mat(optimalTranslations)');
 optimalGenericRotation = mean(cell2mat(optimalRotations'));
 
 optimalParams.camera.origin.relative.wrt.marker = optimalGenericOrigin';
-optimalParams.camera.origin.wrt.marker = optimalGenericOrigin' / params.camera.originConstant;
+optimalParams.camera.origin.wrt.marker = params.camera.originConstant * optimalGenericOrigin';
 optimalParams.camera.rotation.wrt.marker = optimalGenericRotation;
+
+%% Display mean, standard deviation. Evaluate all interesting queries on the suggested transformation
+fprintf('Mean of optimal origins: %0.4f %0.4f %0.4f\n', optimalGenericOrigin);
+fprintf('Mean of optimal rotations: %0.4f %0.4f %0.4f\n', optimalGenericRotation);
+fprintf('\n');
+sdOrigins = std(cell2mat(optimalTranslations)');
+sdRotations = std(cell2mat(optimalRotations'));
+fprintf('Standard deviation of optimal origins: %0.4f %0.4f %0.4f\n', sdOrigins);
+fprintf('Standard deviation of optimal rotations: %0.4f %0.4f %0.4f\n', sdRotations);
+fprintf('\n');
+
+fprintf('Evaluation of the suggested generic transformation:\n');
+evaluateMatches(queryInd, optimalParams, queryTable, measurementTable, rawPosesTable);
