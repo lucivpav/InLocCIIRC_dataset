@@ -89,6 +89,8 @@ optimalGenericRotation = mean(cell2mat(optimalRotations'));
 optimalParams.camera.origin.relative.wrt.marker = optimalGenericOrigin';
 optimalParams.camera.origin.wrt.marker = params.camera.originConstant * optimalGenericOrigin';
 optimalParams.camera.rotation.wrt.marker = optimalGenericRotation;
+%for i=1:nInterestingQueries fprintf('[%0.4f, %0.4f, %0.4f],\n', optimalRotations{i}); end
+%for i=1:nInterestingQueries fprintf('[%0.4f; %0.4f; %0.4f],\n', optimalTranslations{i}); end
 
 %% Display mean, standard deviation. Evaluate all interesting queries on the suggested transformation
 fprintf('Mean of optimal origins: %0.4f %0.4f %0.4f\n', optimalGenericOrigin);
