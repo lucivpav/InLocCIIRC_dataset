@@ -3,12 +3,22 @@ addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/local/R_to_numpy_array')
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('s10eParams');
+
+justEvaluateOnMatches = true;
+
+rawPosesTable = readtable(params.rawPoses.path);
+
+if justEvaluateOnMatches
+    close all
+    queryInd = 1:size(params.interestingQueries,2);
+    %queryInd = [6];
+    evaluateMatches(queryInd, params, false, false, rawPosesTable);
+    return;
+end
 
 mkdirIfNonExistent(params.projectedPointCloud.dir);
 mkdirIfNonExistent(params.poses.dir);
-
-rawPosesTable = readtable(params.rawPoses.path);
 
 createDescriptionsFile = true;
 if exist(params.queryDescriptions.path, 'file') == 2
