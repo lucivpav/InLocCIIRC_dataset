@@ -6,14 +6,22 @@ close all
 [ params ] = setupParams('s10eParams');
 
 %% find ground truth camera poses
-queryInd = 1:size(params.interestingQueries,2);
+%queryInd = 1:size(params.interestingQueries,2);
+queryInd = [1];
 nInterestingQueries = size(queryInd,2);
+
+for j=1:10
+fprintf('Picking up the %d. lowest error pose from P3P.\n', j);
+
 for i=1:nInterestingQueries
     queryIdx = queryInd(i);
-    [R,C] = reconstructPose(params.interestingPointsQuery{queryIdx}, params.interestingPointsPC{queryIdx}, ...
+    [Rs,Cs,errors] = reconstructPose(params.interestingPointsQuery{queryIdx}, params.interestingPointsPC{queryIdx}, ...
                             params.K, params.reconstructPosePy.path);
-    cameraRotations{i} = R; % wrt model
-    cameraPositions{i} = C; % wrt model
+    [lowestErrors,lowestErrorInd] = sort(errors);
+
+    chosenIdx = lowestErrorInd(j);
+    cameraRotations{i} = reshape(Rs(chosenIdx,:,:), 3,3); % wrt model
+    cameraPositions{i} = reshape(Cs(chosenIdx,:), 3,1); % wrt model
 end
 
 if strcmp(params.mode, 's10eParams')
@@ -77,14 +85,21 @@ for i=1:nInterestingQueries
     %testParams.camera.origin.wrt.marker = params.camera.originConstant * testParams.camera.origin.relative.wrt.marker;
     %testParams.camera.rotation.wrt.marker = testParams.camera.rotation.wrt.marker + 0.25;
 
-    evaluateMatches([queryIdx], testParams, queryTable, measurementTable, rawPosesTable);
+    [projectionErrorSum, ~,~] = evaluateMatches([queryIdx], testParams, queryTable, measurementTable, rawPosesTable);
 end
 optimalParams.optimal.camera.origin.relative.wrt.marker = containers.Map(queryInd, optimalTranslations);
 optimalParams.optimal.camera.rotation.wrt.marker = containers.Map(queryInd, optimalRotations);
 
 %% suggest a generic transformation
-optimalGenericOrigin = mean(cell2mat(optimalTranslations)');
-optimalGenericRotation = mean(cell2mat(optimalRotations'));
+optimalGenericOrigin = mean(cell2mat(optimalTranslations)', 1);
+optimalGenericRotation = mean(cell2mat(optimalRotations'), 1);
+
+optimalGenericOrigins{j,1} = optimalGenericOrigin;
+optimalGenericRotations{j,1} = optimalGenericRotation;
+projectionErrorSums{j,1} = projectionErrorSum;
+
+end
+return
 
 optimalParams.camera.origin.relative.wrt.marker = optimalGenericOrigin';
 optimalParams.camera.origin.wrt.marker = params.camera.originConstant * optimalGenericOrigin';
@@ -96,8 +111,8 @@ optimalParams.camera.rotation.wrt.marker = optimalGenericRotation;
 fprintf('Mean of optimal origins: %0.4f %0.4f %0.4f\n', optimalGenericOrigin);
 fprintf('Mean of optimal rotations: %0.4f %0.4f %0.4f\n', optimalGenericRotation);
 fprintf('\n');
-sdOrigins = std(cell2mat(optimalTranslations)');
-sdRotations = std(cell2mat(optimalRotations'));
+sdOrigins = std(cell2mat(optimalTranslations)', 0, 1);
+sdRotations = std(cell2mat(optimalRotations'), 0, 1);
 fprintf('Standard deviation of optimal origins: %0.4f %0.4f %0.4f\n', sdOrigins);
 fprintf('Standard deviation of optimal rotations: %0.4f %0.4f %0.4f\n', sdRotations);
 fprintf('\n');

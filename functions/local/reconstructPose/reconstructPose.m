@@ -1,4 +1,4 @@
-function [R,C] = reconstructPose(u, x, K, reconstructPosePyPath)
+function [Rs,Cs,errors] = reconstructPose(u, x, K, reconstructPosePyPath)
 
     inputPath = strcat(tempname, '.mat');
     outputPath = strcat(tempname, '.mat');
@@ -6,12 +6,12 @@ function [R,C] = reconstructPose(u, x, K, reconstructPosePyPath)
     
     % call reconstructPose.py
     command = sprintf('PATH=/usr/local/bin:$PATH python3 %s %s %s', reconstructPosePyPath, inputPath, outputPath);
-    disp(command)
+    disp(command);
     [status, cmdout] = system(command);
-    disp(cmdout)
+    disp(cmdout);
     
     % load results
-    load(outputPath, 'R', 'C')
+    load(outputPath, 'Rs', 'Cs', 'errors');
     
     % delete temporary files
     delete(inputPath);

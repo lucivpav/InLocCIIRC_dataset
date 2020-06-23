@@ -11,7 +11,7 @@ params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
 params.input_features.dir = fullfile(params.dataset.dir, 'inputFeatures');
 params.query_imgnames_all.path = fullfile(params.inputs.dir, 'query_imgnames_all.mat');
 params.cutout_imgnames_all.path = fullfile(params.inputs.dir, 'cutout_imgnames_all.mat');
-params.query.dir = fullfile(params.dataset.dir, 'query-HoloLens1/'); % NOTE: the slash is important
+params.query.dir = fullfile(params.dataset.dir, 'query-s10e/'); % NOTE: the slash is important
 params.cutouts.dir = fullfile(params.dataset.dir, 'cutouts/');
 
 if exist(params.input_features.dir, 'dir') ~= 7

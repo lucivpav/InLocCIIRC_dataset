@@ -119,7 +119,8 @@ if __name__ == '__main__':
     iter = itertools.combinations(IX, k)
     lowestError = np.inf
     err_max = []
-    centers = []
+    Rs = []
+    Cs = []
     for idx in iter:
         Xdelta = np.zeros((3,k), dtype=np.float)
         Xalpha = np.zeros((2,k), dtype=np.float)
@@ -143,7 +144,8 @@ if __name__ == '__main__':
             distance = np.linalg.norm(u-reprojected, axis=0)
             maxDistance = np.max(distance)
             err_max.append(maxDistance)
-            centers.append(C)
+            Rs.append(R)
+            Cs.append(C)
             if maxDistance < lowestError:
                 lowestError = maxDistance
                 optimalR = R
@@ -151,5 +153,6 @@ if __name__ == '__main__':
                 optimalP = P
                 points_sel = np.array(idx)
                 err_points = reprojected - u
-    
-    sio.savemat(outputPath, {'R': optimalR, 'C': optimalC})
+    Rs = np.stack(Rs)
+    Cs = np.stack(Cs)
+    sio.savemat(outputPath, {'Rs': Rs, 'Cs': Cs, 'errors': err_max})

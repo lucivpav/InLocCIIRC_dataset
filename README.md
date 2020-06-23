@@ -62,9 +62,9 @@ The usual steps are as follows:
 2. Change params.query.dir accordingly
 
 ## Build scores
-1. Execute buildFeatures.m on a machine with GPU.
-2. Execute buildScores on a machine with ~40 GB of RAM
-3. Set up appropriate params.query.dir
+1. Set up appropriate params.query.dir
+2. Execute buildFeatures.m on a machine with GPU.
+3. Execute buildScores on a machine with ~40 GB of RAM
 
 ## Plot the dataset including retrieved poses 
 1. Make sure the demo has finished and now we have retrievedPoses directory in evaluation directory
