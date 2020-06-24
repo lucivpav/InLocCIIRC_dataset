@@ -1,5 +1,5 @@
 params = struct();
-params.dataset.dir = '/Volumes/GoogleDrive/Mùj disk/ARTwin/InLocCIIRC_dataset';
+params.dataset.dir = '/Volumes/GoogleDrive/Mï¿½j disk/ARTwin/InLocCIIRC_dataset_mirror';
 params.spaceName = 'B-315';
 %params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));
 params.model.path = fullfile(params.dataset.dir, 'models', params.spaceName, 'cloud - rotated.ply');

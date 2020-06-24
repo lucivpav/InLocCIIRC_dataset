@@ -5,7 +5,7 @@ addpath('../functions/InLocCIIRC_utils/at_netvlad_function');
 run('../functions/matconvnet/matlab/vl_setupnn.m');
 
 params = struct();
-params.dataset.dir = '/datagrid/personal/lucivpav/InLocCIIRC_dataset';
+params.dataset.dir = '/datagrid/personal/lucivpav/InLocCIIRC_dataset_mirror';
 params.data.netvlad.pretrained = fullfile(params.dataset.dir, 'NetVLAD', 'vd16_pitts30k_conv5_3_vlad_preL2_intra_white.mat');
 params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
 params.input_features.dir = fullfile(params.dataset.dir, 'inputFeatures');

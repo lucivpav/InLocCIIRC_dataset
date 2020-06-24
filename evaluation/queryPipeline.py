@@ -21,7 +21,7 @@ def renderForQuery(queryId):
     targetAspectRatio = 4032/3024
     targetHeight = np.round(targetWidth / targetAspectRatio).astype(np.int64)
 
-    datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
+    datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror'
     queryDir = os.path.join(datasetDir, 'query')
     outputDir = os.path.join(datasetDir, 'outputs')
     cutoutDir = os.path.join(datasetDir, 'cutouts')

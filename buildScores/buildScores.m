@@ -1,5 +1,5 @@
 params = struct();
-params.dataset.dir = '/datagrid/personal/lucivpav/InLocCIIRC_dataset';
+params.dataset.dir = '/datagrid/personal/lucivpav/InLocCIIRC_dataset_mirror';
 params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
 params.input_features.dir = fullfile(params.dataset.dir, 'inputFeatures');
 params.scores.path = fullfile(params.inputs.dir, 'scores.mat');

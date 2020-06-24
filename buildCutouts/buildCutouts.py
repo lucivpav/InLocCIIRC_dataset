@@ -29,7 +29,7 @@ def computeFoV(sensorSize, f):
     return np.rad2deg(FoV)
 
 if __name__ == '__main__':
-    datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
+    datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror'
     spaceName = 'B-670'
     cutoutsDir = os.path.join(datasetDir, 'cutouts')
     thisSpaceCutoutsDir = os.path.join(cutoutsDir, spaceName)

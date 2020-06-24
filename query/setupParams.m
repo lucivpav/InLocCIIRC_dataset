@@ -8,9 +8,9 @@ params = struct();
 env = environment();
 
 if strcmp(env, 'laptop')
-    params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';
+    params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror';
 elseif strcmp(env, 'cmp')
-    params.dataset.dir = '/mnt/datagrid/personal/lucivpav/InLocCIIRC_dataset';
+    params.dataset.dir = '/mnt/datagrid/personal/lucivpav/InLocCIIRC_dataset_mirror';
 end
 
 if strcmp(mode, 's10eParams')

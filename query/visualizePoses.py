@@ -45,7 +45,7 @@ if __name__ == "__main__":
     viconBases = R.from_euler('XYZ', [90.0, 180.0, 0.0], degrees=True).as_matrix().T
     plot_csystem(ax, viconBases, viconOrigin, 'Vicon', 'black')
 
-    queryDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset/query-HoloLens1'
+    queryDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror/query-HoloLens1'
     referencePosesDir = os.path.join(queryDir, 'poses')
     holoLensPosesDir = os.path.join(queryDir, 'HoloLensPoses') # w.r.t. model CS
     descriptionsPath = os.path.join(queryDir, 'descriptions.csv')

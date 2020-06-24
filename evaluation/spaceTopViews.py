@@ -43,7 +43,7 @@ def plotLocation(text, color, x, y, texts):
     texts.append(textObject)
 
 f = 1385.6406460551023
-datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
+datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror'
 evaluationDir = os.path.join(datasetDir, 'evaluation')
 temporaryDir = os.path.join(evaluationDir, 'temporary')
 if not os.path.isdir(temporaryDir):

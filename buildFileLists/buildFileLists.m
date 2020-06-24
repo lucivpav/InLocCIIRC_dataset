@@ -1,5 +1,5 @@
 params = struct();
-params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'; % Note: this path is intentionally not UTF-8 style. This is because dir() cannot handle UTF-8 characters properly.
+params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror'; % Note: this path is intentionally not UTF-8 style. This is because dir() cannot handle UTF-8 characters properly.
 params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
 params.query.dir = fullfile(params.dataset.dir, 'query-s10e');
 params.query_imgnames_all.path = fullfile(params.inputs.dir, 'query_imgnames_all.mat');

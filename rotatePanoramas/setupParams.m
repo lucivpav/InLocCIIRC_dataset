@@ -2,7 +2,7 @@ function [ params ] = setupParams
 
 params = struct();
 
-params.dataset.dir = '/Volumes/GoogleDrive/M�j disk/ARTwin/InLocCIIRC_dataset';
+params.dataset.dir = '/Volumes/GoogleDrive/M�j disk/ARTwin/InLocCIIRC_dataset_mirror';
 params.spaceName = 'B-670';
 params.sweepData.json.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.json', params.spaceName));
 params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));

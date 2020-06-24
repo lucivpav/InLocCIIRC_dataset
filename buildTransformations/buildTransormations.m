@@ -2,7 +2,7 @@ addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/local/P_to_str')
 
 params = struct();
-params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset';
+params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror';
 params.spaceName = 'B-315';
 params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));
 params.alignments.dir = fullfile(params.dataset.dir, 'alignments', params.spaceName);
