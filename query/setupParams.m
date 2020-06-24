@@ -37,8 +37,10 @@ params.inMap.tDiffMax = 1.3;
 params.inMap.rotDistMax = 10; % in degrees
 params.renderClosestCutouts = false;
 params.closest.cutout.dir = fullfile(params.query.dir, 'closestCutout');
+params.vicon.origin.wrt.model = [-0.13; 0.04; 2.80];
+params.vicon.rotation.wrt.model = deg2rad([90.0 180.0 0.0]);
 
-params.K = eye(3);
+params.K = eye(3); % TODO: rename to params.camera.K
 params.K(1,1) = params.camera.fl;
 params.K(2,2) = params.camera.fl;
 params.K(1,3) = params.camera.sensor.size(2)/2;
