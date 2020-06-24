@@ -3,15 +3,17 @@ addpath('../functions/local/R_to_numpy_array');
 
 close all
 
-[ params ] = setupParams('s10eParams');
+[ params ] = setupParams('holoLens1Params');
 
 %% find ground truth camera poses
-%queryInd = 1:size(params.interestingQueries,2);
-queryInd = [1];
+queryInd = 1:size(params.interestingQueries,2);
+%queryInd = [1];
 nInterestingQueries = size(queryInd,2);
 
-for j=1:10
-fprintf('Picking up the %d. lowest error pose from P3P.\n', j);
+% TODO: which result from P3P should be considered??? The Rs and Cs seem pretty inconsistent!
+j=1;
+%for j=1:10
+%fprintf('Picking up the %d. lowest error pose from P3P.\n', j);
 
 for i=1:nInterestingQueries
     queryIdx = queryInd(i);
@@ -94,12 +96,12 @@ optimalParams.optimal.camera.rotation.wrt.marker = containers.Map(queryInd, opti
 optimalGenericOrigin = mean(cell2mat(optimalTranslations)', 1);
 optimalGenericRotation = mean(cell2mat(optimalRotations'), 1);
 
-optimalGenericOrigins{j,1} = optimalGenericOrigin;
-optimalGenericRotations{j,1} = optimalGenericRotation;
-projectionErrorSums{j,1} = projectionErrorSum;
+%optimalGenericOrigins{j,1} = optimalGenericOrigin;
+%optimalGenericRotations{j,1} = optimalGenericRotation;
+%projectionErrorSums{j,1} = projectionErrorSum;
 
-end
-return
+%end
+%return
 
 optimalParams.camera.origin.relative.wrt.marker = optimalGenericOrigin';
 optimalParams.camera.origin.wrt.marker = params.camera.originConstant * optimalGenericOrigin';

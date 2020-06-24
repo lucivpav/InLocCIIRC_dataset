@@ -24,6 +24,7 @@ function [ params ] = holoLens1Params(params)
     params.blacklistedQueryInd = [103:109, 162, 179:188, 191:193, 286:288];
 
     interestingQueryInd = [1,2,3,4,5,6];
+    % naive params from P3P:
     optimalRotations = {[-3.9710, -6.9129, -5.9729], % this is optimal for query 1 TODO: the associated matrix makes little sense!
                         [-7.4251, -4.6931, -6.1227], % this is optimal for query 2
                         [8.5521, -4.4069, -5.1620], % this is optimal for query 3
@@ -31,9 +32,11 @@ function [ params ] = holoLens1Params(params)
                         [-9.7614, -6.2460, -4.5019], % this is optimal for query 5
                         [6.9404, 2.3937, -7.8539]}; % this is optimal for query 6
     params.optimal.camera.rotation.wrt.marker = containers.Map(interestingQueryInd, optimalRotations);
-    params.camera.rotation.wrt.marker = [-1.5934, -4.6284, -5.8814]; % this aims to be generic
+    %params.camera.rotation.wrt.marker = [-1.5934, -4.6284, -5.8814]; % generic from findOptimalParamsForInterestingQueries
+    params.camera.rotation.wrt.marker = [-0.5934, -4.6284, -3.3814]; % from buildRawPoses
 
     interestingQueryInd = [1,2,3,4,5,6];
+    % naive params from P3P:
     optimalTranslations = {[3.3329; 18.6535; -2.7907], % this is optimal for query 1
                            [2.5253; 23.3619; -6.7326], % this is optimal for query 2
                            [4.4718; 12.3656; -7.9350], % this is optimal for query 3
@@ -41,12 +44,14 @@ function [ params ] = holoLens1Params(params)
                            [4.7571; 9.3035; 3.0861], % this is optimal for query 5
                            [1.4008; 6.5436; -10.3680]}; % this is optimal for query 6
     params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
-    params.camera.origin.relative.wrt.marker = [2.6007; 14.1630; -5.4557]; % this aims to be generic
+    %params.camera.origin.relative.wrt.marker = [2.6007; 14.1630; -5.4557]; % generic from findOptimalParamsForInterestingQueries
+    params.camera.origin.relative.wrt.marker = [10.6007; 6.1630; -13.4557]; % generic from buildRawPoses
     params.camera.originConstant = 0.023;
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
-    params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
+    %params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
+    params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]; from buildRawPoses
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)

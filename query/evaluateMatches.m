@@ -80,7 +80,7 @@ if ~strcmp(env, 'laptop')
 end
                                     
 %% visualize correspondences and errors
-return;
+%return;
 for i=1:nQueries
     queryIdx = queryInd(i);
     rawPosition = rawPositions{i};
