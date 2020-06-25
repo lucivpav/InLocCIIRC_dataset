@@ -2,7 +2,6 @@ addpath('../functions/relja_matlab');
 addpath('../functions/relja_matlab/matconvnet/');
 addpath('../functions/netvlad/');
 addpath('../functions/InLocCIIRC_utils/at_netvlad_function');
-addpath('../functions/InLocCIIRC_utils/load_query_image_compatible_with_cutouts');
 run('../functions/matconvnet/matlab/vl_setupnn.m');
 
 params = struct();
