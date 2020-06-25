@@ -49,7 +49,8 @@ nCutouts = size(cutoutImageFilenames,2);
 cutoutFeatures = zeros(nCutouts, featureLength, 'single');
 for i=1:nCutouts
     fprintf('Finding features for cutout #%d/%d\n\n', i, nCutouts)
-    cnn = at_serialAllFeats_convfeat(net, params.cutouts.dir, cutoutImageFilenames{i}, 'useGPU', true);
+    cutoutImage = imread(fullfile(params.cutouts.dir, cutoutImageFilenames{i}));
+    cnn = at_serialAllFeats_convfeat(net, cutoutImage, 'useGPU', true);
     cutoutFeatures(i,:) = cnn{5}.x(:);
 end
 
