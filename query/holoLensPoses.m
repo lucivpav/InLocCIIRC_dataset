@@ -48,7 +48,7 @@ for i=1:nQueries
     
     P = eye(4);
     P(1:3,1:3) = R;
-    P(1:3,4) = R * -t;
+    P(1:3,4) = R * -t; % TODO: why is there the minus? try it without it
     Ps{i} = P;
     pts(idx,:) = t';
     idx = idx + 1;
@@ -68,8 +68,8 @@ idx = 1;
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
     P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
-    R_ref = P_ref(1:3,1:3);
-    T_ref = -inv(R_ref)*P_ref(1:3,4);
+    R_ref = P_ref(1:3,1:3); % camera bases wrt model
+    T_ref = -inv(R_ref)*P_ref(1:3,4); % wrt model
     
     pts_ref(idx,:) = T_ref';
     idx = idx + 1;
