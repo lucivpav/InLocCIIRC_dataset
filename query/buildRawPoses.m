@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = true;
+justEvaluateOnMatches = false;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params'); % WARNING: if you change params in the file and run this again,
@@ -28,7 +28,7 @@ close all
 tDiffsMs = -200:100:200;
 originPadding = 8;
 originDiffs = -originPadding:1:originPadding;
-rotationPadding = 10;
+rotationPadding = 5;
 rotationDiffs = -rotationPadding:0.5:rotationPadding;
 errors = inf(size(tDiffsMs,2)*size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
                 size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
