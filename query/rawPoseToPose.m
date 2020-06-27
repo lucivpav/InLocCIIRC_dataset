@@ -1,35 +1,9 @@
 function [R, t] = rawPoseToPose(rawPosition, rawRotation, params)
-    viconOrigin = [-0.13; 0.04; 2.80]; % w.r.t. model
-    viconRotation = deg2rad([90.0 180.0 0.0]); % w.r.t. model
+    [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModelToImageTransformations(rawPosition, ...
+                                                                                                rawRotation, params);
+    modelToCamera = markerToCamera * viconToMarker * modelToVicon;
+    cameraToModel = inv(modelToCamera);
+    R = modelToCamera(1:3,1:3); % columns are bases of model wrt epsilon (see GVG)
+    t = cameraToModel(1:3,4); % wrt model
 
-    cameraRotation = deg2rad(params.camera.rotation.wrt.marker);
-    
-    % TODO: why does the rotation orientation have to be flipped?
-    % NOTE: this is necessary for correctness
-    % NOTE: this probably forces the ugly hack later on
-    markerRotation = rawRotation .* [1.0 -1.0 1.0];
-
-    cameraR = rotationMatrix(cameraRotation, 'XYZ');
-    markerR = rotationMatrix(markerRotation, 'ZYX');
-    viconR = rotationMatrix(viconRotation, 'XYZ');
-
-    markerOrigin = viconR * rawPosition + viconOrigin; % w.r.t. model
-
-    % note: coordinate vectors are columns
-    markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
-    markerCoordinateSystem = viconR * markerCoordinateSystem; % w.r.t. model
-    
-    cameraOrigin = params.camera.origin.wrt.marker;
-    cameraOrigin = markerCoordinateSystem * cameraOrigin + markerOrigin; % w.r.t. marker, from model origin
-
-    markerCoordinateSystem = markerR * eye(3); % w.r.t. vicon
-    cameraCoordinateSystem = cameraR * markerCoordinateSystem; % w.r.t. vicon 
-    cameraCoordinateSystem = viconR * cameraCoordinateSystem; % w.r.t. model, camera points to y
-    
-    % bring z to where y is, as required by projectPC
-    rFix = rotationMatrix([-pi/2, 0.0, 0.0], 'ZYX');
-    cameraCoordinateSystem = cameraCoordinateSystem * rFix;
-
-    t = cameraOrigin;
-    R = cameraCoordinateSystem;
 end

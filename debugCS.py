@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     #cameraCS = np.array([[0.76, -0.26, -0.60], [0.19, -0.79, 0.58], [-0.63, -0.55, -0.55]]) # w.r.t. model, camera points to y, after hack
     cameraCS = np.array([[0.76, -0.47, 0.46], [-0.19, -0.82, -0.54], [-0.63, -0.32, 0.71]]) # w.r.t. model, camera points to y, after hack2
-    print('post hack:')
+    #print('post hack:')
     #print(cameraCS)
     #plot_csystem(ax, cameraCS, origin, 'cameraCSModelDiry', 'purple')
 
@@ -159,13 +159,39 @@ if __name__ == "__main__":
 
     ### query 32
     temporary = np.array([[0.75, -0.08, -0.65], [-0.09, -1.00, 0.01], [-0.65, 0.05, -0.76]]).T
-    plot_csystem(ax, temporary, origin, 'reference', 'blue')
+    #plot_csystem(ax, temporary, origin, 'reference', 'blue')
 
     temporary = np.array([[0.19, -0.05, -0.98], [-0.17, -0.98, 0.01], [-0.97, 0.17, -0.20]]).T
-    plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
+    #plot_csystem(ax, temporary, origin, 'temporary', 'yellow')
     #plot_csystem(ax, temporary2, origin, 'temporary2', 'pink')
 
 
+
+    #markerWrtModel = np.array([[0.56, -0.53, -0.64], [0.44, -0.46, 0.77], [-0.70, -0.71, -0.02]])
+    #origin = np.reshape(np.array([-3.6426, 1.6608, -0.0278]), (3,1))
+    #plot_csystem(ax, markerWrtModel, origin, 'markerWrtModel', 'yellow')
+
+    #cameraWrtModel = np.array([[0.54, -0.39, -0.74], [0.55, -0.50, 0.67], [-0.63, -0.77, -0.06]])
+    #origin = np.reshape(np.array([-3.7976, 1.3192, -0.4465]), (3,1))
+    #plot_csystem(ax, cameraWrtModel, origin, 'cameraWrtModel', 'blue')
+
+
+
+    ### interesting query 3 ###
+    viconR = np.array([[-1.00, 0.00, 0.00], [0.00, 0.00, 1.00], [-0.00, 1.00, -0.00]])
+    origin = np.reshape(np.array([-0.13, 0.04, 2.80]), (3,1))
+    plot_csystem(ax, viconR, origin, 'delta', 'brown') # correct
+
+
+    markerBases = np.array([[0.87, -0.49, -0.02], [0.18, 0.28, 0.94], [-0.45, -0.83, 0.33]])
+    markerT = np.reshape(np.array([-4.5126, 1.5920, 0.2008]), (3,1))
+    # NOTE: markerCS is already wrong!
+    # looks like viconToMarker to to blame!
+    plot_csystem(ax, markerBases, markerT, 'marker', 'red')
+
+    cameraBases = np.array([[0.88, 0.01, -0.48], [0.16, -0.95, 0.28], [-0.45, -0.32, -0.83]]) 
+    cameraT = np.reshape(np.array([-4.5690, 1.6551, 0.1881]), (3,1))
+    plot_csystem(ax, cameraBases, cameraT, 'camera', 'blue')
 
 
 

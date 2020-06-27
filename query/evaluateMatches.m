@@ -1,23 +1,18 @@
-function evaluateMatches(queryInd, params, queryTable, measurementTable, rawPosesTable)
+function [projectionErrorSum, meanTranslationError, meanOrientationError] = evaluateMatches(queryInd, ...
+                                                            params, queryTable, measurementTable, rawPosesTable)
     % either queryTable, measurementTable are set, or
     % rawPosesTable is set
     % those values that are not set, should be set to false
 
-if islogical(rawPosesTable) && rawPosesTable == false
-    useRawPosesTable = false;
-else
-    useRawPosesTable = true;
-end
+addpath('../functions/InLocCIIRC_utils/rotationDistance');
 
 nQueries = size(queryInd,2);
 for i=1:nQueries
     queryIdx = queryInd(i);
-    if useRawPosesTable
-        [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, rawPosesTable);
-    else
-        [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, ...
-                                                    measurementTable, params.HoloLensViconSyncConstant);
-    end
+
+    [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, queryTable, ...
+                                            measurementTable, rawPosesTable, params);
+
     rawPositions{i} = rawPosition;
     rawRotations{i} = rawRotation;
 end
@@ -26,9 +21,13 @@ error = projectionError(queryInd, params.camera.origin.wrt.marker, params.camera
                         params.interestingPointsPC, params.interestingPointsQuery, ...
                         rawPositions, rawRotations, params);
 for i=1:size(error)
-    fprintf('Interesting query %d projection error: %0.2f\n', queryInd(i), error(i));
+    queryIdx = queryInd(i);
+    nCorrespondences = size(params.interestingPointsPC{queryIdx},2);
+    fprintf('Interesting query %d average projection error: %0.2f, sum: %0.2f\n', queryInd(i), ...
+            error(i)/nCorrespondences, error(i));
 end
-fprintf('Projection error sum: %0.2f\n', sum(error,1));
+projectionErrorSum = sum(error,1);
+fprintf('Projection error sum: %0.2f\n', projectionErrorSum);
 
 % translation / rotation error
 errors = struct();
@@ -48,7 +47,13 @@ for i=1:nQueries
     end
     paramsOrig = params;
     params.camera.rotation.wrt.marker = params.optimal.camera.rotation.wrt.marker(queryIdx);
+    if iscell(params.camera.rotation.wrt.marker) % because MATLAB sucks
+        params.camera.rotation.wrt.marker = params.camera.rotation.wrt.marker{1};
+    end
     params.camera.origin.relative.wrt.marker = params.optimal.camera.origin.relative.wrt.marker(queryIdx);
+    if iscell(params.camera.origin.relative.wrt.marker)
+        params.camera.origin.relative.wrt.marker = params.camera.origin.relative.wrt.marker{1};
+    end
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     [refR, refT] = rawPoseToPose(rawPosition, rawRotation, params); 
     params = paramsOrig;
@@ -63,10 +68,19 @@ for i=1:nQueries
     orientationErrorSum = orientationErrorSum + orientationError;
     nOptimalQueries = nOptimalQueries + 1;
 end
-fprintf('Average translation error:  %0.2f\n', translationErrorSum / nOptimalQueries);
-fprintf('Average orientation error:  %0.2f\n', orientationErrorSum/ nOptimalQueries);
+meanTranslationError = translationErrorSum / nOptimalQueries;
+meanOrientationError = orientationErrorSum / nOptimalQueries;
+fprintf('Average translation error:  %0.2f\n', meanTranslationError);
+fprintf('Average orientation error:  %0.2f\n', meanOrientationError);
+
+env = environment();
+
+if ~strcmp(env, 'laptop')
+    return;
+end
                                     
 %% visualize correspondences and errors
+%return;
 for i=1:nQueries
     queryIdx = queryInd(i);
     rawPosition = rawPositions{i};
@@ -80,7 +94,7 @@ for i=1:nQueries
     outputSize = params.camera.sensor.size;
     projectedPointCloud = projectPointCloud(params.pointCloud.path, params.camera.fl, R, ...
                                         t, params.camera.sensor.size, outputSize, pointSize, ...
-                                        params.projectPointCloudPy.path);
+                                        params.projectPointCloudPy.path); % TODO: use projectMesh instead, which can work in headless mode
     image(projectedPointCloud);
     axis image;
 
