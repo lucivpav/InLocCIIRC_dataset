@@ -48,10 +48,11 @@ clearvars rawPositions;
 clearvars rawRotations;
 for i1=1:size(tDiffsMs,2) 
     tDiffMs = tDiffsMs(1,i1);
-    syncConstant = params.HoloLensViconSyncConstant + tDiffMs;
     for i2=1:size(queryInd,2)
         queryIdx = queryInd(i2);
-        [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, measurementTable, syncConstant);
+        paramsCopy = params;
+        paramsCopy.HoloLensViconSyncConstant = paramsCopy.HoloLensViconSyncConstant +tDiffMs;
+        [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, queryTable, measurementTable, false, paramsCopy);
         thisRawPositions{i2} = rawPosition;
         thisRawRotations{i2} = rawRotation;
     end
