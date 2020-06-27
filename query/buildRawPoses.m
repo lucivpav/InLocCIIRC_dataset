@@ -75,6 +75,7 @@ nTDiffs = size(tDiffsMs,2);
 [topLoop1Ind, topLoop2Ind] = ndgrid(1:nTDiffs, 1:nOriginDiffs);
 topLoopsInd = [topLoop1Ind(:), topLoop2Ind(:)];
 
+env = environment();
 if strcmp(env, 'laptop')
     nWorkers = 4;
 elseif strcmp(env, 'cmp')
