@@ -12,8 +12,8 @@ function [ params ] = s10eParams(params)
     params.optimal.camera.rotation.wrt.marker = containers.Map(interestingQueryInd, optimalRotations);
     %params.optimal.camera.rotation.wrt.marker = containers.Map;
 
-    %params.camera.rotation.wrt.marker = [0.0 0.0 1.5];
-    params.camera.rotation.wrt.marker = [-90.8195, -1.5277, -0.3437]; % suggested from findOptimalParams
+    %params.camera.rotation.wrt.marker = [-90.8195, -1.5277, -0.3437]; % suggested from findOptimalParams
+    params.camera.rotation.wrt.marker = [-90.8195, -1.5277, -0.3437]; % my guess
     params.camera.sensor.size = [3024, 4032]; % height, width
     params.camera.fl = 3172.435; % in pixels
 
@@ -26,8 +26,8 @@ function [ params ] = s10eParams(params)
                             [-1.7383; -0.2856; -6.4469]};
     params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
     %params.optimal.camera.origin.relative.wrt.marker = containers.Map;
-    %params.camera.origin.relative.wrt.marker = [-3; 1; -4]; % this aims to be generic
-    params.camera.origin.relative.wrt.marker = [-3.3856; 3.9904; 4.3741]; % suggested from findOptimalParams... (Z makes no sense)
+    %params.camera.origin.relative.wrt.marker = [-3.3856; 3.9904; 4.3741]; % suggested from findOptimalParams... (Z makes no sense)
+    params.camera.origin.relative.wrt.marker = [-3; 1; -4]; % my guess
     params.camera.originConstant = 0.01;
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
 

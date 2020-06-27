@@ -3,7 +3,7 @@ addpath('../functions/local/R_to_numpy_array');
 
 close all
 
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('s10eParams');
 
 %% find ground truth camera poses
 queryInd = 1:size(params.interestingQueries,2);

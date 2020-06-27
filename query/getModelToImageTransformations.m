@@ -8,7 +8,7 @@ function [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModel
     % TODO: why does the rotation orientation have to be flipped?
     % NOTE: this is necessary for correctness
     % NOTE: this probably forces the ugly hack later on
-    markerRotation = markerRotationWrtVicon .* [-1.0 -1.0 -1.0]; % hmm, is this some sort of a basic or reverse rotation?
+    markerRotation = viconRotationWrtMarker .* [-1.0 -1.0 -1.0]; % hmm, is this some sort of a basic or reverse rotation?
 
     cameraR = rotationMatrix(cameraRotation, 'XYZ'); % camera -> marker
     markerR = rotationMatrix(markerRotation, 'ZYX'); % vicon -> marker
