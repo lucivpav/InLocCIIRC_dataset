@@ -25,33 +25,35 @@ function [ params ] = holoLens1Params(params)
 
     interestingQueryInd = [1,2,3,4,5,6];
     % naive params from P3P:
-    optimalRotations = {[-3.9710, -6.9129, -5.9729], % this is optimal for query 1 TODO: the associated matrix makes little sense!
-                        [-7.4251, -4.6931, -6.1227], % this is optimal for query 2
-                        [8.5521, -4.4069, -5.1620], % this is optimal for query 3
-                        [-3.8957, -7.9055, -5.6751], % this is optimal for query 4
-                        [-9.7614, -6.2460, -4.5019], % this is optimal for query 5
-                        [6.9404, 2.3937, -7.8539]}; % this is optimal for query 6
+    optimalRotations = {[-96.6116, 4.2738, -5.5309],
+                        [-96.5095, 4.7007, -7.0947],
+                        [-97.3403, 5.0600, -6.0764],
+                        [-97.3304, 5.2070, -4.7746],
+                        [-97.3062, 4.3380, -4.9227],
+                        [-97.3005, 4.8393, -5.7490]};
     params.optimal.camera.rotation.wrt.marker = containers.Map(interestingQueryInd, optimalRotations);
-    %params.camera.rotation.wrt.marker = [-0.7367 -4.5631 -6.0913]; % generic from findOptimalParamsForInterestingQueries
-    params.camera.rotation.wrt.marker = [-0.5934, -4.6284, -3.3814]; % from buildRawPoses
+    params.camera.rotation.wrt.marker = [-97.0664 4.7364 -5.6914]; % generic from findOptimalParamsForInterestingQueries
+        % Standard deviation of optimal rotations: 0.3935 0.3770 0.8459
+    %params.camera.rotation.wrt.marker = [TODO]; % from buildRawPoses
 
     interestingQueryInd = [1,2,3,4,5,6];
     % naive params from P3P:
-    optimalTranslations = {[3.3329; 18.6535; -2.7907], % this is optimal for query 1
-                           [2.5253; 23.3619; -6.7326], % this is optimal for query 2
-                           [4.4718; 12.3656; -7.9350], % this is optimal for query 3
-                           [-0.8836; 14.7499; -7.9943], % this is optimal for query 4
-                           [4.7571; 9.3035; 3.0861], % this is optimal for query 5
-                           [1.4008; 6.5436; -10.3680]}; % this is optimal for query 6
+    optimalTranslations = {[4.3968; 16.1647; -7.4257],
+                            [-2.4515; 9.6106; -5.0424],
+                            [4.6812; 10.4508; -9.7955],
+                            [-1.6800; 13.7664; -9.4822],
+                            [4.0147; 17.9644; -6.8934],
+                            [-0.1598; 9.5486; -7.8150]};
     params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
-    %params.camera.origin.relative.wrt.marker = [2.2725; 13.3412; -5.7209]; % generic from findOptimalParamsForInterestingQueries
-    params.camera.origin.relative.wrt.marker = [10.6007; 6.1630; -13.4557]; % generic from buildRawPoses
+    params.camera.origin.relative.wrt.marker = [1.4669 12.9176 -7.7423]; % generic from findOptimalParamsForInterestingQueries
+        % Standard deviation of optimal origins: 3.2653 3.6085 1.7526
+    %params.camera.origin.relative.wrt.marker = [10.6007; 6.1630; -13.4557]; % generic from buildRawPoses
     params.camera.originConstant = 0.023;
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
-    %params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
-    params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]; from buildRawPoses
+    params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
+    %params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]; from buildRawPoses
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)

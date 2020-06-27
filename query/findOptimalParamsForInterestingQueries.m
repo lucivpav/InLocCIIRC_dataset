@@ -12,7 +12,7 @@ nInterestingQueries = size(queryInd,2);
 
 % TODO: which result from P3P should be considered??? The Rs and Cs seem pretty inconsistent!
 j=1;
-%for j=1:10
+%for j=1:50
 %fprintf('Picking up the %d. lowest error pose from P3P.\n', j);
 
 for i=1:nInterestingQueries
@@ -22,7 +22,7 @@ for i=1:nInterestingQueries
     [lowestErrors,lowestErrorInd] = sort(errors);
 
     chosenIdx = lowestErrorInd(j);
-    cameraRotations{i} = reshape(Rs(chosenIdx,:,:), 3,3); % wrt model
+    cameraRotations{i} = reshape(Rs(chosenIdx,:,:), 3,3); % aka modelToCamera(1:3,1:3)
     cameraPositions{i} = reshape(Cs(chosenIdx,:), 3,1); % wrt model
 end
 
@@ -54,7 +54,7 @@ for i=1:nInterestingQueries
     paramsCopy.camera.origin.wrt.marker = [0; 0; 0];
     paramsCopy.camera.rotation.wrt.marker = [0.0 0.0 0.0];
     [R, t] = rawPoseToPose(rawPosition, rawRotation, paramsCopy);
-    markerRotations{i} = R; % wrt model
+    markerRotations{i} = R; % columns are model bases wrt marker
     markerPositions{i} = t; % wrt model
 end
 
@@ -63,15 +63,18 @@ optimalParams = params;
 for i=1:nInterestingQueries
     queryIdx = queryInd(i);
 
-    % bring y to where z is, (undo the format required by projection)
-    rFix = rotationMatrix([pi/2, 0.0, 0.0], 'ZYX');
-    markerRotation = markerRotations{i} * rFix;
-    cameraRotation = cameraRotations{i} * rFix;
+    markerRotation = markerRotations{i};
+    cameraRotation = cameraRotations{i};
 
-    optimalTranslationsNonRelative{i} = inv(markerRotation) * (cameraPositions{i} - markerPositions{i});
+    optimalTranslationsNonRelative{i} = markerRotation * (cameraPositions{i} - markerPositions{i});
     optimalTranslations{i} = optimalTranslationsNonRelative{i} / params.camera.originConstant;
 
-    optimalRs{i} = inv(markerRotation) * cameraRotation;
+    % optimalRs{i} aka cameraToMarker(1:3,1:3), i.e. columns are bases of camera (epsilon) in marker
+    % cameraRotation aka modelToCamera(1:3,1:3)
+    % markerRotation aka modelToMarker(1:3,1:3)
+    % inv(modelToMarker) * cameraToMarker = inv(modelToCamera)
+    % cameraToMarker = modelToMarker * inv(modelToCamera)
+    optimalRs{i} = markerRotation * inv(cameraRotation);
     optimalRotations{i} = rad2deg(rotm2eul(optimalRs{i}, 'XYZ')); % TODO: WTF, shouldn't this be ZYX?!
         % anyways, I have experimentally shown that I can indeed recover optimalRs{i} from optimalRotations{i} by
         % rotationMatrix(deg2rad(optimalRotations{i}), 'XYZ'), which is done in rawPoseToPose;

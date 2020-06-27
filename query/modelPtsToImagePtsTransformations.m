@@ -16,10 +16,10 @@ end
 nQueries = size(queryInd,2);
 for i=1:nQueries
     queryIdx = queryInd(i);
-    [markerOriginWrtVicon, markerRotationWrtVicon] = getRawPose(queryIdx, params.interestingQueries, queryTable, ...
+    [markerOriginWrtVicon, viconRotationWrtMarker] = getRawPose(queryIdx, params.interestingQueries, queryTable, ...
                                             measurementTable, rawPosesTable, params);
     [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModelToImageTransformations(markerOriginWrtVicon, ...
-                                                                                                    markerRotationWrtVicon, params);
+                                                                                                    viconRotationWrtMarker, params);
     thisInterestingPoints = params.interestingPointsPC{queryIdx};
     nCorrespondences = size(thisInterestingPoints,2);
     thisTransData.modelToVicon = modelToVicon;
@@ -41,15 +41,15 @@ for i=1:nQueries
     transData(i) = thisTransData;
 
     %% verify the transformations are correct
-    [R, t] = rawPoseToPose(markerOriginWrtVicon, markerRotationWrtVicon, params); 
+    [R, t] = rawPoseToPose(markerOriginWrtVicon, viconRotationWrtMarker, params); 
     P = [params.K*R, -params.K*R*t];
     projectedPoints = projectPointsUsingP(thisInterestingPoints, P);
     discrepancies = vecnorm(projectedPoints - thisTransData.interestingPointsWrtImage, 2);
     assert(all(discrepancies < 1e-6));
 end
 
-%filename = 'modelPtsToImagePtsTransformations-naive.mat';
-filename = 'modelPtsToImagePtsTransformations-optimized.mat';
+filename = 'modelPtsToImagePtsTransformations-naive.mat';
+%filename = 'modelPtsToImagePtsTransformations-optimized.mat';
 camera = params.camera;
 K = params.K;
 vicon = params.vicon;

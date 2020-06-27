@@ -3,31 +3,31 @@ function [ params ] = s10eParams(params)
     params.query.dir = fullfile(params.dataset.dir, 'query-s10e');
 
     interestingQueryInd = [1,2,3,4,5,6];
-    optimalRotations = {[-0.9739, 0.3506, 1.8552],
-                        [-2.8089, -0.9672, 2.6954],
-                        [4.4502, -0.7331, 0.4646],
-                        [0.1069, 0.6228, 0.6963],
-                        [-0.5974, 1.8428, -0.1263],
-                        [-0.0675, 2.2899, 0.3518]};
+    optimalRotations = {[-89.7792, -1.8236, -1.0584],
+                        [-92.9380, -2.3666, -1.4712],
+                        [-94.2276, -1.0414, 1.2171],
+                        [-89.5798, -0.8083, 0.2376],
+                        [-89.3493, -1.0697, -1.4783],
+                        [-89.0429, -2.0569, 0.4912]};
     params.optimal.camera.rotation.wrt.marker = containers.Map(interestingQueryInd, optimalRotations);
     %params.optimal.camera.rotation.wrt.marker = containers.Map;
 
     %params.camera.rotation.wrt.marker = [0.0 0.0 1.5];
-    params.camera.rotation.wrt.marker = [0.018249085441903,0.567635154023095,0.989489712628285]; % suggested from findOptimalParams...
+    params.camera.rotation.wrt.marker = [-90.8195, -1.5277, -0.3437]; % suggested from findOptimalParams
     params.camera.sensor.size = [3024, 4032]; % height, width
     params.camera.fl = 3172.435; % in pixels
 
     interestingQueryInd = [1,2,3,4,5,6];
-    optimalTranslations = {[0.2737; -6.2381; -0.3062],
-                            [10.1938; 10.1397; 18.1529],
-                            [-10.3718; 11.1713; 20.4113],
-                            [-7.9894; 12.6657; 0.7135],
-                            [-7.2226; 9.7736; -8.1825],
-                            [-4.2066; -4.1347; 3.1425]};
+    optimalTranslations = {[0.2813; -6.2294; -0.4458],
+                            [7.6984; 9.2380; 19.7901],
+                            [-13.6836; -1.8501; 21.4086],
+                            [-8.2555; 12.4783; 0.9475],
+                            [-4.6158; 10.5912; -9.0091],
+                            [-1.7383; -0.2856; -6.4469]};
     params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
     %params.optimal.camera.origin.relative.wrt.marker = containers.Map;
     %params.camera.origin.relative.wrt.marker = [-3; 1; -4]; % this aims to be generic
-    params.camera.origin.relative.wrt.marker = [-3.2205; 5.5629; 5.6552]; % suggested from findOptimalParams... (Z makes no sense)
+    params.camera.origin.relative.wrt.marker = [-3.3856; 3.9904; 4.3741]; % suggested from findOptimalParams... (Z makes no sense)
     params.camera.originConstant = 0.01;
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
 
