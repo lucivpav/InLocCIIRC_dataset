@@ -1,17 +1,12 @@
 function [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModelToImageTransformations(markerOriginWrtVicon, ...
-                                                                                                viconRotationWrtMarker, params)
+                                                                                                markerRotationWrtVicon, params)
     % markerToCamera: aka markerToEpsilon, i.e. columns are bases of marker wrt epsilon, see GVG
     % cameraToImage aka K, i.e. columns are beta bases wrt gamma
     identity = eye(4);
     cameraRotation = deg2rad(params.camera.rotation.wrt.marker);
 
-    % TODO: why does the rotation orientation have to be flipped?
-    % NOTE: this is necessary for correctness
-    % NOTE: this probably forces the ugly hack later on
-    markerRotation = viconRotationWrtMarker .* [-1.0 -1.0 -1.0]; % hmm, is this some sort of a basic or reverse rotation?
-
     cameraR = rotationMatrix(cameraRotation, 'XYZ'); % camera -> marker
-    markerR = rotationMatrix(markerRotation, 'ZYX'); % vicon -> marker
+    markerR = rotationMatrix(markerRotationWrtVicon, 'XYZ'); % marker -> vicon
     viconR = rotationMatrix(params.vicon.rotation.wrt.model, 'XYZ'); % vicon -> model
 
     modelToVicon = identity;
@@ -20,7 +15,7 @@ function [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModel
     modelToVicon = inv(modelToVicon);
 
     viconToMarker = identity;
-    viconToMarker(1:3,1:3) = inv(markerR);
+    viconToMarker(1:3,1:3) = markerR;
     viconToMarker(1:3,4) = markerOriginWrtVicon;
     viconToMarker = inv(viconToMarker);
 

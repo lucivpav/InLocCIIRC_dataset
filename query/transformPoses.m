@@ -5,7 +5,7 @@ addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/local/R_to_numpy_array')
 [ params ] = setupParams('holoLens1Params');
 
-justEvaluateOnMatches = false;
+justEvaluateOnMatches = false; % TODO: this currently throws when used with holoLens1Params
 
 rawPosesTable = readtable(params.rawPoses.path);
 

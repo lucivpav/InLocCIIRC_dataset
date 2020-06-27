@@ -2,7 +2,7 @@ function [rawPosition, rawRotation] = getRawPose(queryIdx, queries, queryTable, 
 % either queryTable, measurementTable are set, or
 % rawPosesTable is set
 % those values that are not set, should be set to false
-% TDOO: rename to sth like getViconPoseWrtMarker
+% TDOO: rename to sth like getMarkerPoseWrtVicon
 
 if islogical(rawPosesTable) && rawPosesTable == false
     useRawPosesTable = false;
