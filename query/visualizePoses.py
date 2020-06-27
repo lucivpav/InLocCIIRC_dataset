@@ -42,7 +42,7 @@ if __name__ == "__main__":
     plot_csystem(ax, modelBases, modelOrigin, 'model', 'black')
 
     viconOrigin = np.reshape(np.array([-0.13, 0.04, 2.80]), (3,1))
-    viconBases = R.from_euler('XYZ', [90.0, 180.0, 0.0], degrees=True).as_matrix().T
+    viconBases = R.from_euler('XYZ', [90.0, 180.0, 0.0], degrees=True).as_matrix().T # TODO: use the value from params
     plot_csystem(ax, viconBases, viconOrigin, 'Vicon', 'black')
 
     queryDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset/query-HoloLens1'
