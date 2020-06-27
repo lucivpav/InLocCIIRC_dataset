@@ -45,7 +45,7 @@ function [ params ] = holoLens1Params(params)
                             [4.0147; 17.9644; -6.8934],
                             [-0.1598; 9.5486; -7.8150]};
     params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
-    params.camera.origin.relative.wrt.marker = [1.4669 12.9176 -7.7423]; % generic from findOptimalParamsForInterestingQueries
+    params.camera.origin.relative.wrt.marker = [1.4669; 12.9176; -7.7423]; % generic from findOptimalParamsForInterestingQueries
         % Standard deviation of optimal origins: 3.2653 3.6085 1.7526
     %params.camera.origin.relative.wrt.marker = [10.6007; 6.1630; -13.4557]; % generic from buildRawPoses
     params.camera.originConstant = 0.023;
