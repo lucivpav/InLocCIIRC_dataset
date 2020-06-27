@@ -39,16 +39,19 @@ for i=1:nQueries
                     rawHoloLensPosesTable{i, 'Orientation_X'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Y'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Z'}];
-    R = rotmat(quaternion(orientation), 'frame'); % TODO: what are the columns of R? Bases of WHAT wrt WHAT? (one  of them is  initial unknown HL CS)
+    R = rotmat(quaternion(orientation), 'frame'); % what are the columns of R? 
+        % Bases of WHAT wrt WHAT? (one of them is initial unknown HL CS, the other is HL camera CS)
+        % -> it is most likely the camera to initial unknown HL CS rotation matrix. Otherwise this code
+        % wouldn't work
     
     % camera points to -z in HoloLens
     % see https://docs.microsoft.com/en-us/windows/mixed-reality/coordinate-systems-in-directx
     rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
     R = rFix * R;
-    
+
     P = eye(4);
     P(1:3,1:3) = R;
-    P(1:3,4) = R * -t; % TODO: why is there the minus? try it without it
+    P(1:3,4) = R * -t; % TODO: why is there the minus? actually, its useless. because the code actually extrects the t from P(1:3,4)
     Ps{i} = P;
     pts(idx,:) = t';
     idx = idx + 1;
