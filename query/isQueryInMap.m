@@ -29,7 +29,7 @@ function [inMap, closestCutout] = isQueryInMap(P, querySpace, cutoutDescriptions
     cutoutName = desc.name;
     parsed = strsplit(cutoutName, '_');
     sweepId = parsed(2);
-    cutoutImagePath = fullfile(params.cutouts.dir, desc.space, sweepId, cutoutName);
+    cutoutImagePath = fullfile(params.dataset.db.cutouts.dir, desc.space, sweepId, cutoutName);
     cutoutImagePath = cutoutImagePath{1};
     closestCutout.img = imread(cutoutImagePath);
 end

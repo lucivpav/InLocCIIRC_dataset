@@ -1,5 +1,5 @@
 function desc = buildCutoutDescriptions(params)
-    cutouts = dir(fullfile(params.cutouts.dir, '**/cutout*.jpg'));
+    cutouts = dir(fullfile(params.dataset.db.cutouts.dir, '**/cutout*.jpg'));
     nCutouts = size(cutouts,1);
     cutouts = struct2cell(cutouts);
     cutoutNames = cutouts(1,:);

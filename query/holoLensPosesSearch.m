@@ -11,7 +11,8 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
+addpath('../functions/InLocCIIRC_utils/params');
+[ params ] = setupParams('holoLens1'); % NOTE: tweak
 
 td = params.HoloLensTranslationDelay;
 od = params.HoloLensOrientationDelay;
@@ -29,7 +30,7 @@ projectPC = false; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
-rawHoloLensPosesTable = readtable(params.input.poses.path);
+rawHoloLensPosesTable = readtable(params.holoLens.poses.path);
 assert(size(descriptionsTable,1) == size(rawHoloLensPosesTable,1));
 nQueries = size(descriptionsTable,1);
 
@@ -232,7 +233,7 @@ title('HoloLens to reference poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
 
-queryDirName = strsplit(params.query.dir, '/');
+queryDirName = strsplit(params.dataset.query.dir, '/');
 queryDirName = queryDirName{end};
 filename = sprintf('errorDistribution-%s.pdf', queryDirName);
 saveas(gcf, fullfile(params.HoloLensPoses.dir, filename));
@@ -280,7 +281,7 @@ for i=1:nQueries
     imwrite(projectedPointCloud, outPCPath);
 
     queryFilename = sprintf('%d.jpg', id);
-    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    queryImg = imread(fullfile(params.dataset.query.dir, queryFilename));
     outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
     imwrite(queryImg, outQueryPath);
 end

@@ -1,5 +1,5 @@
 function [measurementTable, queryTable, queryFiles] = initiMeasurementAndQueryTables(params)
-    measurementTable = readtable(params.measurement.path);
+    measurementTable = readtable(params.holoLens.measurement.path);
     measurementTable.Properties.VariableNames = {'frameNumber', 'FPS', 'marker', 'invalid', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'};
 
     FPS = 100; % viz each row. TODO: assert
@@ -9,7 +9,7 @@ function [measurementTable, queryTable, queryFiles] = initiMeasurementAndQueryTa
     measurementTable = removevars(measurementTable, {'FPS', 'marker', 'frameNumber'});
     measurementTable = measurementTable(~measurementTable.invalid, {'timestampMs', 'x', 'y', 'z', 'alpha', 'beta', 'gamma'});
 
-    queryFiles = dir(params.input.query.dir);
+    queryFiles = dir(params.holoLens.query.dir);
     queryFiles = queryFiles(endsWith({queryFiles.name}, '.jpg'));
 
     timestamps = {queryFiles.name};

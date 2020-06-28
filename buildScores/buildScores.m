@@ -1,16 +1,14 @@
-params = struct();
-params.dataset.dir = '/datagrid/personal/lucivpav/InLocCIIRC_dataset';
-params.inputs.dir = fullfile(params.dataset.dir, 'inputs');
-params.input_features.dir = fullfile(params.dataset.dir, 'inputFeatures');
-params.scores.path = fullfile(params.inputs.dir, 'scores.mat');
-params.features.path = fullfile(params.input_features.dir, 'computed_features.mat');
-params.cutouts.dir = fullfile(params.dataset.dir, 'cutouts');
+addpath('../functions/InLocCIIRC_utils/params');
 
-files = dir(fullfile(params.cutouts.dir, '**/cutout*.jpg'));
+params = setupParams('s10e'); % NOTE: mode can be anything, its specific params are not used here
+
+featuresPath = fullfile(params.input.feature.dir, 'computed_features.mat');
+
+files = dir(fullfile(params.dataset.db.cutouts.dir, '**/cutout*.jpg'));
 nCutouts = size(files,1);
 
-%x = matfile(params.features.path);
-load(params.features.path, 'queryFeatures', 'cutoutFeatures');
+%x = matfile(featuresPath);
+load(featuresPath, 'queryFeatures', 'cutoutFeatures');
 nQueries = size(queryFeatures,1);
 score = zeros(nQueries, nCutouts, 'single');
 
@@ -26,4 +24,4 @@ for i=1:nQueries
     score(i,:) = probabilityScores;
 end
 
-save(params.scores.path, 'score');
+save(params.input.scores.path, 'score');

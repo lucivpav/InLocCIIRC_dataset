@@ -1,9 +1,10 @@
 addpath('../functions/local/reconstructPose');
 addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/params');
 
 close all
 
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('holoLens1');
 
 %% find ground truth camera poses
 queryInd = 1:size(params.interestingQueries,2);
@@ -18,7 +19,7 @@ j=1;
 for i=1:nInterestingQueries
     queryIdx = queryInd(i);
     [Rs,Cs,errors] = reconstructPose(params.interestingPointsQuery{queryIdx}, params.interestingPointsPC{queryIdx}, ...
-                            params.K, params.reconstructPosePy.path);
+                            params.camera.K, params.reconstructPosePy.path);
     [lowestErrors,lowestErrorInd] = sort(errors);
 
     chosenIdx = lowestErrorInd(j);

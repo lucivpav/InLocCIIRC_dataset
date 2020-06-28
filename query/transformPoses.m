@@ -1,9 +1,10 @@
 addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
-addpath('../functions/InLocCIIRC_utils/P_to_str')
-addpath('../functions/local/R_to_numpy_array')
-[ params ] = setupParams('holoLens1Params');
+addpath('../functions/InLocCIIRC_utils/P_to_str');
+addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/local/R_to_numpy_array');
+[ params ] = setupParams('holoLens1');
 
 justEvaluateOnMatches = false; % TODO: this currently throws when used with holoLens1Params
 
@@ -82,7 +83,7 @@ for i=1:size(rawPosesTable,1)
     outPCPath = fullfile(params.projectedPointCloud.dir, outPCFilename);
     imwrite(projectedPointCloud, outPCPath);
 
-    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    queryImg = imread(fullfile(params.dataset.query.dir, queryFilename));
     outQueryPath = fullfile(params.projectedPointCloud.dir, outQueryFilename);
     imwrite(queryImg, outQueryPath);
     

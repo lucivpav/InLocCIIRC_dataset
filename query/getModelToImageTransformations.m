@@ -28,7 +28,7 @@ function [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModel
     cameraRotationWrtModel = cameraToModel(1:3,1:3);
     cameraOriginWrtModel = cameraToModel(1:3,4);
 
-    cameraToImage = [params.K, zeros(3,1)];
+    cameraToImage = [params.camera.K, zeros(3,1)];
 
     % Is R actually a rotation matrix or a matrix with bases as columns? Or both? -> Both
     % Does it matter if I'm transforming a point versus another bases? -> No

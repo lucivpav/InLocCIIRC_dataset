@@ -37,7 +37,7 @@ The usual steps are as follows:
 
 ## Rotate panoramas
 1. Open the rotatePanoramas folder in Matlab
-2. Set up the appropriate Space name in setupParams.m
+2. Set up the appropriate Space name in setupParams2.m
 3. Adjust and run buildSweepDataMatFile.m
 4. Adjust and run rotatePanoramas.m
 5. For panoramas that failed to rotate properly, try changing the *goodness* in sweepData
@@ -58,11 +58,11 @@ The usual steps are as follows:
 1. Choose the desired mode in transformPoses.m: setupParams(mode)
 
 ## Build file lists
-1. Note the comment on the second line
-2. Change params.query.dir accordingly
+1. Note the comment on the third line
+2. Change the mode accordingly
 
 ## Build scores
-1. Set up appropriate params.query.dir
+1. Set up appropriate mode in buildFeatures.m
 2. Execute buildFeatures.m on a machine with GPU.
 3. Execute buildScores on a machine with ~40 GB of RAM
 
@@ -84,7 +84,7 @@ If you have query sequences, you need to generate raw poses
 
 1. Navigate to buildRawPoses.m
 2. Guess a synchronization constant
-3. Set up parameters in *params* folder
+3. Set up parameters in *functions/InLocCIIRC_utils/params* folder
 4. Set generateMiniSequence to true, until you find the right synchronization constant
 5. Set generateMiniSequence to false, adjust the params until projections match queries
 6. Next, when a not-great-not-terrible generic params are found, use the next section to build upon them and find even better params

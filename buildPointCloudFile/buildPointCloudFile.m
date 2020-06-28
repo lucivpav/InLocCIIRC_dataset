@@ -1,12 +1,14 @@
-params = struct();
-params.dataset.dir = '/Volumes/GoogleDrive/Mùj disk/ARTwin/InLocCIIRC_dataset';
-params.spaceName = 'B-315';
-%params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));
-params.model.path = fullfile(params.dataset.dir, 'models', params.spaceName, 'cloud - rotated.ply');
-params.output.path = fullfile(params.dataset.dir, 'scans', sprintf('%s.ptx.mat', params.spaceName));
+addpath('../functions/InLocCIIRC_utils/params');
+
+params = setupParams('s10e'); % NOTE: dummy value, mode is not important here
+spaceName = 'B-315'; % TODO: adjust
+
+params.sweepDataMatPath = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', spaceName));
+modelPath = fullfile(params.dataset.models.dir, spaceName, 'cloud - rotated.ply');
+outputPath = fullfile(params.dataset.dir, 'scans', sprintf('%s.ptx.mat', spaceName));
 
 %%
-pc = pcread(params.model.path);
+pc = pcread(modelPath);
 x = pc.Location(:,1);
 y = pc.Location(:,2);
 z = pc.Location(:,3);

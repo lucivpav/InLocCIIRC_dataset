@@ -8,13 +8,14 @@ addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/local/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
+addpath('../functions/InLocCIIRC_utils/params');
+[ params ] = setupParams('holoLens1'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
-rawHoloLensPosesTable = readtable(params.input.poses.path);
+rawHoloLensPosesTable = readtable(params.holoLens.poses.path);
 assert(size(descriptionsTable,1) == size(rawHoloLensPosesTable,1));
 nQueries = size(descriptionsTable,1);
 

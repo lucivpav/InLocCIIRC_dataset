@@ -2,14 +2,15 @@ addpath('../functions/closest_value');
 addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
+addpath('../functions/InLocCIIRC_utils/params');
 
 justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
-[ params ] = setupParams('holoLens1Params'); % WARNING: if you change params in the file and run this again,
-                                             % the new params may not actually load on first attempt, making the evaluation result
-					                         % unexpected. IDE bug?
-miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
+[ params ] = setupParams('holoLens1'); % WARNING: if you change params in the file and run this again,
+                                       % the new params may not actually load on first attempt, making the evaluation result
+					                   % unexpected. IDE bug?
+miniSequenceDir = fullfile(params.dataset.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
 [measurementTable, queryTable, queryFiles] = initiMeasurementAndQueryTables(params);
@@ -138,7 +139,7 @@ errors = errors2;
 %%
 close all
 baseName = 'bruteForce';
-summaryFilePath = fullfile(params.query.dir, [baseName, '-summary.txt']);
+summaryFilePath = fullfile(params.dataset.query.dir, [baseName, '-summary.txt']);
 summaryFile = fopen(summaryFilePath, 'w');
 for i1=1:size(tDiffsMs,2)
     thisErrors = errors(i1,:);
@@ -173,7 +174,7 @@ fprintf('Evaluation of top params:\n');
 [i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
 evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable, false);
 
-save(fullfile(params.query.dir, [baseName, '.mat']), 'optimalParams', 'errors', '-v7.3');
+save(fullfile(params.dataset.query.dir, [baseName, '.mat']), 'optimalParams', 'errors', '-v7.3');
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -184,7 +185,7 @@ fprintf(rawPosesFile, 'id x y z alpha beta gamma space\n');
 
 for i=1:size(queryTable,1)
     inputQueryPath = fullfile(queryFiles(i).folder, queryFiles(i).name);
-    outputQueryPath = fullfile(params.query.dir, sprintf('%d.jpg', i));
+    outputQueryPath = fullfile(params.dataset.query.dir, sprintf('%d.jpg', i));
     copyfile(inputQueryPath, outputQueryPath);
     
     queryTimestamp = queryTable(i, 'timestampMs');
