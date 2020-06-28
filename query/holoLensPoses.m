@@ -41,9 +41,10 @@ for i=1:nQueries
                     rawHoloLensPosesTable{i, 'Orientation_Z'}];
     R = rotmat(quaternion(orientation), 'frame'); % what are the columns of R? 
         % Bases of WHAT wrt WHAT? (one of them is initial unknown HL CS, the other is HL camera CS)
-        % -> it is most likely the camera to initial unknown HL CS rotation matrix. Otherwise this code
-        % wouldn't work
-    
+        % -> it is most likely a rotation matrix from initial unknown HL CS to HL camera CS. i.e. the columns
+        % are bases of initial unknown HL CS in HL camera CS coordinates
+        % Otherwise this code wouldn't work
+
     % camera points to -z in HoloLens
     % see https://docs.microsoft.com/en-us/windows/mixed-reality/coordinate-systems-in-directx
     rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
