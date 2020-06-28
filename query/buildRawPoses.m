@@ -3,7 +3,7 @@ addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 
-justEvaluateOnMatches = false;
+justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
 [ params ] = setupParams('holoLens1Params'); % WARNING: if you change params in the file and run this again,
@@ -137,6 +137,9 @@ errors = errors2;
 
 %%
 close all
+baseName = 'bruteForce';
+summaryFilePath = fullfile(params.query.dir, [baseName, '-summary.txt']);
+summaryFile = fopen(summaryFilePath, 'w');
 for i1=1:size(tDiffsMs,2)
     thisErrors = errors(i1,:);
     thisErrors = reshape(thisErrors, max(size(thisErrors)), 1);
@@ -154,13 +157,23 @@ for i1=1:size(tDiffsMs,2)
     optimalParams{i1}.camera.origin.relative.wrt.marker = bestOrigin / params.camera.originConstant;
     optimalParams{i1}.camera.rotation.wrt.marker = bestRotation;
     optimalParams{i1}.HoloLensViconSyncConstant = optimalParams{i1}.HoloLensViconSyncConstant + tDiffsMs(bestSyncConstantIdx);
-end
+    optimalParams{i1}.projectionError = lowestError;
 
+    fprintf(summaryFile, 'HoloLensViconSyncConstant: %0.2f\n',  optimalParams{i1}.HoloLensViconSyncConstant);
+    fprintf(summaryFile, 'Projection error sum: %0.2f\n', lowestError);
+    fprintf(summaryFile, 'camera.origin.relative.wrt.marker: %0.4f; %0.4f; %0.4f\n', optimalParams{i1}.camera.origin.relative.wrt.marker);
+    fprintf(summaryFile, 'camera.rotation.wrt.marker: %0.4f %0.4f %0.4f\n', optimalParams{i1}.camera.rotation.wrt.marker);
+    fprintf(summaryFile, '\n');
+end
+fclose(summaryFile);
+disp(fileread(summaryFilePath));
+
+fprintf('Evaluation of top params:\n');
 [lowestError,idx] = min(errors(:));
 [i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
 evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable, false);
 
-save(fullfile(params.query.dir, 'bruteForce.mat'), 'optimalParams', 'errors', '-v7.3');
+save(fullfile(params.query.dir, [baseName, '.mat']), 'optimalParams', 'errors', '-v7.3');
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

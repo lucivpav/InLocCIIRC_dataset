@@ -32,9 +32,9 @@ function [ params ] = holoLens1Params(params)
                         [-97.3062, 4.3380, -4.9227],
                         [-97.3005, 4.8393, -5.7490]};
     params.optimal.camera.rotation.wrt.marker = containers.Map(interestingQueryInd, optimalRotations);
-    params.camera.rotation.wrt.marker = [-97.0664 4.7364 -5.6914]; % generic from findOptimalParamsForInterestingQueries
+    %params.camera.rotation.wrt.marker = [-97.0664 4.7364 -5.6914]; % generic from findOptimalParamsForInterestingQueries
         % Standard deviation of optimal rotations: 0.3935 0.3770 0.8459
-    %params.camera.rotation.wrt.marker = [TODO]; % from buildRawPoses
+    params.camera.rotation.wrt.marker = [-97.5664, 4.7364, -5.1914]; % from buildRawPoses
 
     interestingQueryInd = [1,2,3,4,5,6];
     % naive params from P3P:
@@ -45,15 +45,15 @@ function [ params ] = holoLens1Params(params)
                             [4.0147; 17.9644; -6.8934],
                             [-0.1598; 9.5486; -7.8150]};
     params.optimal.camera.origin.relative.wrt.marker = containers.Map(interestingQueryInd, optimalTranslations);
-    params.camera.origin.relative.wrt.marker = [1.4669; 12.9176; -7.7423]; % generic from findOptimalParamsForInterestingQueries
+    %params.camera.origin.relative.wrt.marker = [1.4669; 12.9176; -7.7423]; % generic from findOptimalParamsForInterestingQueries
         % Standard deviation of optimal origins: 3.2653 3.6085 1.7526
-    %params.camera.origin.relative.wrt.marker = [10.6007; 6.1630; -13.4557]; % generic from buildRawPoses
+    params.camera.origin.relative.wrt.marker = [1.4669; 12.9176; -4.7423]; % from buildRawPoses, NOTE: z is a bit strange
     params.camera.originConstant = 0.023;
     params.camera.origin.wrt.marker = params.camera.originConstant * params.camera.origin.relative.wrt.marker;
     params.camera.sensor.size = [756, 1344]; % height, width
     params.camera.fl = 1038; % in pixels
-    params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
-    %params.HoloLensViconSyncConstant = 10.6 * 1000; % [ms]; from buildRawPoses
+    %params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]
+    params.HoloLensViconSyncConstant = 10.7 * 1000; % [ms]; from buildRawPoses
     
     %% interesting queries and corresponding matches %%
     params.interestingQueries = ["00132321090555753820.jpg", ... % aka query 1 (1.jpg)
