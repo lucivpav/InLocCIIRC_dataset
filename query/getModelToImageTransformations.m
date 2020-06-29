@@ -1,7 +1,7 @@
 function [modelToVicon, viconToMarker, markerToCamera, cameraToImage] = getModelToImageTransformations(markerOriginWrtVicon, ...
                                                                                                 markerRotationWrtVicon, params)
     % markerToCamera: aka markerToEpsilon, i.e. columns are bases of marker wrt epsilon, see GVG
-    % cameraToImage aka K, i.e. columns are beta bases wrt gamma
+    % cameraToImage aka K, i.e. columns are beta bases wrt gamma (or epsilon?)
     identity = eye(4);
     cameraRotation = deg2rad(params.camera.rotation.wrt.marker);
 
