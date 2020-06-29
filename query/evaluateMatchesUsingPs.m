@@ -1,11 +1,13 @@
 function evaluateMatchesUsingPs(queryInd, params, Rs, ts)
 
+    addpath('../functions/InLocCIIRC_utils/projectPointCloud');
+
     nQueries = size(queryInd,2);
     error = zeros(nQueries,1);
     for i=1:nQueries
         queryIdx = queryInd(i);
         thisInterestingPointsPC = params.interestingPointsPC{queryIdx};
-        P = [params.K*Rs{i}, -params.K*Rs{i}*ts{i}];
+        P = [params.camera.K*Rs{i}, -params.camera.K*Rs{i}*ts{i}];
         projectedInterestingPoints{i} = projectPointsUsingP(thisInterestingPointsPC, P);
         thisInterestingPointsQuery = params.interestingPointsQuery{queryIdx};
         error(i) = norm(thisInterestingPointsQuery - projectedInterestingPoints{i});

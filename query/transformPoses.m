@@ -1,18 +1,19 @@
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
-addpath('../functions/InLocCIIRC_utils/P_to_str')
-addpath('../functions/local/R_to_numpy_array')
-[ params ] = setupParams('s10eParams');
+addpath('../functions/InLocCIIRC_utils/P_to_str');
+addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
+[ params ] = setupParams('holoLens1');
 
-justEvaluateOnMatches = true;
+justEvaluateOnMatches = false; % TODO: this currently throws when used with holoLens1Params
 
 rawPosesTable = readtable(params.rawPoses.path);
 
 if justEvaluateOnMatches
     close all
     queryInd = 1:size(params.interestingQueries,2);
-    %queryInd = [6];
+    %queryInd = [3];
     evaluateMatches(queryInd, params, false, false, rawPosesTable);
     return;
 end
@@ -82,7 +83,7 @@ for i=1:size(rawPosesTable,1)
     outPCPath = fullfile(params.projectedPointCloud.dir, outPCFilename);
     imwrite(projectedPointCloud, outPCPath);
 
-    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    queryImg = imread(fullfile(params.dataset.query.dir, queryFilename));
     outQueryPath = fullfile(params.projectedPointCloud.dir, outQueryFilename);
     imwrite(queryImg, outQueryPath);
     

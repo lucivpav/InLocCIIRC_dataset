@@ -1,20 +1,21 @@
 % 1. Convert the HoloLens poses to poses w.r.t. the model
 % 2. Evaluate the transfmored poses w.r.t. reference poses (Vicon raw poses transformed)
 
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
-addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-[ params ] = setupParams('holoLens1Params'); % NOTE: tweak
+addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
+[ params ] = setupParams('holoLens1'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
 
 %% build HoloLens poses table w.r.t. to HoloLens CS
 descriptionsTable = readtable(params.queryDescriptions.path); % decribes the reference poses
-rawHoloLensPosesTable = readtable(params.input.poses.path);
+rawHoloLensPosesTable = readtable(params.holoLens.poses.path);
 assert(size(descriptionsTable,1) == size(rawHoloLensPosesTable,1));
 nQueries = size(descriptionsTable,1);
 
@@ -39,16 +40,20 @@ for i=1:nQueries
                     rawHoloLensPosesTable{i, 'Orientation_X'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Y'}, ...
                     rawHoloLensPosesTable{i, 'Orientation_Z'}];
-    R = rotmat(quaternion(orientation), 'frame');
-    
+    R = rotmat(quaternion(orientation), 'frame'); % what are the columns of R? 
+        % Bases of WHAT wrt WHAT? (one of them is initial unknown HL CS, the other is HL camera CS)
+        % -> it is most likely a rotation matrix from initial unknown HL CS to HL camera CS. i.e. the columns
+        % are bases of initial unknown HL CS in HL camera CS coordinates
+        % Otherwise this code wouldn't work
+
     % camera points to -z in HoloLens
     % see https://docs.microsoft.com/en-us/windows/mixed-reality/coordinate-systems-in-directx
     rFix = rotationMatrix([pi, 0.0, 0.0], 'ZYX');
     R = rFix * R;
-    
+
     P = eye(4);
     P(1:3,1:3) = R;
-    P(1:3,4) = R * -t;
+    P(1:3,4) = R * -t; % TODO: why is there the minus? actually, its useless. because the code actually extrects the t from P(1:3,4)
     Ps{i} = P;
     pts(idx,:) = t';
     idx = idx + 1;
@@ -68,8 +73,8 @@ idx = 1;
 for i=1:nQueries
     id = holoLensPosesTable{i, 'id'};
     P_ref = load_CIIRC_transformation(fullfile(params.poses.dir, sprintf('%d.txt', id)));
-    R_ref = P_ref(1:3,1:3);
-    T_ref = -inv(R_ref)*P_ref(1:3,4);
+    R_ref = P_ref(1:3,1:3); % camera bases wrt model
+    T_ref = -inv(R_ref)*P_ref(1:3,4); % wrt model
     
     pts_ref(idx,:) = T_ref';
     idx = idx + 1;
@@ -211,7 +216,7 @@ title('HoloLens to reference poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
 
-queryDirName = strsplit(params.query.dir, '/');
+queryDirName = strsplit(params.dataset.query.dir, '/');
 queryDirName = queryDirName{end};
 filename = sprintf('errorDistribution-%s.pdf', queryDirName);
 saveas(gcf, fullfile(params.HoloLensPoses.dir, filename));
@@ -259,7 +264,7 @@ for i=1:nQueries
     imwrite(projectedPointCloud, outPCPath);
 
     queryFilename = sprintf('%d.jpg', id);
-    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    queryImg = imread(fullfile(params.dataset.query.dir, queryFilename));
     outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
     imwrite(queryImg, outQueryPath);
 end

@@ -29,11 +29,6 @@ if __name__ == "__main__":
     origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
     plot_csystem(ax, np.eye(3), origin, 'delta', 'black')
 
-    viconR = np.array([[-1.00, 0.00, 0.00], [0.00, 0.00, 1.00], [-0.00, 1.00, -0.00]]) # wrt model
-    origin = np.reshape(np.array([-0.13, 0.04, 2.80]), (3,1)) # wrt model
-    plot_csystem(ax, viconR, origin, 'delta', 'brown')
-
-
     ### query 40
 
     markerCS = np.array([[-0.77, 0.22, -0.60], [-0.61, -0.53, 0.60], [-0.19, 0.82, 0.54]])
@@ -182,20 +177,21 @@ if __name__ == "__main__":
 
 
 
-    ### interesting query 2 ###
-    markerBases = np.array([[0.56, -0.53, -0.64], [0.44, -0.46, 0.77], [-0.70, -0.71, -0.02]]) # R * rFix; wrt model
-    markerT = np.reshape(np.array([-3.6426, 1.6608, -0.0278]), (3,1)) # wrt model
-    plot_csystem(ax, markerBases, markerT, 'marker', 'gray')
+    ### interesting query 3 ###
+    viconR = np.array([[-1.00, 0.00, 0.00], [0.00, 0.00, 1.00], [-0.00, 1.00, -0.00]])
+    origin = np.reshape(np.array([-0.13, 0.04, 2.80]), (3,1))
+    plot_csystem(ax, viconR, origin, 'delta', 'brown') # correct
 
-    # rawPoseToPose: ORIGINAL
-    cameraBases = np.array([[-0.03, -0.86, -0.50], [0.44, -0.46, 0.77], [-0.90, -0.20, 0.39]]) # R * rFix; wrt model
-    cameraT = np.reshape(np.array([-3.7874, 1.4471, -0.3848]), (3,1)) # wrt model
-    plot_csystem(ax, cameraBases, cameraT, 'original', 'blue')
 
-    # rawPoseToPose: "fix"
-    cameraBases = np.array([[0.08, -0.77, -0.64], [0.04, -0.64, 0.77], [-1.00, -0.09, -0.02]]) # R * rFix; wrt model
-    cameraT = np.reshape(np.array([-3.7874, 1.4471, -0.3848]), (3,1)) # wrt model
-    plot_csystem(ax, cameraBases, cameraT, 'fix', 'orange')
+    markerBases = np.array([[0.87, -0.49, -0.02], [0.18, 0.28, 0.94], [-0.45, -0.83, 0.33]])
+    markerT = np.reshape(np.array([-4.5126, 1.5920, 0.2008]), (3,1))
+    # NOTE: markerCS is already wrong!
+    # looks like viconToMarker to to blame!
+    plot_csystem(ax, markerBases, markerT, 'marker', 'red')
+
+    cameraBases = np.array([[0.88, 0.01, -0.48], [0.16, -0.95, 0.28], [-0.45, -0.32, -0.83]]) 
+    cameraT = np.reshape(np.array([-4.5690, 1.6551, 0.1881]), (3,1))
+    plot_csystem(ax, cameraBases, cameraT, 'camera', 'blue')
 
 
 

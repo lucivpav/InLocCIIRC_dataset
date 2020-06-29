@@ -1,15 +1,16 @@
 addpath('../functions/closest_value');
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
+addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 
 justEvaluateOnMatches = true;
 generateMiniSequence = false;
 
-[ params ] = setupParams('holoLens1Params'); % WARNING: if you change params in the file and run this again,
-                                             % the new params may not actually load on first attempt, making the evaluation result
-					                         % unexpected. IDE bug?
-miniSequenceDir = fullfile(params.query.dir, 'miniSequence');
+[ params ] = setupParams('holoLens1'); % WARNING: if you change params in the file and run this again,
+                                       % the new params may not actually load on first attempt, making the evaluation result
+					                   % unexpected. IDE bug?
+miniSequenceDir = fullfile(params.dataset.query.dir, 'miniSequence');
 mkdirIfNonExistent(miniSequenceDir);
 
 [measurementTable, queryTable, queryFiles] = initiMeasurementAndQueryTables(params);
@@ -28,7 +29,7 @@ close all
 tDiffsMs = -200:100:200;
 originPadding = 8;
 originDiffs = -originPadding:1:originPadding;
-rotationPadding = 10;
+rotationPadding = 5;
 rotationDiffs = -rotationPadding:0.5:rotationPadding;
 errors = inf(size(tDiffsMs,2)*size(originDiffs,2), size(originDiffs,2), size(originDiffs,2), ...
                 size(rotationDiffs,2), size(rotationDiffs,2), size(rotationDiffs,2));
@@ -48,10 +49,11 @@ clearvars rawPositions;
 clearvars rawRotations;
 for i1=1:size(tDiffsMs,2) 
     tDiffMs = tDiffsMs(1,i1);
-    syncConstant = params.HoloLensViconSyncConstant + tDiffMs;
     for i2=1:size(queryInd,2)
         queryIdx = queryInd(i2);
-        [rawPosition, rawRotation] = buildRawPose(queryIdx, params.interestingQueries, queryTable, measurementTable, syncConstant);
+        paramsCopy = params;
+        paramsCopy.HoloLensViconSyncConstant = paramsCopy.HoloLensViconSyncConstant +tDiffMs;
+        [rawPosition, rawRotation] = getRawPose(queryIdx, params.interestingQueries, queryTable, measurementTable, false, paramsCopy);
         thisRawPositions{i2} = rawPosition;
         thisRawRotations{i2} = rawRotation;
     end
@@ -74,6 +76,7 @@ nTDiffs = size(tDiffsMs,2);
 [topLoop1Ind, topLoop2Ind] = ndgrid(1:nTDiffs, 1:nOriginDiffs);
 topLoopsInd = [topLoop1Ind(:), topLoop2Ind(:)];
 
+env = environment();
 if strcmp(env, 'laptop')
     nWorkers = 4;
 elseif strcmp(env, 'cmp')
@@ -135,6 +138,9 @@ errors = errors2;
 
 %%
 close all
+baseName = 'bruteForce';
+summaryFilePath = fullfile(params.dataset.query.dir, [baseName, '-summary.txt']);
+summaryFile = fopen(summaryFilePath, 'w');
 for i1=1:size(tDiffsMs,2)
     thisErrors = errors(i1,:);
     thisErrors = reshape(thisErrors, max(size(thisErrors)), 1);
@@ -152,13 +158,23 @@ for i1=1:size(tDiffsMs,2)
     optimalParams{i1}.camera.origin.relative.wrt.marker = bestOrigin / params.camera.originConstant;
     optimalParams{i1}.camera.rotation.wrt.marker = bestRotation;
     optimalParams{i1}.HoloLensViconSyncConstant = optimalParams{i1}.HoloLensViconSyncConstant + tDiffsMs(bestSyncConstantIdx);
-end
+    optimalParams{i1}.projectionError = lowestError;
 
+    fprintf(summaryFile, 'HoloLensViconSyncConstant: %0.2f\n',  optimalParams{i1}.HoloLensViconSyncConstant);
+    fprintf(summaryFile, 'Projection error sum: %0.2f\n', lowestError);
+    fprintf(summaryFile, 'camera.origin.relative.wrt.marker: %0.4f; %0.4f; %0.4f\n', optimalParams{i1}.camera.origin.relative.wrt.marker);
+    fprintf(summaryFile, 'camera.rotation.wrt.marker: %0.4f %0.4f %0.4f\n', optimalParams{i1}.camera.rotation.wrt.marker);
+    fprintf(summaryFile, '\n');
+end
+fclose(summaryFile);
+disp(fileread(summaryFilePath));
+
+fprintf('Evaluation of top params:\n');
 [lowestError,idx] = min(errors(:));
 [i1,i2,i3,i4,i5,i6,i7] = ind2sub(size(errors),idx);
 evaluateMatches(queryInd, optimalParams{i1}, queryTable, measurementTable, false);
 
-save(fullfile(params.query.dir, 'bruteForce.mat'), 'optimalParams', 'errors', '-v7.3');
+save(fullfile(params.dataset.query.dir, [baseName, '.mat']), 'optimalParams', 'errors', '-v7.3');
 
 return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -169,7 +185,7 @@ fprintf(rawPosesFile, 'id x y z alpha beta gamma space\n');
 
 for i=1:size(queryTable,1)
     inputQueryPath = fullfile(queryFiles(i).folder, queryFiles(i).name);
-    outputQueryPath = fullfile(params.query.dir, sprintf('%d.jpg', i));
+    outputQueryPath = fullfile(params.dataset.query.dir, sprintf('%d.jpg', i));
     copyfile(inputQueryPath, outputQueryPath);
     
     queryTimestamp = queryTable(i, 'timestampMs');

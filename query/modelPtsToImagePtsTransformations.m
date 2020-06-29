@@ -1,7 +1,8 @@
 % this code stores 3D interesting points wrt all intermediate coordinate systems
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
+addpath('../functions/InLocCIIRC_utils/params');
 
-[ params ] = setupParams('holoLens1Params');
+[ params ] = setupParams('holoLens1');
 queryInd = 1:size(params.interestingQueries,2);
 
 if strcmp(params.mode, 's10eParams')
@@ -42,16 +43,15 @@ for i=1:nQueries
 
     %% verify the transformations are correct
     [R, t] = rawPoseToPose(markerOriginWrtVicon, markerRotationWrtVicon, params); 
-    P = [params.K*R, -params.K*R*t];
+    P = [params.camera.K*R, -params.camera.K*R*t];
     projectedPoints = projectPointsUsingP(thisInterestingPoints, P);
     discrepancies = vecnorm(projectedPoints - thisTransData.interestingPointsWrtImage, 2);
     assert(all(discrepancies < 1e-6));
 end
 
-%filename = 'modelPtsToImagePtsTransformations-naive.mat';
-filename = 'modelPtsToImagePtsTransformations-optimized.mat';
+filename = 'modelPtsToImagePtsTransformations-naive.mat';
+%filename = 'modelPtsToImagePtsTransformations-optimized.mat';
 camera = params.camera;
-K = params.K;
 vicon = params.vicon;
 HoloLensViconSyncConstant = params.HoloLensViconSyncConstant;
-save(fullfile(params.query.dir, filename), 'transData', 'camera', 'K', 'HoloLensViconSyncConstant', 'vicon');
+save(fullfile(params.dataset.query.dir, filename), 'transData', 'camera', 'HoloLensViconSyncConstant', 'vicon');

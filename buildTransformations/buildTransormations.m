@@ -1,41 +1,37 @@
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-addpath('../functions/local/P_to_str')
+addpath('../functions/InLocCIIRC_utils/P_to_str')
+addpath('../functions/InLocCIIRC_utils/params');
+
+params = setupParams('s10e'); % NOTE: mode can be anything, its specific params are not used here
 
 params = struct();
-params.dataset.dir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset_mirror';
-params.spaceName = 'B-315';
-params.sweepData.mat.path = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', params.spaceName));
-params.alignments.dir = fullfile(params.dataset.dir, 'alignments', params.spaceName);
-params.all_transformations.path = fullfile(params.alignments.dir, 'all_transformations.txt');
-params.known_incorrect.path = fullfile(params.alignments.dir, 'know_incorrect.txt');
-params.transformations.dir = fullfile(params.alignments.dir, 'transformations');
-params.f = 1385.6406460551023;
-params.sensorSize = [1600 1200];
+spaceName = 'B-315'; % TODO: adjust
+sweepDataMatPath = fullfile(params.dataset.dir, 'sweepData', sprintf('%s.mat', spaceName));
+alignmentsDir = fullfile(params.dataset.db.trans.dir, params.spaceName);
+allTransformationsPath = fullfile(params.alignments.dir, 'all_transformations.txt');
+knownIncorrectPath = fullfile(alignmentsDir, 'know_incorrect.txt');
+transformationsDir = fullfile(alignmentsDir, 'transformations');
+fl = 1385.6406460551023;
+sensorSize = [1600 1200];
 
-if exist(params.alignments.dir, 'dir') ~= 7
-    mkdir(params.alignments.dir);
+if exist(alignmentsDir, 'dir') ~= 7
+    mkdir(alignmentsDir);
 end
 
-if exist(params.transformations.dir, 'dir') ~= 7
-    mkdir(params.transformations.dir);
+if exist(transformationsDir, 'dir') ~= 7
+    mkdir(transformationsDir);
 end
 
-load(params.sweepData.mat.path);
-all_transformationsFile = fopen(params.all_transformations.path, 'w');
+load(sweepDataMatPath);
+all_transformationsFile = fopen(allTransformationsPath, 'w');
 
 % create an empty file
-knownIncorrectFile = fopen(params.known_incorrect.path, 'w');
+knownIncorrectFile = fopen(knownIncorrectPath, 'w');
 fclose(knownIncorrectFile);
-
-K = eye(3);
-% K(1,1) = params.f;
-% K(2,2) = params.f;
-% K(1,3) = params.sensorSize(1)/2;
-% K(2,3) = params.sensorSize(2)/2;
 
 for i=1:size(sweepData, 2)
     sweepRecord = sweepData(i);
-    thisPanoTransformationPath = fullfile(params.transformations.dir, sprintf('trans_%d.txt', sweepRecord.panoId));
+    thisPanoTransformationPath = fullfile(transformationsDir, sprintf('trans_%d.txt', sweepRecord.panoId));
     thisTransformationFile = fopen(thisPanoTransformationPath, 'w');
     angles = sweepRecord.rotation*pi/180;
     R = rotationMatrix(angles, 'XYZ'); % ZYX?
