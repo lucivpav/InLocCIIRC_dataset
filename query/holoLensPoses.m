@@ -1,14 +1,14 @@
 % 1. Convert the HoloLens poses to poses w.r.t. the model
 % 2. Evaluate the transfmored poses w.r.t. reference poses (Vicon raw poses transformed)
 
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
-addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 [ params ] = setupParams('holoLens1'); % NOTE: tweak
 
 projectPC = false; % NOTE: tweak
@@ -216,7 +216,7 @@ title('HoloLens to reference poses: Orientation errors (whitelist only)');
 xlabel('Orientation error [deg]');
 ylabel('Number of occurences');
 
-queryDirName = strsplit(params.query.dir, '/');
+queryDirName = strsplit(params.dataset.query.dir, '/');
 queryDirName = queryDirName{end};
 filename = sprintf('errorDistribution-%s.pdf', queryDirName);
 saveas(gcf, fullfile(params.HoloLensPoses.dir, filename));
@@ -264,7 +264,7 @@ for i=1:nQueries
     imwrite(projectedPointCloud, outPCPath);
 
     queryFilename = sprintf('%d.jpg', id);
-    queryImg = imread(fullfile(params.query.dir, queryFilename));
+    queryImg = imread(fullfile(params.dataset.query.dir, queryFilename));
     outQueryPath = fullfile(params.HoloLensProjectedPointCloud.dir, queryFilename);
     imwrite(queryImg, outQueryPath);
 end

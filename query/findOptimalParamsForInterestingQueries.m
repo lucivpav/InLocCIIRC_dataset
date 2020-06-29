@@ -1,5 +1,5 @@
-addpath('../functions/local/reconstructPose');
-addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/reconstructPose');
+addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/params');
 
 close all

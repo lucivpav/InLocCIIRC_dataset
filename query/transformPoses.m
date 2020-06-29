@@ -1,9 +1,9 @@
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
 addpath('../functions/InLocCIIRC_utils/params');
-addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 [ params ] = setupParams('holoLens1');
 
 justEvaluateOnMatches = false; % TODO: this currently throws when used with holoLens1Params

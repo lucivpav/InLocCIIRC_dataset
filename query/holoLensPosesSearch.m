@@ -4,14 +4,14 @@
 
 %%%% TODO: do not duplicate code. Extract to methods and make it a single holoLensPoses.m file
 
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/load_CIIRC_transformation');
 addpath('../functions/InLocCIIRC_utils/P_to_str');
-addpath('../functions/local/R_to_numpy_array');
+addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 [ params ] = setupParams('holoLens1'); % NOTE: tweak
 
 td = params.HoloLensTranslationDelay;

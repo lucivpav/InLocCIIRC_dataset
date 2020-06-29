@@ -1,5 +1,5 @@
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
-addpath('../functions/local/P_to_str')
+addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/InLocCIIRC_utils/params');
 
 params = setupParams('s10e'); % NOTE: mode can be anything, its specific params are not used here

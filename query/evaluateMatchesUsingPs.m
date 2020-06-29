@@ -1,5 +1,7 @@
 function evaluateMatchesUsingPs(queryInd, params, Rs, ts)
 
+    addpath('../functions/InLocCIIRC_utils/projectPointCloud');
+
     nQueries = size(queryInd,2);
     error = zeros(nQueries,1);
     for i=1:nQueries

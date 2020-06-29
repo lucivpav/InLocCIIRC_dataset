@@ -5,6 +5,7 @@ function [projectionErrorSum, meanTranslationError, meanOrientationError] = eval
     % those values that are not set, should be set to false
 
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 
 nQueries = size(queryInd,2);
 for i=1:nQueries

@@ -1,8 +1,8 @@
 addpath('../functions/closest_value');
-addpath('../functions/local/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/mkdirIfNonExistent');
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 
 justEvaluateOnMatches = true;
 generateMiniSequence = false;
