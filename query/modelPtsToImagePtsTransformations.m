@@ -1,6 +1,7 @@
 % this code stores 3D interesting points wrt all intermediate coordinate systems
 addpath('../functions/InLocCIIRC_utils/rotationDistance');
 addpath('../functions/InLocCIIRC_utils/params');
+addpath('../functions/InLocCIIRC_utils/projectPointsUsingP');
 
 [ params ] = setupParams('holoLens1');
 queryInd = 1:size(params.interestingQueries,2);
