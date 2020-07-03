@@ -10,6 +10,11 @@ def plot_csystem(ax, base, origin, name, color):
                     color=color, label=name)
         ax.text3D(origin[0,0]+base[0,i], origin[1,0]+base[1,i], origin[2,0]+base[2,i], '%s_%s' % (name, axisNames[i]) )
 
+def plot_bound_vector(ax, source, direction, name, color):
+    ax.quiver(source[0,0], source[1,0], source[2,0], direction[0,0], direction[1,0], direction[2,0],
+                color=color, label=name).set_linewidth(2)
+    ax.text3D(source[0,0]+direction[0,0], source[1,0]+direction[1,0], source[2,0]+direction[2,0], name)
+
 if __name__ == "__main__":
     from scipy.spatial.transform import Rotation as R
     rotationMatrix = R.from_euler('x', -110.7, degrees=True).as_matrix()
@@ -27,7 +32,7 @@ if __name__ == "__main__":
     ax.set_zlim(-1, 1)
 
     origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
-    plot_csystem(ax, np.eye(3), origin, 'delta', 'black')
+    #plot_csystem(ax, np.eye(3), origin, 'delta', 'black')
 
     ### query 40
 
@@ -180,23 +185,67 @@ if __name__ == "__main__":
     ### interesting query 3 ###
     viconR = np.array([[-1.00, 0.00, 0.00], [0.00, 0.00, 1.00], [-0.00, 1.00, -0.00]])
     origin = np.reshape(np.array([-0.13, 0.04, 2.80]), (3,1))
-    plot_csystem(ax, viconR, origin, 'delta', 'brown') # correct
+    #plot_csystem(ax, viconR, origin, 'delta', 'brown') # correct
 
 
     markerBases = np.array([[0.87, -0.49, -0.02], [0.18, 0.28, 0.94], [-0.45, -0.83, 0.33]])
     markerT = np.reshape(np.array([-4.5126, 1.5920, 0.2008]), (3,1))
     # NOTE: markerCS is already wrong!
     # looks like viconToMarker to to blame!
-    plot_csystem(ax, markerBases, markerT, 'marker', 'red')
+    #plot_csystem(ax, markerBases, markerT, 'marker', 'red')
 
     cameraBases = np.array([[0.88, 0.01, -0.48], [0.16, -0.95, 0.28], [-0.45, -0.32, -0.83]]) 
     cameraT = np.reshape(np.array([-4.5690, 1.6551, 0.1881]), (3,1))
-    plot_csystem(ax, cameraBases, cameraT, 'camera', 'blue')
+    #plot_csystem(ax, cameraBases, cameraT, 'camera', 'blue')
+
+
+    ### MultiCameraPose ###
+    origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
+    plot_csystem(ax, np.eye(3), origin, 'Omega', 'black')
+
+    bases = np.array([[-0.99, -0.12, -0.01], [0.12, -0.99, -0.01], [-0.01, -0.01, 1.00]])
+    origin = np.reshape(np.array([-8.3833, -0.0010, 1.8200]), (3,1))
+    rigDir = np.reshape(np.array([-0, 0, 0]), (3,1))
+    plot_bound_vector(ax, origin, rigDir, '', 'black')
+    plot_csystem(ax, bases, origin, '127', 'blue')
+
+    #bases = np.array([[-1.00, -0.06, 0.08], [0.06, -1.00, 0.03], [0.07, 0.03, 1.00]])
+    #origin = np.reshape(np.array([-8.3910, 0.0059, 2.0020]), (3,1))
+    #rigDir = np.reshape(np.array([0.0077947, -0.006944, -0.18206]), (3,1))
+    #plot_bound_vector(ax, origin, rigDir, '', 'black')
+    #plot_csystem(ax, bases, origin, '128', 'red')
+
+    #bases = np.array([[-0.99, -0.06, 0.14], [0.06, -1.00, -0.05], [0.15, -0.04, 0.99]])
+    #origin = np.reshape(np.array([-8.4137, 0.0085, 2.1539]), (3,1))
+    #rigDir = np.reshape(np.array([0.0304347, -0.00955701, -0.33395]), (3,1))
+    #plot_bound_vector(ax, origin, rigDir, '', 'black')
+    #plot_csystem(ax, bases, origin, '129', 'orange')
+
+    #bases = np.array([[-0.98, -0.06, 0.19], [0.05, -1.00, -0.07], [0.19, -0.06, 0.98]])
+    #origin = np.reshape(np.array([-8.4212, 0.0057, 2.2490]), (3,1))
+    #rigDir = np.reshape(np.array([0.0379647, -0.00677501, -0.42901]), (3,1))
+    #plot_bound_vector(ax, origin, rigDir, '', 'black')
+    #plot_csystem(ax, bases, origin, '130', 'green')
+
+    bases = np.array([[-0.98, -0.04, 0.21], [0.02, -1.00, -0.06], [0.21, -0.05, 0.98]])
+    origin = np.reshape(np.array([-8.3692, -0.0064, 2.3791]), (3,1))
+    rigDir = np.reshape(np.array([-0.0140452, 0.00533397, -0.55914]), (3,1))
+    plot_bound_vector(ax, origin, rigDir, '', 'black')
+    plot_csystem(ax, bases, origin, '131', 'pink')
+
+    bases = np.array([[0.948027, -0.0474147, 0.314635], [0.0254714, 0.99697, 0.0734928], [-0.317167, -0.0616591, 0.946363]])
+    origin = np.reshape(np.array([-4.77302, -2.24864, -1.54802]), (3,1))
+    plot_csystem(ax, bases, origin, 'World', 'black')
+
+    ax.view_init(164, 4)
+
+
+
 
 
 
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
-    ax.view_init(-180, -90)
+    #ax.view_init(-180, -90)
     plt.show()
