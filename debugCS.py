@@ -199,15 +199,15 @@ if __name__ == "__main__":
     #plot_csystem(ax, cameraBases, cameraT, 'camera', 'blue')
 
 
-    ### MultiCameraPose ###
-    origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
-    plot_csystem(ax, np.eye(3), origin, 'Omega', 'black')
+    ### MultiCameraPose <127,131> ###
+    #origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
+    #plot_csystem(ax, np.eye(3), origin, 'Omega', 'black')
 
-    bases = np.array([[-0.99, -0.12, -0.01], [0.12, -0.99, -0.01], [-0.01, -0.01, 1.00]])
-    origin = np.reshape(np.array([-8.3833, -0.0010, 1.8200]), (3,1))
-    rigDir = np.reshape(np.array([-0, 0, 0]), (3,1))
-    plot_bound_vector(ax, origin, rigDir, '', 'black')
-    plot_csystem(ax, bases, origin, '127', 'blue')
+    #bases = np.array([[-0.99, -0.12, -0.01], [0.12, -0.99, -0.01], [-0.01, -0.01, 1.00]])
+    #origin = np.reshape(np.array([-8.3833, -0.0010, 1.8200]), (3,1))
+    #rigDir = np.reshape(np.array([-0, 0, 0]), (3,1))
+    #plot_bound_vector(ax, origin, rigDir, '', 'black')
+    #plot_csystem(ax, bases, origin, '127', 'blue')
 
     #bases = np.array([[-1.00, -0.06, 0.08], [0.06, -1.00, 0.03], [0.07, 0.03, 1.00]])
     #origin = np.reshape(np.array([-8.3910, 0.0059, 2.0020]), (3,1))
@@ -227,19 +227,48 @@ if __name__ == "__main__":
     #plot_bound_vector(ax, origin, rigDir, '', 'black')
     #plot_csystem(ax, bases, origin, '130', 'green')
 
-    bases = np.array([[-0.98, -0.04, 0.21], [0.02, -1.00, -0.06], [0.21, -0.05, 0.98]])
-    origin = np.reshape(np.array([-8.3692, -0.0064, 2.3791]), (3,1))
-    rigDir = np.reshape(np.array([-0.0140452, 0.00533397, -0.55914]), (3,1))
-    plot_bound_vector(ax, origin, rigDir, '', 'black')
-    plot_csystem(ax, bases, origin, '131', 'pink')
+    #bases = np.array([[-0.98, -0.04, 0.21], [0.02, -1.00, -0.06], [0.21, -0.05, 0.98]])
+    #origin = np.reshape(np.array([-8.3692, -0.0064, 2.3791]), (3,1))
+    #rigDir = np.reshape(np.array([-0.0140452, 0.00533397, -0.55914]), (3,1))
+    #plot_bound_vector(ax, origin, rigDir, '', 'black')
+    #plot_csystem(ax, bases, origin, '131', 'pink')
 
-    bases = np.array([[0.948027, -0.0474147, 0.314635], [0.0254714, 0.99697, 0.0734928], [-0.317167, -0.0616591, 0.946363]])
-    origin = np.reshape(np.array([-4.77302, -2.24864, -1.54802]), (3,1))
+    #bases = np.array([[0.948027, -0.0474147, 0.314635], [0.0254714, 0.99697, 0.0734928], [-0.317167, -0.0616591, 0.946363]])
+    #origin = np.reshape(np.array([-4.77302, -2.24864, -1.54802]), (3,1))
+    #plot_csystem(ax, bases, origin, 'World', 'black')
+
+    #ax.view_init(164, 4)
+    #ax.view_init(-17, 97)
+
+    ## MultiCameraPose <10,15> ###
+    origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
+    plot_csystem(ax, np.eye(3), origin, 'Omega', 'black')
+
+    bases = np.array([[-0.01, -0.12, -0.99], [-0.00, -0.99, 0.12], [-1.00, 0.00, 0.01]])
+    origin = np.reshape(np.array([-1.4848, 0.0296, 0.3890]), (3,1))
+    plot_csystem(ax, bases, origin, '10', 'blue')
+
+    bases = np.array([[-0.01, -0.12, -0.99], [-0.01, -0.99, 0.12], [-1.00, 0.01, 0.01]])
+    origin = np.reshape(np.array([-1.5628, 0.0223, 0.3567]), (3,1))
+    plot_csystem(ax, bases, origin, '11', 'red')
+
+    bases = np.array([[-0.03, -0.15, -0.99], [0.01, -0.99, 0.15], [-1.00, -0.01, 0.04]])
+    origin = np.reshape(np.array([-1.6059, 0.0216, 0.3473]), (3,1))
+    plot_csystem(ax, bases, origin, '12', 'orange')
+
+    bases = np.array([[-0.05, -0.12, -0.99], [0.01, -0.99, 0.12], [-1.00, -0.00, 0.05]])
+    origin = np.reshape(np.array([-1.6607, 0.0142, 0.3791]), (3,1))
+    plot_csystem(ax, bases, origin, '13', 'green')
+
+    bases = np.array([[-0.09, -0.13, -0.99], [0.00, -0.99, 0.13], [-1.00, 0.01, 0.09]])
+    origin = np.reshape(np.array([-1.7739, 0.0131, 0.4558]), (3,1))
+    plot_csystem(ax, bases, origin, '14', 'pink')
+
+    bases = np.array([[0.978784, 0.00198053, 0.204884], [-0.0045116, 0.99992, 0.0118874], [-0.204844, -0.0125596, 0.978714]])
+    origin = np.reshape(np.array([-2.70054, -1.75313, 0.409776]), (3,1))
     plot_csystem(ax, bases, origin, 'World', 'black')
 
-    ax.view_init(164, 4)
-
-
+    ax.view_init(-17, 97) # TODO
 
 
 
