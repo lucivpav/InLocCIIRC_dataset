@@ -6,6 +6,8 @@ import scipy.io as sio
 from PIL import Image
 sys.path.insert(1, os.path.join(sys.path[0], '../functions'))
 from InLocCIIRC_utils.buildCutoutName.buildCutoutName import buildCutoutName
+import matlab.engine
+matlabEngine = matlab.engine.start_matlab()
 
 def saveFigure(fig, path, width, height):
     plt.axis('off')
@@ -18,22 +20,30 @@ def renderForQuery(queryId):
     inlierColor = '#00ff00'
     inlierMarkerSize = 3
     targetWidth = 600
-    targetAspectRatio = 4032/3024
+    #targetAspectRatio = 4032/3024 # s10e
+    targetAspectRatio = 1344/756 # HoloLens
+    cutoutSize = [1600, 1200] # width, height
     targetHeight = np.round(targetWidth / targetAspectRatio).astype(np.int64)
 
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-    queryDir = os.path.join(datasetDir, 'query')
+    #queryDir = os.path.join(datasetDir, 'query-s10e')
+    queryDir = os.path.join(datasetDir, 'query-HoloLens1')
+    #outputDir = os.path.join(datasetDir, 'outputs-s10e')
     outputDir = os.path.join(datasetDir, 'outputs')
     cutoutDir = os.path.join(datasetDir, 'cutouts')
     densePVPath = os.path.join(outputDir, 'densePV_top10_shortlist.mat')
+    #densePVPath = os.path.join(outputDir, 'densePE_top100_shortlist.mat')
     denseInlierDir = os.path.join(outputDir, 'PnP_dense_inlier')
     synthesizedDir = os.path.join(outputDir, 'synthesized')
+    #evaluationDir = os.path.join(datasetDir, 'evaluation-s10e-v1')
     evaluationDir = os.path.join(datasetDir, 'evaluation')
     queryPipelineDir = os.path.join(evaluationDir, 'queryPipeline')
 
     queryName = str(queryId) + '.jpg'
     queryPath = os.path.join(queryDir, queryName)
-    query = plt.imread(queryPath)
+    #query = plt.imread(queryPath)
+    query = matlabEngine.load_query_image_compatible_with_cutouts(queryPath, matlab.double(cutoutSize), nargout=1)
+    query = np.asarray(query)
 
     ImgList = sio.loadmat(densePVPath, squeeze_me=True)['ImgList']
     ImgListRecord = next((x for x in ImgList if x['queryname'] == queryName), None)
@@ -87,6 +97,7 @@ def renderForQuery(queryId):
     errmap = np.asarray(errmap)
     plt.imsave(errmapStepPath, errmap, cmap='jet')
 
-queryIds = [3, 6, 16, 26, 31, 38]
+matlabEngine.addpath(r'functions/InLocCIIRC_utils/at_netvlad_function',nargout=0)
+queryIds = [127]
 for queryId in queryIds:
     renderForQuery(queryId)
