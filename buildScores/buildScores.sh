@@ -1,7 +1,5 @@
 #!/bin/bash
-nvidia-smi --query-gpu=index,name,utilization.memory --format=csv
-echo -n "Please select a GPU: "
-read GPU_ID
-export CUDA_VISIBLE_DEVICES=$GPU_ID
+echo "You must NOT execute this on boruvka.felk.cvut.cz"
+echo "TODO: run this via qsub, so that this doesn't get killed?"
 module load MATLAB/9.4
 cat buildScores.m | matlab -nodesktop 2>&1 | tee buildFeatures.log

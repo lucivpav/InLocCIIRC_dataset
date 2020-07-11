@@ -64,7 +64,7 @@ The usual steps are as follows:
 ## Build scores
 1. Set up appropriate mode in buildFeatures.m
 2. Execute buildFeatures.m on a machine with GPU.
-3. Execute buildScores on a machine with ~40 GB of RAM
+3. Execute buildScores on a machine with ~1 GB of RAM
 
 ## Plot the dataset including retrieved poses 
 1. Make sure the demo has finished and now we have retrievedPoses directory in evaluation directory
@@ -78,8 +78,9 @@ The usual steps are as follows:
 1. Execute evaluation/distThreshVsAccuracy.py
 
 ## TODO
-* Make the scores more relevant. Right now they don't represent the query-cutouts very well.
+* empty TODO list
 
+## Sequences
 If you have query sequences, you need to generate raw poses
 
 1. Navigate to buildRawPoses.m
