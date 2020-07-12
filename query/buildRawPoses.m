@@ -87,7 +87,7 @@ c.NumWorkers = nWorkers;
 saveProfile(c);
 
 p = parpool('local', nWorkers);
-opts = parforOptions(p);
+%opts = parforOptions(p);
 nTopLoopsInd = size(topLoopsInd,1);
 parfor iTop=1:nTopLoopsInd
     fprintf('Processing round %d/%d.\n', iTop, nTopLoopsInd);

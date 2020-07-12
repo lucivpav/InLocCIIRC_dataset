@@ -30,21 +30,23 @@ def computeFoV(sensorSize, f):
 
 if __name__ == '__main__':
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-    spaceName = 'B-670'
+    spaceName = 'B-315'
+    #spaceName = 'B-670'
     cutoutsDir = os.path.join(datasetDir, 'cutouts')
     thisSpaceCutoutsDir = os.path.join(cutoutsDir, spaceName)
     panoramasDir = os.path.join(datasetDir, 'rotatedPanoramas', spaceName)
     meshPath = os.path.join(datasetDir, 'models', spaceName, 'mesh_rotated.obj')
     sweepDataPath = os.path.join(datasetDir, 'sweepData', '%s.mat' % spaceName)
     debug = True
-    #panoIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] # B-315
-    panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13 ,15, 16, 20, 21, 22, 23 ,24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37] # B-670
+    panoIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27] # B-315
+    #panoIds = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ,13 ,15, 16, 20, 21, 22, 23 ,24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37] # B-670
     sensorSize = np.array([1600, 1200]) # width, height
     sensorWidth = sensorSize[0]
     sensorHeight = sensorSize[1]
-    fovHorizontal = 60.0 # [deg]; to match InLoc paper
+    #fovHorizontal = 60.0 # [deg]; to match InLoc paper; NOTE: do not use! it is not actually working with this
+    fovHorizontal = 106.2602047 # [deg]; solid results with this. TODO: what other more optimal FoVs should I try?
     f = computeFocalLength(sensorWidth, fovHorizontal)
-    assert(np.allclose(f, 1385.6406460551023))
+    #assert(np.allclose(f, 1385.6406460551023)) # to match InLoc paper
     fovVertical = computeFoV(sensorHeight, f)
 
     sweepData = sio.loadmat(sweepDataPath, squeeze_me=True)['sweepData']
@@ -56,7 +58,7 @@ if __name__ == '__main__':
         os.mkdir(thisSpaceCutoutsDir)
     
     trimeshScene = trimesh.load(meshPath)
-    scene = pyrender.Scene.from_trimesh_scene(trimeshScene)
+    scene = pyrender.Scene.from_trimesh_scene(trimeshScene) # TODO: this thing consumes ~5-6 GB RAM!
 
     for panoId in panoIds:
         sweepRecord = getSweepRecord(sweepData, panoId)
