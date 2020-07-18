@@ -30,22 +30,27 @@ featureLength = 32768;
 %serialAllFeats(net, queryDirWithSlash, queryImageFilenames, params.input.feature.dir, 'useGPU', false, 'batchSize', 1);
 
 nQueries = size(queryImageFilenames,2);
-queryFeatures = zeros(nQueries, featureLength, 'single');
+queryFeatures = struct('queryname', {}, 'features', {});
 for i=1:nQueries
     fprintf('Finding features for query #%d/%d\n\n', i, nQueries)
-    queryImage = load_query_image_compatible_with_cutouts(fullfile(queryDirWithSlash, queryImageFilenames{i}), cutoutSize);
+    queryName = queryImageFilenames{i};
+    queryImage = load_query_image_compatible_with_cutouts(fullfile(queryDirWithSlash, queryName), cutoutSize);
     cnn = at_serialAllFeats_convfeat(net, queryImage, 'useGPU', true);
-    queryFeatures(i,:) = cnn{6}.x(:);
+    queryFeatures(i).queryname = queryName;
+    queryFeatures(i).features = cnn{6}.x(:);
 end
 
 %% cutouts
 nCutouts = size(cutoutImageFilenames,2);
 cutoutFeatures = zeros(nCutouts, featureLength, 'single');
+cutoutFeatures = struct('cutoutname', {}, 'features', {});
 for i=1:nCutouts
     fprintf('Finding features for cutout #%d/%d\n\n', i, nCutouts)
-    cutoutImage = imread(fullfile(params.dataset.db.cutouts.dir, cutoutImageFilenames{i}));
+    cutoutName = cutoutImageFilenames{i};
+    cutoutImage = imread(fullfile(params.dataset.db.cutouts.dir, cutoutName));
     cnn = at_serialAllFeats_convfeat(net, cutoutImage, 'useGPU', true);
-    cutoutFeatures(i,:) = cnn{6}.x(:);
+    cutoutFeatures(i).cutoutname = cutoutName;
+    cutoutFeatures(i).features = cnn{6}.x(:);
 end
 
 %% save the features
