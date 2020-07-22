@@ -17,13 +17,13 @@ def plot_bound_vector(ax, source, direction, name, color):
 
 if __name__ == "__main__":
     from scipy.spatial.transform import Rotation as R
-    rotationMatrix = R.from_euler('x', -110.7, degrees=True).as_matrix()
+    #rotationMatrix = R.from_euler('x', -110.7, degrees=True).as_matrix()
     #rotationMatrix2 = R.from_euler('xyz', [110.7, 0.0, 0.0], degrees=True).as_matrix() # equivalent to rotationMatrix
-    rotationMatrix2 = np.array([[1.00, 0.00, 0.00], [0.00, -0.35, 0.94], [0.00, -0.94, -0.35]])
-    xxx = rotationMatrix @ np.linalg.inv(rotationMatrix2)
+    #rotationMatrix2 = np.array([[1.00, 0.00, 0.00], [0.00, -0.35, 0.94], [0.00, -0.94, -0.35]])
+    #xxx = rotationMatrix @ np.linalg.inv(rotationMatrix2)
 
-    cameraCS = np.array([[0.76, -0.47, 0.46], [0.19, 0.82, 0.54], [-0.63, -0.32, 0.71]]) # preHack, pointing y
-    yyy = cameraCS @ rotationMatrix 
+    #cameraCS = np.array([[0.76, -0.47, 0.46], [0.19, 0.82, 0.54], [-0.63, -0.32, 0.71]]) # preHack, pointing y
+    #yyy = cameraCS @ rotationMatrix 
 
     fig = plt.figure()
     ax = mplot3d.axes3d.Axes3D(fig)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     ax.set_zlim(-1, 1)
 
     origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
-    #plot_csystem(ax, np.eye(3), origin, 'delta', 'black')
+    plot_csystem(ax, np.eye(3), origin, 'delta', 'black')
 
     ### query 40
 
@@ -242,33 +242,44 @@ if __name__ == "__main__":
 
     ## MultiCameraPose <10,15> ###
     origin = np.reshape(np.array([0.0, 0.0, 0.0]), (3,1))
-    plot_csystem(ax, np.eye(3), origin, 'Omega', 'black')
+    #plot_csystem(ax, np.eye(3), origin, 'Omega', 'black')
 
     bases = np.array([[-0.01, -0.12, -0.99], [-0.00, -0.99, 0.12], [-1.00, 0.00, 0.01]])
     origin = np.reshape(np.array([-1.4848, 0.0296, 0.3890]), (3,1))
-    plot_csystem(ax, bases, origin, '10', 'blue')
+    #plot_csystem(ax, bases, origin, '10', 'blue')
 
     bases = np.array([[-0.01, -0.12, -0.99], [-0.01, -0.99, 0.12], [-1.00, 0.01, 0.01]])
     origin = np.reshape(np.array([-1.5628, 0.0223, 0.3567]), (3,1))
-    plot_csystem(ax, bases, origin, '11', 'red')
+    #plot_csystem(ax, bases, origin, '11', 'red')
 
     bases = np.array([[-0.03, -0.15, -0.99], [0.01, -0.99, 0.15], [-1.00, -0.01, 0.04]])
     origin = np.reshape(np.array([-1.6059, 0.0216, 0.3473]), (3,1))
-    plot_csystem(ax, bases, origin, '12', 'orange')
+    #plot_csystem(ax, bases, origin, '12', 'orange')
 
     bases = np.array([[-0.05, -0.12, -0.99], [0.01, -0.99, 0.12], [-1.00, -0.00, 0.05]])
     origin = np.reshape(np.array([-1.6607, 0.0142, 0.3791]), (3,1))
-    plot_csystem(ax, bases, origin, '13', 'green')
+    #plot_csystem(ax, bases, origin, '13', 'green')
 
     bases = np.array([[-0.09, -0.13, -0.99], [0.00, -0.99, 0.13], [-1.00, 0.01, 0.09]])
     origin = np.reshape(np.array([-1.7739, 0.0131, 0.4558]), (3,1))
-    plot_csystem(ax, bases, origin, '14', 'pink')
+    #plot_csystem(ax, bases, origin, '14', 'pink')
 
     bases = np.array([[0.978784, 0.00198053, 0.204884], [-0.0045116, 0.99992, 0.0118874], [-0.204844, -0.0125596, 0.978714]])
     origin = np.reshape(np.array([-2.70054, -1.75313, 0.409776]), (3,1))
-    plot_csystem(ax, bases, origin, 'World', 'black')
+    #plot_csystem(ax, bases, origin, 'World', 'black')
 
-    ax.view_init(-17, 97) # TODO
+    #ax.view_init(-17, 97) # TODO
+
+
+    ### densePV HL1-3.1
+    bases = np.array([[-0.98, 0.02, -0.22], [-0.04, -0.99, 0.10], [-0.22, 0.10, 0.97]])
+    origin = np.reshape(np.array([-0.9086, 3.1933, 1.4011]), (3,1))
+    plot_csystem(ax, bases, origin, 'v1-Now3', 'blue')
+
+    bases = np.array([[-0.99, 0.02, -0.14], [-0.04, -0.98, 0.19], [-0.13, 0.19, 0.97]])
+    origin = np.reshape(np.array([-0.5165, 3.2329, 0.9053]), (3,1))
+    plot_csystem(ax, bases, origin, 'v3.1', 'yellow')
+
 
 
 

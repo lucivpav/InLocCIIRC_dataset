@@ -20,9 +20,8 @@ def renderForQuery(queryId, mode):
     inlierColor = '#00ff00'
     inlierMarkerSize = 3
     targetWidth = 600
-    #targetAspectRatio = 4032/3024 # s10e
-    targetAspectRatio = 1344/756 # HoloLens
     cutoutSize = [1600, 1200] # width, height
+    targetAspectRatio = cutoutSize[0] / cutoutSize[1]
     targetHeight = np.round(targetWidth / targetAspectRatio).astype(np.int64)
     extension = '.png'
 
@@ -30,8 +29,8 @@ def renderForQuery(queryId, mode):
     #queryDir = os.path.join(datasetDir, 'query-s10e')
     queryDir = os.path.join(datasetDir, 'query-HoloLens1')
     #outputDir = os.path.join(datasetDir, 'outputs-s10e')
-    #outputDir = os.path.join(datasetDir, 'outputs')
-    outputDir = os.path.join(datasetDir, 'outputs-HL1-v2')
+    outputDir = os.path.join(datasetDir, 'outputs')
+    #outputDir = os.path.join(datasetDir, 'outputs-HL1-v2')
     cutoutDir = os.path.join(datasetDir, 'cutouts')
 
     if mode == 'PV':
@@ -44,13 +43,15 @@ def renderForQuery(queryId, mode):
     denseInlierDir = os.path.join(outputDir, 'PnP_dense_inlier')
     synthesizedDir = os.path.join(outputDir, 'synthesized')
     #evaluationDir = os.path.join(datasetDir, 'evaluation-s10e-v1')
-    #evaluationDir = os.path.join(datasetDir, 'evaluation')
-    evaluationDir = os.path.join(datasetDir, 'evaluation-HL1-v2')
+    evaluationDir = os.path.join(datasetDir, 'evaluation')
+    #evaluationDir = os.path.join(datasetDir, 'evaluation-HL1-v2')
     queryPipelineDir = os.path.join(evaluationDir, 'queryPipeline')
 
     queryName = str(queryId) + '.jpg'
     queryPath = os.path.join(queryDir, queryName)
-    #query = plt.imread(queryPath)
+    query = plt.imread(queryPath)
+    queryWidth = query.shape[1]
+    queryHeight = query.shape[0]
     query = matlabEngine.load_query_image_compatible_with_cutouts(queryPath, matlab.double(cutoutSize), nargout=1)
     query = np.asarray(query)
 
@@ -99,7 +100,7 @@ def renderForQuery(queryId, mode):
 
     synthStepPath = os.path.join(thisQueryPipelineDir, 'synthesized' + 'PV.' + extension)
     synth = Image.fromarray(synth)
-    synth = synth.resize((targetWidth, targetHeight), resample=Image.NEAREST)
+    synth = synth.resize((queryWidth, queryHeight), resample=Image.NEAREST)
     synth = np.asarray(synth)
     plt.imsave(synthStepPath, synth)
 
@@ -111,8 +112,8 @@ def renderForQuery(queryId, mode):
     plt.imsave(errmapStepPath, errmap, cmap='jet')
 
 matlabEngine.addpath(r'functions/InLocCIIRC_utils/at_netvlad_function',nargout=0)
-modes = ['PE', 'PV']
-queryIds = [1,127,200]
+modes = ['PV']
+queryIds = [55]
 for mode in modes:
     for queryId in queryIds:
         renderForQuery(queryId, mode)
