@@ -5,7 +5,7 @@ addpath('../functions/InLocCIIRC_utils/at_netvlad_function');
 addpath('../functions/InLocCIIRC_utils/params');
 run('../functions/matconvnet/matlab/vl_setupnn.m');
 
-params = setupParams('holoLens1'); % TODO: adjust
+params = setupParams('holoLens1', true); % TODO: adjust the mode
 queryDirWithSlash = [params.dataset.query.dir, '/'];
 
 x = load(params.input.dblist.path);
