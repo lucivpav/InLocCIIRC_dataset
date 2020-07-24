@@ -16,7 +16,9 @@ def saveFigure(fig, path, width, height):
     img = img.resize((width, height), resample=Image.NEAREST)
     img.save(path)
 
-def renderForQuery(queryId, mode):
+def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
+    # shortlistMode is a list that can contain values of {'PV', 'PE'}
+    # queryMode is one of {'s10e', 'HoloLens1', 'HoloLens2'}
     inlierColor = '#00ff00'
     inlierMarkerSize = 3
     targetWidth = 600
@@ -26,25 +28,21 @@ def renderForQuery(queryId, mode):
     extension = '.png'
 
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-    #queryDir = os.path.join(datasetDir, 'query-s10e')
-    queryDir = os.path.join(datasetDir, 'query-HoloLens1')
-    #outputDir = os.path.join(datasetDir, 'outputs-s10e')
-    outputDir = os.path.join(datasetDir, 'outputs')
-    #outputDir = os.path.join(datasetDir, 'outputs-HL1-v2')
+
+    queryDir = os.path.join(datasetDir, f'query-{queryMode}')
+    outputDir = os.path.join(datasetDir, f'outputs-{experimentName}')
     cutoutDir = os.path.join(datasetDir, 'cutouts')
 
-    if mode == 'PV':
+    if shortlistMode == 'PV':
         shortlistPath = os.path.join(outputDir, 'densePV_top10_shortlist.mat')
-    elif mode == 'PE':
+    elif shortlistMode == 'PE':
         shortlistPath = os.path.join(outputDir, 'densePE_top100_shortlist.mat')
     else:
-        raise 'Unsupported mode!'
+        raise 'Unsupported shortlistMode!'
 
     denseInlierDir = os.path.join(outputDir, 'PnP_dense_inlier')
     synthesizedDir = os.path.join(outputDir, 'synthesized')
-    #evaluationDir = os.path.join(datasetDir, 'evaluation-s10e-v1')
-    evaluationDir = os.path.join(datasetDir, 'evaluation')
-    #evaluationDir = os.path.join(datasetDir, 'evaluation-HL1-v2')
+    evaluationDir = os.path.join(datasetDir, f'evaluation-{experimentName}')
     queryPipelineDir = os.path.join(evaluationDir, 'queryPipeline')
 
     queryName = str(queryId) + '.jpg'
@@ -52,68 +50,94 @@ def renderForQuery(queryId, mode):
     query = plt.imread(queryPath)
     queryWidth = query.shape[1]
     queryHeight = query.shape[0]
-    query = matlabEngine.load_query_image_compatible_with_cutouts(queryPath, matlab.double(cutoutSize), nargout=1)
-    query = np.asarray(query)
-
-    ImgList = sio.loadmat(shortlistPath, squeeze_me=True)['ImgList']
-    ImgListRecord = next((x for x in ImgList if x['queryname'] == queryName), None)
-    cutoutPath = ImgListRecord['topNname'][0]
-
-    synthPath = os.path.join(synthesizedDir, queryName, buildCutoutName(cutoutPath, '.synth.mat'))
-    synthData = sio.loadmat(synthPath, squeeze_me=True)
-    synth = synthData['RGBpersp']
-    errmap = synthData['errmap']
-
-    inlierPath = os.path.join(denseInlierDir, queryName, buildCutoutName(cutoutPath, '.pnp_dense_inlier.mat'))
-    inlierData = sio.loadmat(inlierPath)
-    inls = inlierData['inls']
-    tentatives_2d = inlierData['tentatives_2d']
-    inls = np.reshape(inls, (inls.shape[1],)).astype(np.bool)
-    inls_2d = tentatives_2d[:,inls] - 1 # MATLAB is 1-based
-
-    cutout = plt.imread(os.path.join(cutoutDir, cutoutPath))
 
     if not os.path.isdir(queryPipelineDir):
         os.mkdir(queryPipelineDir)
     
-    modeDir = os.path.join(queryPipelineDir, mode)
-    if not os.path.isdir(modeDir):
-        os.mkdir(modeDir)
+    shortlistModeDir = os.path.join(queryPipelineDir, shortlistMode)
+    if not os.path.isdir(shortlistModeDir):
+        os.mkdir(shortlistModeDir)
 
-    thisQueryPipelineDir = os.path.join(modeDir, queryName)
+    thisParentQueryDir = os.path.join(shortlistModeDir, queryName)
+    if not os.path.isdir(thisParentQueryDir):
+        os.mkdir(thisParentQueryDir)
 
-    if not os.path.isdir(thisQueryPipelineDir):
-        os.mkdir(thisQueryPipelineDir)
+    ImgList = sio.loadmat(shortlistPath, squeeze_me=True)['ImgList']
+    ImgListRecord = next((x for x in ImgList if x['queryname'] == queryName), None)
+    topNname = ImgListRecord['topNname']
+    if topNname.ndim == 1:
+        cutoutNames = [topNname[0]]
+    else:
+        cutoutNames = topNname[:,0]
 
-    fig = plt.figure()
-    plt.imshow(query)
-    plt.plot(inls_2d[0,:], inls_2d[1,:], '.', markersize=inlierMarkerSize, color=inlierColor)
-    queryNameNoExt = queryName.split('.')[0]
-    queryStepPath = os.path.join(thisQueryPipelineDir, 'query_' + queryNameNoExt + extension)
-    saveFigure(fig, queryStepPath, targetWidth, targetHeight)
+    if shortlistMode == 'PV':
+        dbnamesId = ImgListRecord['dbnamesId'][0]
+    elif shortlistMode == 'PE':
+        dbnamesId = 1
 
-    fig = plt.figure()
-    plt.imshow(cutout)
-    plt.plot(inls_2d[2,:], inls_2d[3,:], '.', markersize=inlierMarkerSize, color=inlierColor)
-    cutoutStepPath = os.path.join(thisQueryPipelineDir, 'chosen_' + buildCutoutName(cutoutPath, extension))
-    saveFigure(fig, cutoutStepPath, targetWidth, targetHeight)
+    synthPath = os.path.join(synthesizedDir, queryName, f'{dbnamesId}.synth.mat')
+    synthData = sio.loadmat(synthPath, squeeze_me=True)
+    inlierPath = os.path.join(denseInlierDir, queryName, f'{dbnamesId}.pnp_dense_inlier.mat')
+    inlierData = sio.loadmat(inlierPath)
+    segmentLength = len(cutoutNames)
+    for i in range(segmentLength):
+        thisQueryName = str(queryId - segmentLength + i + 1) + '.jpg'
+        print(f'Processing query {thisQueryName}, as part of the segment')
+        if segmentLength == 1:
+            synth = synthData['RGBpersps']
+            errmap = synthData['errmaps']
+        else:
+            synth = synthData['RGBpersps'][i]
+            errmap = synthData['errmaps'][i]
+        inls = inlierData['allInls'][0,i]
+        tentatives_2d = inlierData['allTentatives2D'][0,i]
+        cutoutName = cutoutNames[i]
+        inls = np.reshape(inls, (inls.shape[1],)).astype(np.bool)
+        inls_2d = tentatives_2d[:,inls] - 1 # MATLAB is 1-based
+        thisQueryPath = os.path.join(queryDir, thisQueryName)
+        thisQuery = matlabEngine.load_query_image_compatible_with_cutouts(thisQueryPath, matlab.double(cutoutSize), nargout=1)
+        thisQuery = np.asarray(thisQuery)
 
-    synthStepPath = os.path.join(thisQueryPipelineDir, 'synthesized' + 'PV.' + extension)
-    synth = Image.fromarray(synth)
-    synth = synth.resize((queryWidth, queryHeight), resample=Image.NEAREST)
-    synth = np.asarray(synth)
-    plt.imsave(synthStepPath, synth)
+        cutout = plt.imread(os.path.join(cutoutDir, cutoutName))
 
-    # NOTE: the errmap typically does not have the same aspect ratio, so it will be stretched
-    errmapStepPath = os.path.join(thisQueryPipelineDir, 'errmap' + extension)
-    errmap = Image.fromarray(errmap)
-    errmap = errmap.resize((targetWidth, targetHeight), resample=Image.NEAREST)
-    errmap = np.asarray(errmap)
-    plt.imsave(errmapStepPath, errmap, cmap='jet')
+        thisQueryPipelineDir = os.path.join(thisParentQueryDir, thisQueryName)
+        if not os.path.isdir(thisQueryPipelineDir):
+            os.mkdir(thisQueryPipelineDir)
+
+        fig = plt.figure()
+        plt.imshow(thisQuery)
+        plt.plot(inls_2d[0,:], inls_2d[1,:], '.', markersize=inlierMarkerSize, color=inlierColor)
+        thisQueryNameNoExt = thisQueryName.split('.')[0]
+        queryStepPath = os.path.join(thisQueryPipelineDir, 'query_' + thisQueryNameNoExt + extension)
+        saveFigure(fig, queryStepPath, targetWidth, targetHeight)
+        plt.close(fig)
+
+        fig = plt.figure()
+        plt.imshow(cutout)
+        plt.plot(inls_2d[2,:], inls_2d[3,:], '.', markersize=inlierMarkerSize, color=inlierColor)
+        cutoutStepPath = os.path.join(thisQueryPipelineDir, 'chosen_' + buildCutoutName(cutoutName, extension))
+        saveFigure(fig, cutoutStepPath, targetWidth, targetHeight)
+        plt.close(fig)
+
+        synthStepPath = os.path.join(thisQueryPipelineDir, 'synthesized' + '.PV' + extension)
+        synth = Image.fromarray(synth)
+        synth = synth.resize((queryWidth, queryHeight), resample=Image.NEAREST)
+        synth = np.asarray(synth)
+        plt.imsave(synthStepPath, synth)
+
+        # NOTE: the errmap typically does not have the same aspect ratio, so it will be stretched
+        errmapStepPath = os.path.join(thisQueryPipelineDir, 'errmap' + extension)
+        errmap = Image.fromarray(errmap)
+        errmap = errmap.resize((targetWidth, targetHeight), resample=Image.NEAREST)
+        errmap = np.asarray(errmap)
+        plt.imsave(errmapStepPath, errmap, cmap='jet')
 
 matlabEngine.addpath(r'functions/InLocCIIRC_utils/at_netvlad_function',nargout=0)
-modes = ['PV']
-queryIds = [55]
-for mode in modes:
+queryMode = 'HoloLens1'
+experimentName = 'HL1-v4-k5'
+shortlistModes = ['PV']
+queryIds = [1,127,200,250,100,300,165,55,330,223]
+for shortlistMode in shortlistModes:
     for queryId in queryIds:
-        renderForQuery(queryId, mode)
+        print(f'[{shortlistMode}] Processing query {queryId}.jpg segment')
+        renderForQuery(queryId, shortlistMode, queryMode, experimentName)
