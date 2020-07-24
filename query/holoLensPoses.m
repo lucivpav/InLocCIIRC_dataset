@@ -26,6 +26,7 @@ fprintf('You have blacklisted %0.0f%% queries. %d queries remain.\n', ...
             nBlacklistedQueries*100/nQueries, nQueries-nBlacklistedQueries);
 whitelistedQueries = logical(ones(1,nQueries) - blacklistedQueries); % w.r.t. reference frames
 
+% TODO: do not duplicate code. Use getPosesFromHoloLens()!
 nPts = nQueries;
 pts = zeros(nPts,3);
 idx = 1;

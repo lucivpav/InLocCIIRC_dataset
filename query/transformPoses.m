@@ -77,7 +77,7 @@ for i=1:size(rawPosesTable,1)
         headless = ~strcmp(environment(), 'laptop');
         rFix = [180.0, 0.0, 0.0];
         Rfix = rotationMatrix(deg2rad(rFix), 'XYZ');
-        actualR = inv(R)*Rfix; % TODO: why is this black magic needed?
+        actualR = inv(R)*Rfix;
         [projectedPose, ~, ~] = projectMesh(params.mesh.path, f, actualR, t, sensorSize, false, -1, params.input.projectMesh_py_path, headless);
     else
         pointSize = 8.0;
