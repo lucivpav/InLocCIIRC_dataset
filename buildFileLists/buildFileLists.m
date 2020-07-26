@@ -1,6 +1,6 @@
 addpath('../functions/InLocCIIRC_utils/params');
 
-params = setupParams('holoLens1', true); % TODO: adjust mode
+params = setupParams('s10e', true); % TODO: adjust mode
 
 if exist(params.input.dir, 'dir') ~= 7
     mkdir(params.input.dir);

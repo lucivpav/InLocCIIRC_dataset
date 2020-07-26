@@ -1,6 +1,6 @@
 addpath('../functions/InLocCIIRC_utils/params');
 
-params = setupParams('holoLens1', true); % NOTE: mode can be anything, its specific params are not used here
+params = setupParams('s10e', true); % NOTE: mode can be anything, its specific params are not used here
 
 featuresPath = fullfile(params.input.feature.dir, 'computed_features.mat');
 

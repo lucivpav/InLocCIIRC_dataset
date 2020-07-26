@@ -123,10 +123,9 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
         plt.imsave(errmapStepPath, errmap, cmap='jet')
 
 queryMode = 'HoloLens1'
-experimentName = 'HL1-v4.2-k1'
+experimentName = 'HL1-v4.2-k3'
 shortlistModes = ['PV']
-#queryIds = [1,127,200,250,100,300,165,55,330,223]
-queryIds = [1]
+queryIds = [1,127,200,250,100,300,165,55,330,223]
 for shortlistMode in shortlistModes:
     for queryId in queryIds:
         print(f'[{shortlistMode}] Processing query {queryId}.jpg segment')
