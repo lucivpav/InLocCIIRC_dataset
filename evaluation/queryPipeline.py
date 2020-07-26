@@ -6,8 +6,6 @@ import scipy.io as sio
 from PIL import Image
 sys.path.insert(1, os.path.join(sys.path[0], '../functions'))
 from InLocCIIRC_utils.buildCutoutName.buildCutoutName import buildCutoutName
-import matlab.engine
-matlabEngine = matlab.engine.start_matlab()
 
 def saveFigure(fig, path, width, height):
     plt.axis('off')
@@ -21,10 +19,6 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
     # queryMode is one of {'s10e', 'HoloLens1', 'HoloLens2'}
     inlierColor = '#00ff00'
     inlierMarkerSize = 3
-    targetWidth = 600
-    cutoutSize = [1600, 1200] # width, height
-    targetAspectRatio = cutoutSize[0] / cutoutSize[1]
-    targetHeight = np.round(targetWidth / targetAspectRatio).astype(np.int64)
     extension = '.png'
 
     datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
@@ -95,10 +89,11 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
         inls = np.reshape(inls, (inls.shape[1],)).astype(np.bool)
         inls_2d = tentatives_2d[:,inls] - 1 # MATLAB is 1-based
         thisQueryPath = os.path.join(queryDir, thisQueryName)
-        thisQuery = matlabEngine.load_query_image_compatible_with_cutouts(thisQueryPath, matlab.double(cutoutSize), nargout=1)
-        thisQuery = np.asarray(thisQuery)
+        thisQuery = plt.imread(thisQueryPath)
 
         cutout = plt.imread(os.path.join(cutoutDir, cutoutName))
+        cutoutWidth = cutout.shape[1]
+        cutoutHeight = cutout.shape[0]
 
         thisQueryPipelineDir = os.path.join(thisParentQueryDir, thisQueryName)
         if not os.path.isdir(thisQueryPipelineDir):
@@ -109,34 +104,29 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
         plt.plot(inls_2d[0,:], inls_2d[1,:], '.', markersize=inlierMarkerSize, color=inlierColor)
         thisQueryNameNoExt = thisQueryName.split('.')[0]
         queryStepPath = os.path.join(thisQueryPipelineDir, 'query_' + thisQueryNameNoExt + extension)
-        saveFigure(fig, queryStepPath, targetWidth, targetHeight)
+        saveFigure(fig, queryStepPath, queryWidth, queryHeight)
         plt.close(fig)
 
         fig = plt.figure()
         plt.imshow(cutout)
         plt.plot(inls_2d[2,:], inls_2d[3,:], '.', markersize=inlierMarkerSize, color=inlierColor)
         cutoutStepPath = os.path.join(thisQueryPipelineDir, 'chosen_' + buildCutoutName(cutoutName, extension))
-        saveFigure(fig, cutoutStepPath, targetWidth, targetHeight)
+        saveFigure(fig, cutoutStepPath, cutoutWidth, cutoutHeight)
         plt.close(fig)
 
         synthStepPath = os.path.join(thisQueryPipelineDir, 'synthesized' + '.PV' + extension)
-        synth = Image.fromarray(synth)
-        synth = synth.resize((queryWidth, queryHeight), resample=Image.NEAREST)
         synth = np.asarray(synth)
         plt.imsave(synthStepPath, synth)
 
-        # NOTE: the errmap typically does not have the same aspect ratio, so it will be stretched
         errmapStepPath = os.path.join(thisQueryPipelineDir, 'errmap' + extension)
-        errmap = Image.fromarray(errmap)
-        errmap = errmap.resize((targetWidth, targetHeight), resample=Image.NEAREST)
         errmap = np.asarray(errmap)
         plt.imsave(errmapStepPath, errmap, cmap='jet')
 
-matlabEngine.addpath(r'functions/InLocCIIRC_utils/at_netvlad_function',nargout=0)
 queryMode = 'HoloLens1'
-experimentName = 'HL1-v4-k5'
+experimentName = 'HL1-v4.2-k1'
 shortlistModes = ['PV']
-queryIds = [1,127,200,250,100,300,165,55,330,223]
+#queryIds = [1,127,200,250,100,300,165,55,330,223]
+queryIds = [1]
 for shortlistMode in shortlistModes:
     for queryId in queryIds:
         print(f'[{shortlistMode}] Processing query {queryId}.jpg segment')
