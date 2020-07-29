@@ -14,7 +14,7 @@ def saveFigure(fig, path, width, height):
     img = img.resize((width, height), resample=Image.NEAREST)
     img.save(path)
 
-def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
+def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentativesInsteadOfInliers):
     # shortlistMode is a list that can contain values of {'PV', 'PE'}
     # queryMode is one of {'s10e', 'HoloLens1', 'HoloLens2'}
     inlierColor = '#00ff00'
@@ -86,7 +86,10 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
         inls = inlierData['allInls'][0,i]
         tentatives_2d = inlierData['allTentatives2D'][0,i]
         cutoutName = cutoutNames[i]
-        inls = np.reshape(inls, (inls.shape[1],)).astype(np.bool)
+        if useTentativesInsteadOfInliers:
+            inls = np.ones((inls.shape[1],)).astype(np.bool)
+        else:
+            inls = np.reshape(inls, (inls.shape[1],)).astype(np.bool)
         inls_2d = tentatives_2d[:,inls] - 1 # MATLAB is 1-based
         thisQueryPath = os.path.join(queryDir, thisQueryName)
         thisQuery = plt.imread(thisQueryPath)
@@ -123,10 +126,12 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName):
         plt.imsave(errmapStepPath, errmap, cmap='jet')
 
 queryMode = 'HoloLens1'
-experimentName = 'HL1-v4.2-k3'
+experimentName = 'HL1-v4.2-k1'
 shortlistModes = ['PV']
-queryIds = [1,127,200,250,100,300,165,55,330,223]
+#queryIds = [1,127,200,250,100,300,165,55,330,223] # medium query sub-dataset
+queryIds = [127,128]
+useTentativesInsteadOfInliers = True # should be False for thesis visualization
 for shortlistMode in shortlistModes:
     for queryId in queryIds:
         print(f'[{shortlistMode}] Processing query {queryId}.jpg segment')
-        renderForQuery(queryId, shortlistMode, queryMode, experimentName)
+        renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentativesInsteadOfInliers)
