@@ -12,9 +12,10 @@ def getAccuracy(distanceThreshold, angularThreshold, errorsDf):
     accuracy = nCorrect / nQueries * 100
     return accuracy
 
+experimentName = 's10e-v4.2' # TODO: adjust
 angularThreshold = 10 # in degrees
 datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-evaluationDir = os.path.join(datasetDir, 'evaluation')
+evaluationDir = os.path.join(datasetDir, 'evaluation-' + experimentName)
 errorsPath = os.path.join(evaluationDir, 'errors.csv')
 outputPath = os.path.join(evaluationDir, 'distThreshVsAccuracy.csv')
 inLocDataPath = 'evaluation/InLocDistThreshVsAccuracy.csv'

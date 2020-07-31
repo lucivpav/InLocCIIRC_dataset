@@ -42,13 +42,16 @@ def plotLocation(text, color, x, y, texts):
     textObject.set_path_effects([PathEffects.withStroke(linewidth=1, foreground='white')])
     texts.append(textObject)
 
+experimentName = 's10e-v4.2' # NOTE: adjust
+queryMode = 's10e' # NOTE: adjust
 f = 1385.6406460551023
 datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
-evaluationDir = os.path.join(datasetDir, 'evaluation')
+evaluationDir = os.path.join(datasetDir, 'evaluation-' + experimentName)
 temporaryDir = os.path.join(evaluationDir, 'temporary')
 if not os.path.isdir(temporaryDir):
     os.mkdir(temporaryDir)
-queryDescriptionsPath = os.path.join(datasetDir, 'query', 'descriptions.csv')
+queryDir = os.path.join(datasetDir, f'query-{queryMode}')
+queryDescriptionsPath = os.path.join(queryDir, 'descriptions.csv')
 retrievedQueriesPath = os.path.join(evaluationDir, 'retrievedQueries.csv')
 spaceNames = ['B-315', 'B-670']
 sensorSize = 2*np.array([1600, 1200])
@@ -97,7 +100,7 @@ for i in range(len(spaceNames)):
 df = pd.read_csv(queryDescriptionsPath, sep=' ')
 for i in range(len(df)):
     queryId = df['id'][i]
-    posePath = os.path.join(datasetDir, 'query', 'poses', '%d.txt' % queryId)
+    posePath = os.path.join(queryDir, 'poses', '%d.txt' % queryId)
     P = load_CIIRC_transformation(posePath)
     t = -P[0:3,0:3] @ P[0:3,3]
     t = np.reshape(t, (3,1))

@@ -73,7 +73,7 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentati
     synthData = sio.loadmat(synthPath, squeeze_me=True)
     inlierPath = os.path.join(denseInlierDir, queryName, f'{dbnamesId}.pnp_dense_inlier.mat')
     inlierData = sio.loadmat(inlierPath)
-    segmentLength = len(cutoutNames)
+    segmentLength = len(cutoutNames) # TODO: this might break if sequentialPV was used
     for i in range(segmentLength):
         thisQueryName = str(queryId - segmentLength + i + 1) + '.jpg'
         print(f'Processing query {thisQueryName}, as part of the segment')
@@ -117,7 +117,7 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentati
         saveFigure(fig, cutoutStepPath, cutoutWidth, cutoutHeight)
         plt.close(fig)
 
-        synthStepPath = os.path.join(thisQueryPipelineDir, 'synthesized' + '.PV' + extension)
+        synthStepPath = os.path.join(thisQueryPipelineDir, 'synthesized' + '_PV' + extension)
         synth = np.asarray(synth)
         plt.imsave(synthStepPath, synth)
 
@@ -125,12 +125,12 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentati
         errmap = np.asarray(errmap)
         plt.imsave(errmapStepPath, errmap, cmap='jet')
 
-queryMode = 'HoloLens1'
-experimentName = 'HL1-v4.2-k1'
+queryMode = 's10e'
+experimentName = 's10e-v4.2'
 shortlistModes = ['PV']
 #queryIds = [1,127,200,250,100,300,165,55,330,223] # medium query sub-dataset
-queryIds = [127,128]
-useTentativesInsteadOfInliers = True # should be False for thesis visualization
+queryIds = [3,6,31,38,16,26]
+useTentativesInsteadOfInliers = False # should be False for thesis visualization
 for shortlistMode in shortlistModes:
     for queryId in queryIds:
         print(f'[{shortlistMode}] Processing query {queryId}.jpg segment')

@@ -1,3 +1,6 @@
+%% NOTE: this script is unnecessary, because the sweeps are already registered wrt World by Matterport
+
+
 addpath('../functions/InLocCIIRC_utils/rotationMatrix');
 addpath('../functions/InLocCIIRC_utils/P_to_str')
 addpath('../functions/InLocCIIRC_utils/params');

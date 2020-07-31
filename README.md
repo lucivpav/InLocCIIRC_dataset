@@ -7,14 +7,13 @@ The usual steps are as follows:
 3. Obtain MatterPak and normalize it
 4. Rotate panoramas
 5. Build cutouts
-6. Build transformations
-7. Build point cloud file
-8. Build query poses
-9. Build file lists
-10. Build scores
-11. Plot the dataset including retrieved poses
-12. Plot query pipeline
-13. Prepare to plot distance threshold vs accuracy
+6. Build point cloud file
+7. Build query poses
+8. Build file lists
+9. Build scores
+10. Plot the dataset including retrieved poses
+11. Plot query pipeline
+12. Prepare to plot distance threshold vs accuracy
 
 ## Obtain the sweepData.json file
 1. Create a key.js file based on the keyTemplate.js file
@@ -48,9 +47,6 @@ The usual steps are as follows:
 1. Adjust the Space name and the panoIds array
 2. It is necessary that the display is turned on, otherwise you get an error from pyrender
 
-## Build transformations
-1. Adjust the Space name
-
 ## Build point cloud file
 1. Adjust the Space name
 
@@ -81,7 +77,7 @@ The usual steps are as follows:
 * empty TODO list
 
 ## Sequences
-If you have query sequences, you need to generate raw poses
+If you have query sequences, you need to generate raw poses. TODO: the next steps are outdated!
 
 1. Navigate to buildRawPoses.m
 2. Guess a synchronization constant

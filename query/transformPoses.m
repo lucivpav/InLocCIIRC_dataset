@@ -6,7 +6,7 @@ addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/projectMesh');
 addpath('../functions/InLocCIIRC_utils/environment');
-[ params ] = setupParams('holoLens1');
+[ params ] = setupParams('s10e');
 
 justEvaluateOnMatches = false; % TODO: this currently throws when used with holoLens1Params
 useProjectMeshInsteadOfProjectPC = false;
