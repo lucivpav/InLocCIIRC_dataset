@@ -183,11 +183,14 @@ relevancyArray = logical(([errors.translation] ~= -1) .* whitelistedQueries);
 relevantErrors = errors(relevancyArray);
 avgTerror = mean(cell2mat({relevantErrors.translation}));
 avgRerror = mean(cell2mat({relevantErrors.orientation}));
-summaryMessage = sprintf('Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.2f [deg]\n', avgTerror, avgRerror);
-fprintf(summaryMessage);
-summaryFile = fopen(fullfile(params.HoloLensPoses.dir, 'errorSummary.txt'), 'w');
-fprintf(summaryFile, summaryMessage);
+stdTerror = std(cell2mat({relevantErrors.translation}));
+stdRerror = std(cell2mat({relevantErrors.orientation}));
+summaryPath = fullfile(params.HoloLensPoses.dir, 'errorSummary.txt');
+summaryFile = fopen(summaryPath, 'w');
+fprintf(summaryFile, 'Mean errors (whitelist only): translation: %0.2f [m], orientation: %0.2f [deg]\n', avgTerror, avgRerror);
+fprintf(summaryFile, 'Standard deviation of errors (whitelist only): translation: %0.2f [m], orientation: %0.2f [deg]\n', stdTerror, stdRerror);
 fclose(summaryFile);
+disp(fileread(summaryPath));
 
 %% write errors to file
 for i=1:nQueries

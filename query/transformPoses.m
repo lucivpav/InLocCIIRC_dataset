@@ -6,20 +6,30 @@ addpath('../functions/InLocCIIRC_utils/R_to_numpy_array');
 addpath('../functions/InLocCIIRC_utils/projectPointCloud');
 addpath('../functions/InLocCIIRC_utils/projectMesh');
 addpath('../functions/InLocCIIRC_utils/environment');
-[ params ] = setupParams('s10e');
+addpath('../functions/closest_value');
+[ params ] = setupParams('holoLens1');
 
 justEvaluateOnMatches = false; % TODO: this currently throws when used with holoLens1Params
 useProjectMeshInsteadOfProjectPC = false;
 
-rawPosesTable = readtable(params.rawPoses.path);
+if strcmp(params.mode, 's10eParams')
+    queryTable = false;
+    measurementTable = false;
+    rawPosesTable = readtable(params.rawPoses.path);
+else
+    [measurementTable, queryTable, ~] = initiMeasurementAndQueryTables(params);
+    rawPosesTable = false;
+end
 
 if justEvaluateOnMatches
     close all
     queryInd = 1:size(params.interestingQueries,2);
     %queryInd = [3];
-    evaluateMatches(queryInd, params, false, false, rawPosesTable);
+    evaluateMatches(queryInd, params, queryTable, measurementTable, rawPosesTable);
     return;
 end
+
+rawPosesTable = readtable(params.rawPoses.path); % at this point we must work with the rawPoses.csv data
 
 mkdirIfNonExistent(params.projectedPoses.dir);
 mkdirIfNonExistent(params.poses.dir);

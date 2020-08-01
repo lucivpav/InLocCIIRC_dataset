@@ -97,16 +97,17 @@ for i=1:nQueries
                                         t, params.camera.sensor.size, outputSize, pointSize, ...
                                         params.projectPointCloudPy.path); % TODO: use projectMesh instead, which can work in headless mode
     image(projectedPointCloud);
-    axis image;
+    %axis image;
+    axis off;
 
     hold on;
-    scatter(projectedInterestingPoints(1,:), projectedInterestingPoints(2,:), 40, 'r', 'filled');
-    scatter(thisInterestingPointsQuery(1,:), thisInterestingPointsQuery(2,:), 40, 'g', 'filled');
+    scatter(projectedInterestingPoints(1,:), projectedInterestingPoints(2,:), 3*40, 'r', 'filled');
+    scatter(thisInterestingPointsQuery(1,:), thisInterestingPointsQuery(2,:), 3*40, 'g', 'filled');
     nCorrespondences = size(thisInterestingPointsQuery,2);
     for i=1:nCorrespondences
         plot([thisInterestingPointsQuery(1,i), projectedInterestingPoints(1,i)], ...
              [thisInterestingPointsQuery(2,i), projectedInterestingPoints(2,i)], ...
-             'r-', 'linewidth', 2);
+             'r-', 'linewidth', 2*2);
     end
     hold off;
     set(gcf, 'Position', get(0, 'Screensize'));
