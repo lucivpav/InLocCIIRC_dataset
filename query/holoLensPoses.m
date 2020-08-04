@@ -54,7 +54,7 @@ for i=1:nQueries
 
     P = eye(4);
     P(1:3,1:3) = R;
-    P(1:3,4) = R * -t; % TODO: why is there the minus? actually, its useless. because the code actually extrects the t from P(1:3,4)
+    P(1:3,4) = R * -t; % TODO: why is there the minus? actually, its useless. because the code actually extracts the t from P(1:3,4)
     Ps{i} = P;
     pts(idx,:) = t';
     idx = idx + 1;
