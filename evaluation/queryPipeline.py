@@ -129,7 +129,7 @@ queryMode = 's10e'
 experimentName = 's10e-v4.2'
 shortlistModes = ['PV']
 #queryIds = [1,127,200,250,100,300,165,55,330,223] # medium query sub-dataset
-queryIds = [3,6,31,38,16,26]
+queryIds = [3,6,16,26,31,38,40]
 useTentativesInsteadOfInliers = False # should be False for thesis visualization
 for shortlistMode in shortlistModes:
     for queryId in queryIds:
