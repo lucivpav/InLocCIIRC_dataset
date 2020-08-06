@@ -45,9 +45,9 @@ def plotLocation(text, color, x, y, texts):
     textObject.set_path_effects([PathEffects.withStroke(linewidth=1, foreground='white')])
     texts.append(textObject)
 
-experimentName = 'HL1-v4.2-k2' # NOTE: adjust
-queryMode = 'HoloLens1' # NOTE: adjust
-plotEveryNthQueryId = 20 # NOTE: adjust (for s10e, it can be 1)
+experimentName = 's10e-v4.2' # NOTE: adjust
+queryMode = 's10e' # NOTE: adjust
+plotEveryNthQueryId = 1 # NOTE: adjust (for s10e, it can be 1)
 f = 1385.6406460551023 # this is just a focal length to render the top view. do not change
 datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
 evaluationDir = os.path.join(datasetDir, 'evaluation-' + experimentName)
@@ -125,7 +125,7 @@ for i in range(len(df)):
         continue
     posePath = os.path.join(evaluationDir, 'retrievedPoses', '%d.txt' % queryId)
     P = load_CIIRC_transformation(posePath)
-    # NOTE: assuming no legacy alignments were used
+    # NOTE: no need to worry about alignments in this script (the retrievedPoses are never relative to sweeps)
     t = -P[0:3,0:3] @ P[0:3,3]
     t = np.reshape(t, (3,1))
     querySpace = df['space'][i]
