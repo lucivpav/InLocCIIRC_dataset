@@ -2,6 +2,7 @@ import numpy as np
 import sys
 import os
 from scipy.spatial.transform import Rotation as R
+import matplotlib
 import matplotlib.pyplot as plt
 import scipy.io as sio
 import pandas as pd
@@ -38,13 +39,16 @@ def project(point, mag, sensorSize, rotationMatrix, translation):
 
 def plotLocation(text, color, x, y, texts):
     plt.plot(x, y, 'o', color=color, markersize=2)
-    textObject = plt.text(x, y+5, text, size=4, ha='center', va='center', color='black')
+    textObject = plt.text(x, y+5, text, size=4, ha='center', va='center', color='black',
+                            zorder=999, # make text on top of other elements
+                            )
     textObject.set_path_effects([PathEffects.withStroke(linewidth=1, foreground='white')])
     texts.append(textObject)
 
-experimentName = 's10e-v4.2' # NOTE: adjust
-queryMode = 's10e' # NOTE: adjust
-f = 1385.6406460551023
+experimentName = 'HL1-v4.2-k2' # NOTE: adjust
+queryMode = 'HoloLens1' # NOTE: adjust
+plotEveryNthQueryId = 20 # NOTE: adjust (for s10e, it can be 1)
+f = 1385.6406460551023 # this is just a focal length to render the top view. do not change
 datasetDir = '/Volumes/GoogleDrive/Můj disk/ARTwin/InLocCIIRC_dataset'
 evaluationDir = os.path.join(datasetDir, 'evaluation-' + experimentName)
 temporaryDir = os.path.join(evaluationDir, 'temporary')
@@ -100,6 +104,8 @@ for i in range(len(spaceNames)):
 df = pd.read_csv(queryDescriptionsPath, sep=' ')
 for i in range(len(df)):
     queryId = df['id'][i]
+    if queryId % plotEveryNthQueryId != 0:
+        continue
     posePath = os.path.join(queryDir, 'poses', '%d.txt' % queryId)
     P = load_CIIRC_transformation(posePath)
     t = -P[0:3,0:3] @ P[0:3,3]
@@ -115,8 +121,11 @@ for i in range(len(df)):
 df = pd.read_csv(retrievedQueriesPath, sep=' ')
 for i in range(len(df)):
     queryId = df['id'][i]
+    if queryId % plotEveryNthQueryId != 0:
+        continue
     posePath = os.path.join(evaluationDir, 'retrievedPoses', '%d.txt' % queryId)
     P = load_CIIRC_transformation(posePath)
+    # NOTE: assuming no legacy alignments were used
     t = -P[0:3,0:3] @ P[0:3,3]
     t = np.reshape(t, (3,1))
     querySpace = df['space'][i]
@@ -129,8 +138,21 @@ for i in range(len(df)):
 
 # try to make texts not overlap
 for i in range(len(spaceNames)):
-    plt.figure(i)
-    adjust_text(texts[i], arrowprops=dict(arrowstyle='-', color='black'), force_points=(5, 5*2.5))
+    fig = plt.figure(i)
+    adjust_text(texts[i], arrowprops=dict(arrowstyle='-', color='black', shrinkA=0.5), force_points=(5, 5*2.5))
+        # shrinkA: make arrow start closer to the text
+        # force_points: how long the arrow should be
+
+# change the arrow colors randomly to distinguish overlapping arrows
+#cmap = matplotlib.cm.get_cmap('Dark2')
+arrowColors = ['black', 'green', 'brown', 'magenta', 'cyan', 'olive', 'navy', 'purple', 'lime']
+for i in range(len(spaceNames)):
+    fig = plt.figure(i)
+    annotations = [child for child in fig.gca().get_children() if isinstance(child, matplotlib.text.Annotation)]
+    for annotation in annotations:
+        #color = cmap(np.random.rand())
+        color = arrowColors[np.random.randint(0,len(arrowColors))]
+        annotation.arrow_patch.set_color(color)
 
 # final save of images
 for i in range(len(spaceNames)):
