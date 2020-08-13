@@ -14,7 +14,7 @@ def saveFigure(fig, path, width, height):
     img = img.resize((width, height), resample=Image.NEAREST)
     img.save(path)
 
-def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentativesInsteadOfInliers):
+def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentativesInsteadOfInliers, topIdx):
     # shortlistMode is a list that can contain values of {'PV', 'PE'}
     # queryMode is one of {'s10e', 'HoloLens1', 'HoloLens2'}
     inlierColor = '#00ff00'
@@ -60,16 +60,16 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentati
     ImgListRecord = next((x for x in ImgList if x['queryname'] == queryName), None)
     topNname = ImgListRecord['topNname']
     if topNname.ndim == 1:
-        cutoutNames = [topNname[0]]
+        cutoutNames = [topNname[topIdx]]
     else:
-        cutoutNames = topNname[:,0]
+        cutoutNames = topNname[:,topIdx]
 
     if shortlistMode == 'PV':
         dbnamesId = ImgListRecord['dbnamesId'][0]
     elif shortlistMode == 'PE':
-        dbnamesId = 1
+        dbnamesId = 1+topIdx
 
-    synthPath = os.path.join(synthesizedDir, queryName, f'{dbnamesId}.synth.mat')
+    synthPath = os.path.join(synthesizedDir, queryName, f'{1}.synth.mat')
     synthData = sio.loadmat(synthPath, squeeze_me=True)
     inlierPath = os.path.join(denseInlierDir, queryName, f'{dbnamesId}.pnp_dense_inlier.mat')
     inlierData = sio.loadmat(inlierPath)
@@ -127,11 +127,12 @@ def renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentati
 
 queryMode = 's10e'
 experimentName = 's10e-v4.2'
-shortlistModes = ['PV']
+shortlistModes = ['PE']
 #queryIds = [1,127,200,250,100,300,165,55,330,223] # medium query sub-dataset
-queryIds = [3,6,16,26,31,38,40]
-useTentativesInsteadOfInliers = False # should be False for thesis visualization
+queryIds = [40]
+useTentativesInsteadOfInliers = True # should be False for thesis visualization
+topIdx = 6 # must be 0 for thesis visualization
 for shortlistMode in shortlistModes:
     for queryId in queryIds:
         print(f'[{shortlistMode}] Processing query {queryId}.jpg segment')
-        renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentativesInsteadOfInliers)
+        renderForQuery(queryId, shortlistMode, queryMode, experimentName, useTentativesInsteadOfInliers, topIdx)
